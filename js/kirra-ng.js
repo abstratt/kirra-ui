@@ -152,7 +152,8 @@ kirraNG.buildRowData = function(entity, instance, instanceActions) {
     var row = { 
         data: data, 
         raw: instance, 
-        enabledActions: enabledActions
+        enabledActions: enabledActions,
+        useDropdown: enabledActions.length > 2
     };
     return row;
 };
@@ -192,6 +193,7 @@ kirraNG.buildInstanceListController = function(entity) {
         	$scope.instances = instances;
             $scope.rows = kirraNG.buildTableData(entity, instances);
     	});
+
     	$scope.performInstanceAction = function(row, action) {
     	    var objectId = row.raw.objectId;
     	    
@@ -208,10 +210,11 @@ kirraNG.buildInstanceListController = function(entity) {
                     row.data = newRow.data;
                     row.raw = newRow.raw;
                     row.enabledActions = newRow.enabledActions;
+                    row.useDropdown = newRow.enabledActions.length > 2;
                 }
             );
     	};
-    	
+
     	$scope.performEntityAction = function(action) {
     	    if (action.parameters.length > 0) {
     	        $state.go(kirraNG.toState(entity.fullName, 'performEntityAction'), { actionName: action.name } );
@@ -225,24 +228,6 @@ kirraNG.buildInstanceListController = function(entity) {
             );
     	};
     	
-    	$scope.performInstanceAction = function(row, action) {
-    	    var objectId = row.raw.objectId;
-    	    
-    	    if (action.parameters.length > 0) {
-    	        $state.go(kirraNG.toState(entity.fullName, 'performInstanceAction'), { objectId: objectId, actionName: action.name } );
-    	        return;
-    	    }
-    	    instanceService.performInstanceAction(entity, objectId, action.name).then(
-    	        function() { return instanceService.get(entity, objectId); }
-            ).then(
-                function(instance) {
-                    var newRow = kirraNG.buildRowData(entity, instance, kirraNG.getInstanceActions(entity));
-                    row.data = newRow.data;
-                    row.raw = newRow.raw;
-                    row.enabledActions = newRow.enabledActions;
-                }
-            );
-    	};
     	$scope.create = function() {
     	    $state.go(kirraNG.toState(entity.fullName, 'create'));
     	};
