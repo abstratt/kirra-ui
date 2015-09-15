@@ -65,15 +65,16 @@
 		<div ng-repeat="edge in relatedData">
 			<h4>{{edge.relationship.label}}
 			    <span ng-if="edge.rows.length > 1" ng-show="edge.rows.length">({{edge.rows.length}})</span>
+		    </h4>
 			    <a ng-click="link(edge.relationship)"
 			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
 			    </a>
-		    </h4>
+		    
 			<div>
 			<div ng-repeat="row in edge.rows"> 
 			        <a ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
 				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)"
-				        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-minus"></span>
+				        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-minus" style="color: #D00020"></span>
 				    </a>
 			</div>
 			<span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationship.label}}</span>

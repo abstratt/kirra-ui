@@ -375,6 +375,19 @@ kirraNG.buildInstanceLinkController = function(entity) {
 	    instanceService.getRelationshipDomain(entity, objectId, relationship.name).then(function(candidates) {
 	        $scope.candidates = candidates;
 	    });
+	    $scope.findCandidatesFor = function(value) {
+            value = value.toUpperCase();
+            var domain = instanceService.getRelationshipDomain(entity, objectId, relationship.name);
+            if (value.trim() == '' || value.trim() == '.' || value.trim() == '*' || value.trim() == '%') {
+                return domain;
+            } 
+            return domain.then(function(instances) {
+                return kirraNG.filter(instances, 
+                	function(it) { return (it.shorthand.toUpperCase().indexOf(value) == 0); },
+                	function(it) { return it; }
+            	);
+            });
+        };
 	    $scope.onCandidateSelected =  function(selectedCandidate) {
             $scope.selected = selectedCandidate;
         };
