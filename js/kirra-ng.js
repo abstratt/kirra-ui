@@ -270,7 +270,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
 	    	return instance;
 		};
     
-        $scope.inputFields = kirraNG.buildInputFields(entity, false);
+        $scope.inputFields = kirraNG.buildInputFields(entity, creation);
         
         $scope.findCandidatesFor = function(relationship, value) {
             value = value.toUpperCase();
