@@ -264,7 +264,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
                 var relatedEntity = entitiesByName[relationship.typeRef.fullName];
                 domain = instanceService.query(relatedEntity);
             } else {
-                domain = instanceService.getRelationshipDomain(entity, $scope.objectId, relationship.name)
+                domain = instanceService.getRelationshipDomain(entity, $scope.objectId, relationship.name);
             }
             if (value.trim() == '' || value.trim() == '.' || value.trim() == '*' || value.trim() == '%') {
                 return domain;
@@ -368,11 +368,38 @@ kirraNG.buildActionController = function(entity) {
     return controller;
 };
 
+kirraNG.buildInstanceLinkController = function(entity) {
+	var controller = function($scope, $modalInstance, instanceService, objectId, relationship) {
+	    $scope.objectId = objectId;
+	    $scope.relationship = relationship;
+	    instanceService.getRelationshipDomain(entity, objectId, relationship.name).then(function(candidates) {
+	        $scope.candidates = candidates;
+	    });
+	    $scope.onCandidateSelected =  function(selectedCandidate) {
+            $scope.selected = selectedCandidate;
+        };
+        $scope.formatCandidate = function() {
+            if (!$scope.selected) {
+                return '';
+            }
+            return $scope.selected.shorthand;
+        };
+        $scope.ok = function() {
+        	$modalInstance.close($scope.selected);
+        };
+        $scope.cancel = function() {
+            $modalInstance.dismiss();
+        };
+	    
+	};
+	return controller;
+};
+
 
 kirraNG.buildInstanceShowController = function(entity) {
     var multipleRelationships = kirraNG.filter(entity.relationships, function(rel) { return rel.multiple && rel.userVisible; });
 
-    var controller = function($scope, $state, $stateParams, instanceService, $q) {
+    var controller = function($scope, $state, $stateParams, instanceService, $q, $modal) {
 
         var objectId = $stateParams.objectId;
 
@@ -403,6 +430,26 @@ kirraNG.buildInstanceShowController = function(entity) {
     	    instanceService.unlink(entity, objectId, relationship.name, otherId).then(function() {
     	        return instanceService.get(entity, objectId).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback);
     	    });
+    	};
+    	
+    	$scope.link = function(relationship) {
+    	    console.log('Requested link from ' + this.objectId + " via " + relationship.name);
+    	    var objectId = this.objectId;
+    	    var modal = $modal.open({
+		      animation: true,
+		      templateUrl: 'templates/link-instance.html',
+		      size: 'lg',
+		      controller: entity.fullName + 'InstanceLinkCtrl', 
+		      resolve: {
+		        objectId: function() { return objectId; },
+		        relationship: function() { return relationship; },
+		      }
+		    });
+		    modal.result.then(function(selected) {
+		        return instanceService.link(entity, objectId, relationship.name, selected.objectId);
+		    }).then(function() {
+		        return instanceService.get(entity, objectId);
+		    }).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback); 
     	};
 
     	$scope.performAction = function(action) {
@@ -435,7 +482,7 @@ kirraNG.buildInstanceShowController = function(entity) {
 
         instanceService.get(entity, objectId).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback);
     };
-    controller.$inject = ['$scope', '$state', '$stateParams', 'instanceService', '$q'];
+    controller.$inject = ['$scope', '$state', '$stateParams', 'instanceService', '$q', '$modal'];
     return controller;
 };
 
@@ -462,6 +509,9 @@ kirraNG.buildInstanceService = function() {
         };
         Instance.unlink = function(entity, objectId, relationshipName, relatedObjectId) {
             return $http.delete(entity.relatedInstanceUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName).replace('(relatedObjectId)', relatedObjectId), {});
+        };
+        Instance.link = function(entity, objectId, relationshipName, relatedObjectId) {
+            return $http.put(entity.relatedInstanceUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName).replace('(relatedObjectId)', relatedObjectId), {}).then(loadOne);
         };
         Instance.query = function (entity) {
             var extentUri = entity.extentUri;
@@ -515,10 +565,11 @@ repository.loadApplication(function(loadedApp) {
         
         angular.forEach(entitiesByName, function(entity, entityName) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
+            kirraModule.controller(entityName + 'InstanceLinkCtrl', kirraNG.buildInstanceLinkController(entity));                
             kirraModule.controller(entityName + 'InstanceEditCtrl', kirraNG.buildInstanceEditController(entity, 'edit'));
             kirraModule.controller(entityName + 'InstanceCreateCtrl', kirraNG.buildInstanceEditController(entity, 'create'));            
             kirraModule.controller(entityName + 'ActionCtrl', kirraNG.buildActionController(entity));
-            kirraModule.controller(entityName + 'InstanceListCtrl', kirraNG.buildInstanceListController(entity));        
+            kirraModule.controller(entityName + 'InstanceListCtrl', kirraNG.buildInstanceListController(entity));
         });
         kirraModule.factory('instanceService', kirraNG.buildInstanceService());
         

@@ -1,0 +1,40 @@
+<div class="container">
+	<div class="row">
+		<div class="col-sm-8">
+	        <legend>Add to {{relationship.label}}</legend>		
+			<div ng-show="candidates">
+				<form>
+					<div class="form-group">
+						<div>
+						    <label>New link:</label>
+						    <input
+						        type="text" class="form-control" 
+						        id="{{relationship.name}}"
+						        ng-model="selected"
+						        typeahead="shorthand as candidate.shorthand for candidate in candidates"
+						        typeahead-min-length="0"
+						        typeahead-input-formatter="formatCandidate()"
+						        typeahead-on-select="onCandidateSelected($item)">
+						</div>
+					</div>
+				</form>
+			</div>
+			<div ng-show="candidates == undefined">Loading...</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-8">
+	      <div class="btn-group" role="group">
+	          <button type="button" class="btn btn-default" ng-click="cancel()">
+	              Cancel
+	          </button>
+	          <button type="button" class="btn btn-default" ng-click="ok()">
+	              Add
+	          </button>
+	      </div>
+      	</div>
+	</div>
+	<div class="row">
+		<p></p>
+	</div>
+</div>
