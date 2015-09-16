@@ -514,6 +514,12 @@ kirraNG.buildInstanceShowController = function(entity) {
         $scope.edit = function() {
             $state.go(kirraNG.toState(entity.fullName, 'edit'), { objectId: objectId } );
     	};
+    	
+    	$scope.delete = function() {
+            instanceService.delete(entity, objectId).then(function() {
+            	$state.go(kirraNG.toState(entity.fullName, 'list'));
+    	    });
+    	};
 
     	$scope.unlink = function(relationship, otherId) {
     	    instanceService.unlink(entity, objectId, relationship.name, otherId).then(function() {
@@ -625,6 +631,9 @@ kirraNG.buildInstanceService = function() {
 	    };
 	    Instance.put = function (entity, instance) {
 	        return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), instance).then(loadOne);
+	    };
+	    Instance.delete = function (entity, objectId) {
+	        return $http.delete(entity.instanceUriTemplate.replace('(objectId)', objectId));
 	    };
 	    Instance.post = function (entity, instance) {
 	        return $http.post(entity.extentUri, instance).then(loadOne);

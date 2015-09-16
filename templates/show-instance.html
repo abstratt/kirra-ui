@@ -56,6 +56,11 @@
               <button type="button" class="btn btn-default" ng-click="edit()" ng-if="editable">
                   Edit
               </button>
+              <button type="button" class="btn btn-default" ng-click="delete()">
+                  Delete
+              </button>
+          </div>
+          <div class="btn-group" role="group">
               <button ng-repeat="action in enabledActions" type="button" class="btn btn-default" ng-click="performAction(action)">
                   {{action.label}}
               </button>
