@@ -1,8 +1,10 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-6">
-            <legend>{{entity.label}}</legend>
-        </div>            
+        <div class="col-sm-8">
+            <legend>{{entity.label}}: {{finder ? finder.label : 'All'}}</legend>
+        </div>
+	</div>
+    <div class="row">
         <div class="col-sm-6">            
             <div class="btn-group" role="group">
                 <button ng-if="entity.instantiable" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
@@ -10,7 +12,18 @@
                 {{action.label}}
                 </button>
             </div>
+            <div class="btn-group" role="group" ng-if="queries.length">    
+                <button ng-repeat="query in queries" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
+                {{query.label}}
+                </button>
+                <button type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
+                All
+                </button>
+            </div>
         </div>            
+    </div>
+    <div class="row">
+    	<p></p>
     </div>
     <div class="row">
         <div class="col-sm-8">    
