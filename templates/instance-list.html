@@ -1,26 +1,46 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-9">
             <legend>{{entity.label}}: {{finder ? finder.label : 'All'}}</legend>
         </div>
 	</div>
     <div class="row">
-        <div class="col-sm-6">            
-            <div class="btn-group" role="group">
-                <button ng-if="entity.instantiable" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
-                <button ng-repeat="action in entityActions" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
-                {{action.label}}
-                </button>
-            </div>
-            <div class="btn-group" role="group" ng-if="queries.length">    
-                <button ng-repeat="query in queries" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
-                {{query.label}}
-                </button>
-                <button type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
-                All
-                </button>
-            </div>
-        </div>            
+    	<div class="col-sm-5">
+    		<div class="row">    	
+	            <div class="btn-group" role="group" ng-if="queries.length">
+	                <button type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
+	                All
+	                </button>
+	                <button ng-repeat="query in queries" ng-if="query.parameters.length == 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
+	                {{query.label}}
+	                </button>
+	            </div>
+			</div>
+		    <div class="row">
+		    	<p></p>
+		    </div>
+    		<div class="row">    	
+	            <div class="btn-group" role="group">
+	                <button ng-if="entity.instantiable" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
+	                <button ng-repeat="action in entityActions" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
+	                {{action.label}}
+	                </button>
+	            </div>
+	        </div>
+        </div>
+        <div class="col-sm-5">
+			<div class="row">        
+	            <div class="btn-group" role="group" ng-if="queries.length">    
+	                <button ng-repeat="query in queries" ng-if="query.parameters.length > 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
+	                {{query.label}}
+	                </button>
+	            </div>
+			</div>	            
+			<div class="row"  ng-if="finder && finder.parameters.length">        
+	    	    <div ng-include src="'templates/operation-form.html'"></div>
+	    	    <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
+			</div>    	    
+    	</div>        
     </div>
     <div class="row">
     	<p></p>
@@ -67,7 +87,7 @@
             <div align="center" ng-if="instances == undefined">
                 <span class="info label">Loading...</span>
             </div>
-            <div ng-show="instances == false" class="text-info text-center">No instances found</div>
+            <div ng-if="instances.length == 0" class="text-info text-center">No instances found</div>
         </div>
     </div>
 </div>

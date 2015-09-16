@@ -198,25 +198,62 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.entity = entity;
         $scope.filtered = finderName != undefined;
         $scope.finder = finder;
+        $scope.inputFields = finder && finder.parameters;
+        $scope.parameterValues = finderArguments || {};
         $scope.entityName = entity.fullName;
         $scope.tableProperties = kirraNG.buildTableColumns(entity);
         $scope.actions = kirraNG.getInstanceActions(entity);
         $scope.instances = null;
         $scope.queries = kirraNG.getQueries(entity);
         $scope.entityActions = kirraNG.getEntityActions(entity);
+        $scope.applyFilter = function() {
+            var newStateParams = angular.merge({}, $state.params, { arguments: $scope.parameterValues });
+            $state.go($state.current.name, newStateParams, { reload: true });
+        };
         
-        if (finderName) {
-    	    instanceService.performQuery(entity, finderName, finderArguments)
+        var performQuery = function(arguments) {
+            console.log("Executing "+ finderName);
+            console.log(arguments);
+        	instanceService.performQuery(entity, finderName, arguments)
     	    	.then(function(queryResults) {
                     $scope.instances = queryResults;
                     $scope.rows = kirraNG.buildTableData(entity, queryResults);
                 });
+        }; 
+        
+        if (finder) {
+    	    performQuery(finderArguments);
         } else {
 	        instanceService.extent(entity).then(function(instances) { 
 	        	$scope.instances = instances;
 	            $scope.rows = kirraNG.buildTableData(entity, instances);
 	    	});
         }
+        
+        $scope.findCandidatesFor = function(parameter, value) {
+            value = value.toUpperCase();
+            var domain = instanceService.extent(entitiesByName[parameter.typeRef.fullName]);
+            if (value.trim() == '' || value.trim() == '.' || value.trim() == '*' || value.trim() == '%') {
+                return domain;
+            } 
+            return domain.then(function(instances) {
+                return kirraNG.filter(instances, 
+                	function(it) { return (it.shorthand.toUpperCase().indexOf(value) == 0); },
+                	function(it) { return it; }
+            	);
+            });
+        };
+        
+        $scope.onCandidateSelected =  function(selectedCandidate, inputField, $label) {
+            $scope.parameterValues[inputField.name] = [selectedCandidate];
+        };
+        
+        $scope.formatCandidate = function(inputField) {
+            if (!$scope.parameterValues || !$scope.parameterValues[inputField.name]) {
+                return '';
+            }
+            return $scope.parameterValues[inputField.name][0].shorthand;
+        };
         
         $scope.unfiltered = function() {
             $state.go(kirraNG.toState(entity.fullName, 'list'));
@@ -230,17 +267,24 @@ kirraNG.buildInstanceListController = function(entity) {
     	        return;
     	    }
     	    
-    	    instanceService.performInstanceAction(entity, objectId, action.name).then(
-    	        function() { return instanceService.get(entity, objectId); }
-            ).then(
-                function(instance) {
-                    var newRow = kirraNG.buildRowData(entity, instance, kirraNG.getInstanceActions(entity));
-                    row.data = newRow.data;
-                    row.raw = newRow.raw;
-                    row.enabledActions = newRow.enabledActions;
-                    row.useDropdown = newRow.enabledActions.length > 2;
-                }
-            );
+    	    var performResult = instanceService.performInstanceAction(entity, objectId, action.name);
+    	    if (finder) {
+    	        // better reload as the row may no longer satisfy the filter
+    	        performResult.then(function() { $state.go($state.current.name, $state.params, { reload: true }); });
+    	    } else {
+    	        // when showing all, update only the row affected
+	    	    performResult.then(
+	    	        function() { return instanceService.get(entity, objectId); }
+	            ).then(
+	                function(instance) {
+	                    var newRow = kirraNG.buildRowData(entity, instance, kirraNG.getInstanceActions(entity));
+	                    row.data = newRow.data;
+	                    row.raw = newRow.raw;
+	                    row.enabledActions = newRow.enabledActions;
+	                    row.useDropdown = newRow.enabledActions.length > 2;
+	                }
+	            );
+            }
     	};
 
     	$scope.performEntityAction = function(action) {
