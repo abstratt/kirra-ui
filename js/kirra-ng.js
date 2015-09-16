@@ -517,7 +517,7 @@ kirraNG.buildInstanceShowController = function(entity) {
     	
     	$scope.delete = function() {
             instanceService.delete(entity, objectId).then(function() {
-            	$state.go(kirraNG.toState(entity.fullName, 'list'));
+        		window.history.back();
     	    });
     	};
 
