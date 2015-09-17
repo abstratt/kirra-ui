@@ -210,6 +210,8 @@ kirraNG.buildInstanceListController = function(entity) {
             var newStateParams = angular.merge({}, $state.params, { arguments: $scope.parameterValues });
             $state.go($state.current.name, newStateParams, { reload: true });
         };
+        $scope.maxSize = 5;
+        $scope.totalItems = 34;
         
         var performQuery = function(arguments) {
             console.log("Executing "+ finderName);
@@ -518,7 +520,10 @@ kirraNG.buildInstanceShowController = function(entity) {
     	$scope.delete = function() {
             instanceService.delete(entity, objectId).then(function() {
         		window.history.back();
-    	    });
+    	    }).catch(function(error) {
+    	        console.log(error);
+    	        $scope.addAlert('danger', error.data.message);
+    	    });;
     	};
 
     	$scope.unlink = function(relationship, otherId) {
@@ -663,6 +668,15 @@ repository.loadApplication(function(loadedApp) {
             $scope.applicationName = application.applicationName;
             $scope.entities = loadedEntities;
             $scope.kirraNG = kirraNG;
+            $scope.alerts = [];
+
+   		    $scope.addAlert = function(type, message) {
+		        $scope.alerts.push({type: type, msg: message});
+		    };
+		
+		    $scope.closeAlert = function(index) {
+		        $scope.alerts.splice(index, 1);
+		    };
         });
         
         angular.forEach(entitiesByName, function(entity, entityName) {
