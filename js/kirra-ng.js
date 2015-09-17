@@ -679,7 +679,11 @@ repository.loadApplication(function(loadedApp) {
 		    };
 		    
 		    $scope.logError = function(error) {
-		        this.addAlert('danger', (error.data && error.data.message) ? error.data.message : error);
+		        var message = (error.data && error.data.message) || error.statusText;
+		        if (!message) {
+		            message = "Unexpected error (status code: " + error.status + ")";
+		        }
+		        this.addAlert('danger', message);
 		    };
         });
         
