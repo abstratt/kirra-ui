@@ -522,7 +522,7 @@ kirraNG.buildInstanceShowController = function(entity) {
         		window.history.back();
     	    }).catch(function(error) {
     	        console.log(error);
-    	        $scope.addAlert('danger', error.data.message);
+    	        $scope.logError(error);
     	    });;
     	};
 
@@ -676,6 +676,10 @@ repository.loadApplication(function(loadedApp) {
 		
 		    $scope.closeAlert = function(index) {
 		        $scope.alerts.splice(index, 1);
+		    };
+		    
+		    $scope.logError = function(error) {
+		        this.addAlert('danger', (error.data && error.data.message) ? error.data.message : error);
 		    };
         });
         

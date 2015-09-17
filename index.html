@@ -12,7 +12,7 @@
 </head>
 <body>
 <div ng-controller="KirraRepositoryCtrl">
-    <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="3000" ng-cloak>{{alert.msg}}</alert>
+    <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>{{alert.msg}}</alert>
     <div ng-include src="'templates/nav-bar.html'"></div>	
     <div ui-view></div>        
 </div>
