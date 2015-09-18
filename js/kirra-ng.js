@@ -666,6 +666,11 @@ repository.loadApplication(function(loadedApp) {
             $scope.entities = loadedEntities;
             $scope.kirraNG = kirraNG;
             $scope.alerts = [];
+            
+            $scope.entityLabel = function(entityName) {
+                var entity = entitiesByName[entityName];
+                return entity ? entity.label : entityName;
+            };
 
    		    $scope.addAlert = function(type, message) {
 		        $scope.alerts.push({type: type, msg: message});

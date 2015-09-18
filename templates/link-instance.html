@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-controller="KirraRepositoryCtrl">
 	<div class="row">
 		<div class="col-sm-8">
 	        <legend>Add to {{relationship.label}}</legend>		
@@ -6,7 +6,7 @@
 				<form>
 					<div class="form-group">
 						<div>
-						    <label>New link:</label>
+						    <label>{{entityLabel(relationship.typeRef.fullName)}}:</label>
 						    <input
 						        type="text" class="form-control" 
 						        id="{{relationship.name}}"
