@@ -520,9 +520,6 @@ kirraNG.buildInstanceShowController = function(entity) {
     	$scope.delete = function() {
             instanceService.delete(entity, objectId).then(function() {
         		window.history.back();
-    	    }).catch(function(error) {
-    	        console.log(error);
-    	        $scope.logError(error);
     	    });;
     	};
 
@@ -664,7 +661,7 @@ repository.loadApplication(function(loadedApp) {
         });
         kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router']);
         
-        kirraModule.controller('KirraRepositoryCtrl', function($scope) {
+        kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
             $scope.applicationName = application.applicationName;
             $scope.entities = loadedEntities;
             $scope.kirraNG = kirraNG;
@@ -685,7 +682,47 @@ repository.loadApplication(function(loadedApp) {
 		        }
 		        this.addAlert('danger', message);
 		    };
+		    
+		    this.handleError = function(error) {
+		        $scope.logError(error);
+		    };
+		    
+		    kirraNotification.addListener(this);
         });
+        
+        kirraModule.factory('kirraNotification', function($rootScope) {
+            var listeners = [];
+            var Notification = function () {
+                this.listeners = [];
+	            angular.extend(this);
+	        };
+	        Notification.addListener = function(listener) {
+	            listeners.push(listener);
+	        };
+	        Notification.logError = function(error) {
+	            angular.forEach(listeners, function(it) {
+	                it.handleError && it.handleError(error);
+	            });
+	        };
+	        Notification.logInfo = function(info) {
+	            angular.forEach(listeners, function(it) {
+	                it.handleInfo && it.handleInfo(info);
+	            });
+	        };
+	        return Notification;
+        });
+        
+        kirraModule.config(function($httpProvider) {
+	        $httpProvider.interceptors.push(function($q, kirraNotification) {
+			  return {
+			   'responseError': function(rejection) {
+			      kirraNotification.logError(rejection);
+			      return $q.reject(rejection);
+			    }
+			  };
+			});
+		});
+		        
         
         angular.forEach(entitiesByName, function(entity, entityName) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
