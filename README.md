@@ -6,18 +6,19 @@ application schema that is discovered using the back-end (Kirra-based) REST API.
 kirra-angular is not limited to basic CRUD. Besides basic UI elements for CRUD, kirra-angular also actions and queries,
 typical in richer domain models.
 
-For Kirra-based APIs, no custom code has to be written to produce a kirra-angular-based UI (for non-Kirra-based APIs, depending on how rich your API is, you should be able to plug a custom angular service to map
-between the Kirra-based format and your application's format).
+### How to use
 
+For Kirra-based APIs, no custom code has to be written to produce a kirra-angular-based UI. Just publish it to a static web server,
+and load it on the browser pointing it to your application back-end using the app-path or app-url query parameters:
 
+```
+http://myserver.org/kirra-angular?app-uri=<my-kirra-application-uri>
+```
 
-### License
+See URIs for the live demos below.
 
-kirra-angular is distributed under the Eclipse Public License. 
-
-### Dependencies
-
-kirra-angular requires angular, bootstrap, angular-bootstrap and angular-ui-router.
+For non-Kirra-based APIs, depending on how rich your API is, you should be able to plug a custom angular service to map
+between the Kirra-based format and your application's format.
 
 ### Live demos
 
@@ -79,4 +80,11 @@ When a query prescribes parameters, users must provide them before the query can
 
 ![Taxi Avalable](docs/images/charge-list-by-taxi.png)
 
+### License
+
+kirra-angular is distributed under the Eclipse Public License. 
+
+### Dependencies
+
+kirra-angular requires angular, bootstrap, angular-bootstrap and angular-ui-router.
 
