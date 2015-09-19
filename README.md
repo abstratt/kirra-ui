@@ -13,5 +13,4 @@ This is still in early development, many features are missing. You can try it ou
 
 ### Screenshots  
 
-
 ![Taxi All](docs/images/taxi-all.png)
