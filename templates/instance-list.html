@@ -38,7 +38,7 @@
 			</div>	            
 			<div class="row"  ng-if="finder && finder.parameters.length">        
 	    	    <div ng-include src="'templates/operation-form.html'"></div>
-	    	    <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
+	    	    <button type="button" class="btn btn-default" ng-click="applyFilter(true)">Apply</button>
 			</div>    	    
     	</div>        
     </div>
@@ -46,7 +46,7 @@
     	<p></p>
     </div>
 	<div class="row"> 
-        <div ng-show="instances.length > 0" class="col-sm-12">
+        <div ng-show="instances.length > 0" class="col-sm-10">
             <table  class="table table-striped" class="table table-striped">
                 <tr>
                     <th ng-repeat="property in tableProperties">{{::property.label}}</th>
@@ -88,12 +88,12 @@
         </div>
     </div>
 	<div class="row" ng-if="instances.length == 0" >
-		<div class="col-sm-12"> 
+		<div class="col-sm-10"> 
 	    	<div class="text-info text-center">No instances found</div>
     	</div>
     </div>
     <div class="row" ng-if="false && totalItems > maxSize">
-    	<div class="col-sm-12">
+    	<div class="col-sm-10">
 			<pagination total-items="totalItems" ng-model="bigCurrentPage" max-size="maxSize" boundary-links="true"></pagination>
 		</div>
     </div>
