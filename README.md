@@ -5,7 +5,7 @@ application schema that is discovered using the back-end (Kirra-based) REST API.
 
 ### Live demos
 
-This is still in early development, many features are missing. You can try it out against any Cloudfier-based application using URLs like these:
+This is still in early development, many features are missing. You can try it out against any [Cloudfier](http://cloudfier.com)-based application using URLs like these:
 
 * [Taxi Fleet](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet)
 * [Car Service](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv)
