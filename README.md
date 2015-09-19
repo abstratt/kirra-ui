@@ -22,20 +22,7 @@ The list view is a table showing (by default) all instances of that entity, with
 
 ![Taxi All](docs/images/taxi-list-all.png)
 
-#### Filtering
-
-Entities may define queries, which are also exposed in the list UI. 
-
-![Taxi Avalable](docs/images/taxi-list-available.png)
-
-#### Filtering (with parameters)
-
-When a query prescribe parameters, users must provide them before the query can be executed. 
-
-![Taxi Avalable](docs/images/charge-list-by-taxi.png)
-
-
-#### Detail view
+#### Details and edit views
 
 From a list view, you can open the details for any of the instances.
 The details view shows the basic data, child objects, relationships
@@ -45,9 +32,7 @@ and any (instance-level) actions available.
 
 ![Driver details](docs/images/driver-show.png)
 
-#### Edit view
-
-From the detail view, you can open the edit view to edit the user details.  
+From the detail view, you can open the edit view to edit the instance details.  
 
 ![Driver details](docs/images/driver-edit.png)
 
@@ -64,5 +49,16 @@ From the detail view, you can open the edit view to edit the user details.
 When an entity defines an entity-level action (a.k.a. static operation), the actions are exposed in the list view.
 
 ![New charge](docs/images/new-charge.png) 
+
+
+#### Filtering
+
+Entities may define queries, which are also exposed in the list UI. 
+
+![Taxi Avalable](docs/images/taxi-list-available.png)
+
+When a query prescribes parameters, users must provide them before the query can be executed. 
+
+![Taxi Avalable](docs/images/charge-list-by-taxi.png)
 
 
