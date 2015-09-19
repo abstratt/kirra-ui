@@ -1,7 +1,23 @@
 **kirra-angular** is a generic HTML5/JavaScript(Angular) client for any application exposing their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
 
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
-application schema that is discovered using the back-end (Kirra-based) REST API. For Kirra-based APIs, no custom has to be written to obtain a kirra-angular-based UI.
+application schema that is discovered using the back-end (Kirra-based) REST API. 
+
+kirra-angular is not limited to basic CRUD. Besides basic UI elements for CRUD, kirra-angular also actions and queries,
+typical in richer domain models.
+
+For Kirra-based APIs, no custom code has to be written to produce a kirra-angular-based UI (for non-Kirra-based APIs, depending on how rich your API is, you should be able to plug a custom angular service to map
+between the Kirra-based format and your application's format).
+
+
+
+### License
+
+kirra-angular is distributed under the Eclipse Public License. 
+
+### Dependencies
+
+kirra-angular requires angular, bootstrap, angular-bootstrap and angular-ui-router.
 
 ### Live demos
 
@@ -15,7 +31,7 @@ This is still in early development, many features are missing. You can try it ou
 
 ### Screenshots  
 
-#### Navigation and list views
+##### Navigation and list views
 
 For each top-level entity defined in the application, a menu entry is rendered at the top of the screen.
 This menu entry takes the user to the list view for the corresponding entity.
@@ -24,7 +40,7 @@ The list view is a table showing (by default) all instances of that entity, with
 
 ![Taxi All](docs/images/taxi-list-all.png)
 
-#### Details and edit views
+##### Details and edit views
 
 From a list view, you can open the details for any of the instances.
 The details view shows the basic data, child objects, relationships
@@ -39,21 +55,21 @@ From the detail view, you can open the edit view to edit the instance details.
 ![Driver details](docs/images/driver-edit.png)
 
 
-#### Instance actions
+##### Instance actions
 
  When an entity describes instance actions, they are triggerable from the details view, 
  and from the list view. 
 
 ![Driver booking a taxi](docs/images/driver-book.png)
 
-#### Entity actions
+##### Entity actions
 
 When an entity defines an entity-level action (a.k.a. static operation), the actions are exposed in the list view.
 
 ![New charge](docs/images/new-charge.png) 
 
 
-#### Filtering
+##### Filtering
 
 Entities may define queries, which are also exposed in the list UI. 
 
