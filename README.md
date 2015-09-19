@@ -13,4 +13,53 @@ This is still in early development, many features are missing. You can try it ou
 
 ### Screenshots  
 
-![Taxi All](docs/images/taxi-all.png)
+#### List view
+
+For each top-level entity, the default view is a table showing all instances of that entity, with no filtering.
+
+![Taxi All](docs/images/taxi-list-all.png)
+
+#### Filtering
+
+Entities may define queries, which are also exposed in the list UI. 
+
+![Taxi Avalable](docs/images/taxi-list-available.png)
+
+#### Filtering (with parameters)
+
+When a query prescribe parameters, users must provide them before the query can be executed. 
+
+![Taxi Avalable](docs/images/charge-list-by-taxi.png)
+
+
+#### Detail view
+
+From a list view, you can open the details for any of the instances.
+The details view shows the basic data, child objects, relationships
+and any (instance-level) actions available.  
+
+![Taxi details](docs/images/taxi-show.png)
+
+![Driver details](docs/images/driver-show.png)
+
+#### Edit view
+
+From the detail view, you can open the edit view to edit the user details.  
+
+![Driver details](docs/images/driver-edit.png)
+
+
+#### Instance actions
+
+ When an entity describes instance actions, they are triggerable from the details view, 
+ and from the list view. 
+
+![Driver booking a taxi](docs/images/driver-book.png)
+
+#### Entity actions
+
+When an entity defines an entity-level action (a.k.a. static operation), the actions are exposed in the list view.
+
+![New charge](docs/images/new-charge.png) 
+
+
