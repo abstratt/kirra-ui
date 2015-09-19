@@ -1,7 +1,7 @@
 **kirra-angular** is a generic HTML5/JavaScript(Angular) client for any application exposing their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
 
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
-application schema that is discovered using the back-end (Kirra-based) REST API.
+application schema that is discovered using the back-end (Kirra-based) REST API. For Kirra-based APIs, no custom has to be written to obtain a kirra-angular-based UI.
 
 This is still in early development, many features are missing. You can try it out against any Cloudfier-based application using URLs like these:
 
