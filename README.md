@@ -13,9 +13,12 @@ This is still in early development, many features are missing. You can try it ou
 
 ### Screenshots  
 
-#### List view
+#### Navigation and list views
 
-For each top-level entity, the default view is a table showing all instances of that entity, with no filtering.
+For each top-level entity defined in the application, a menu entry is rendered at the top of the screen.
+This menu entry takes the user to the list view for the corresponding entity.
+
+The list view is a table showing (by default) all instances of that entity, with no filtering.
 
 ![Taxi All](docs/images/taxi-list-all.png)
 
