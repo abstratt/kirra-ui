@@ -582,11 +582,23 @@ kirraNG.buildInstanceService = function() {
             });
             return instances;
         };
+        
+        var removeNulls = function(representation) {
+            if (!representation) {
+            	return {};
+            }
+            for (var slot in representation) {
+                if (representation[slot] == undefined || (typeof representation[slot] == 'string' && representation[slot] == false)) {
+                    delete representation[slot];
+                }
+            }
+            return representation;
+        };
         Instance.performInstanceAction = function(entity, objectId, actionName, arguments) {
-            return $http.post(entity.instanceActionUriTemplate.replace('(objectId)', objectId).replace('(actionName)', actionName), arguments || {});
+            return $http.post(entity.instanceActionUriTemplate.replace('(objectId)', objectId).replace('(actionName)', actionName), removeNulls(arguments));
         };
         Instance.performEntityAction = function(entity, actionName, arguments) {
-            return $http.post(entity.entityActionUriTemplate.replace('(actionName)', actionName), arguments || {});
+            return $http.post(entity.entityActionUriTemplate.replace('(actionName)', actionName), removeNulls(arguments));
         };	
         Instance.unlink = function(entity, objectId, relationshipName, relatedObjectId) {
             return $http.delete(entity.relatedInstanceUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName).replace('(relatedObjectId)', relatedObjectId), {});
@@ -616,13 +628,13 @@ kirraNG.buildInstanceService = function() {
 	        return $http.get(instanceUri).then(loadOne);
 	    };
 	    Instance.put = function (entity, instance) {
-	        return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), instance).then(loadOne);
+	        return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), removeNulls(instance)).then(loadOne);
 	    };
 	    Instance.delete = function (entity, objectId) {
 	        return $http.delete(entity.instanceUriTemplate.replace('(objectId)', objectId));
 	    };
 	    Instance.post = function (entity, instance) {
-	        return $http.post(entity.extentUri, instance).then(loadOne);
+	        return $http.post(entity.extentUri, removeNulls(instance)).then(loadOne);
 	    };
 	    Instance.getRelated = function (entity, objectId, relationshipName) {
             var relatedInstancesUri = entity.relatedInstancesUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName);
