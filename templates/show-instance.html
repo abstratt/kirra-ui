@@ -29,7 +29,7 @@
 		</div>
 		
 		<div ng-repeat="edge in childrenData">
-			<h4>{{edge.relationship.label}} <span class="badge">{{edge.rows.length}})</span></h4>
+			<h4>{{edge.relationship.label}} <span class="badge">{{edge.rows.length}}</span></h4>
 			
 			<ul ng-show="edge.rows.length > 0" class="inline-block">
 				<li ng-repeat="row in edge.rows" class="label label-inverse span2 text-center">{{row.raw.shorthand}}</li>

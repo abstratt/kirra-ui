@@ -594,6 +594,14 @@ kirraNG.buildInstanceService = function() {
             }
             return representation;
         };
+        
+        var removeNullsFromInstance = function(instance) {
+            if (!instance) {
+            	return {};
+            }
+            removeNulls(instance.values);
+            return instance;
+        };
         Instance.performInstanceAction = function(entity, objectId, actionName, arguments) {
             return $http.post(entity.instanceActionUriTemplate.replace('(objectId)', objectId).replace('(actionName)', actionName), removeNulls(arguments));
         };
@@ -628,13 +636,13 @@ kirraNG.buildInstanceService = function() {
 	        return $http.get(instanceUri).then(loadOne);
 	    };
 	    Instance.put = function (entity, instance) {
-	        return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), removeNulls(instance)).then(loadOne);
+	        return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), removeNullsFromInstance(instance)).then(loadOne);
 	    };
 	    Instance.delete = function (entity, objectId) {
 	        return $http.delete(entity.instanceUriTemplate.replace('(objectId)', objectId));
 	    };
 	    Instance.post = function (entity, instance) {
-	        return $http.post(entity.extentUri, removeNulls(instance)).then(loadOne);
+	        return $http.post(entity.extentUri, removeNullsFromInstance(instance)).then(loadOne);
 	    };
 	    Instance.getRelated = function (entity, objectId, relationshipName) {
             var relatedInstancesUri = entity.relatedInstancesUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName);
