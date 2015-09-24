@@ -70,15 +70,15 @@
 		<div ng-repeat="edge in relatedData">
 			<h4>{{edge.relationship.label}}
 			    <span class="badge">{{edge.rows.length}}</span>
-			    <a ng-click="link(edge.relationship)"
+			    <a ng-click="link(edge.relationship)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
 			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
 			    </a>
 		    </h4>
 			<div>
 			<div ng-repeat="row in edge.rows"> 
 			        <a ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
-				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)"
-				        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-minus" style="color: #D00020"></span>
+				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
+				        <span class="glyphicon glyphicon-minus" style="color: #D00020"></span>
 				    </a>
 			</div>
 			</div>
