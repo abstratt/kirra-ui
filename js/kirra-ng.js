@@ -41,7 +41,7 @@ kirraNG.find = function(arrayOrMap, filter) {
 };
 
 kirraNG.map = function(arrayOrMap, mapping) {
-    return arrayOrMap.filter(function() { return true; }, mapping);
+    return kirraNG.filter(arrayOrMap, function() { return true; }, mapping);
 };
 
 kirraNG.generateHtmlName = function(camelCase) {
@@ -87,6 +87,14 @@ kirraNG.buildTableColumns = function(entity) {
     });
     
     return tableColumns;
+};
+
+kirraNG.toggleDatePicker = function ($event, $scope, propertyName) { 
+    $event.stopPropagation();
+    if (!$scope.datePickerStatus) {
+        $scope.datePickerStatus = {};
+    }
+    $scope.datePickerStatus[propertyName] = !$scope.datePickerStatus[propertyName];
 };
 
 kirraNG.buildInputFields = function(entity, createMode) {
@@ -216,12 +224,18 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.instances = null;
         $scope.queries = kirraNG.getQueries(entity);
         $scope.entityActions = kirraNG.getEntityActions(entity);
+        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
         $scope.applyFilter = function() {
             var newStateParams = angular.merge({}, $state.params, { arguments: $scope.parameterValues, forceFetch: true });
             $state.go($state.current.name, newStateParams, { reload: true });
         };
         $scope.maxSize = 5;
         $scope.totalItems = 34;
+        angular.forEach(finderArguments, function (arg, name) {
+            if (typeof(arg) == 'object' && arg instanceof Date) {
+                finderArguments[name] = moment(arg).format("YYYY/MM/DD");
+            }
+        });
         
         var performQuery = function(arguments, forceFetch) {
             $scope.instances = undefined;
@@ -233,12 +247,19 @@ kirraNG.buildInstanceListController = function(entity) {
                 	missingArguments.splice(index, 1);
             	}
             });
-            if (forceFetch || missingArguments.length == 0) {
+            if (missingArguments.length == 0) {
 	        	instanceService.performQuery(entity, finderName, arguments)
-	    	    	.then(function(queryResults) {
-	                    $scope.instances = queryResults;
-	                    $scope.rows = kirraNG.buildTableData(entity, queryResults);
+	    	    	.then(function(instances) {
+	                    $scope.instances = instances;
+	                    $scope.rows = kirraNG.buildTableData(entity, instances);
+	                    $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
 	                });
+            } else {
+                var parameterLabels = kirraNG.map(missingArguments, function (parameterName) {
+            		var parameter = kirraNG.find(finder.parameters, function (p) { return p.name == parameterName; });
+                	return parameter.label; 
+            	});
+                $scope.resultMessage = "Before you can apply this filter, you must fill in: " + parameterLabels;
             }
         }; 
         
@@ -248,6 +269,7 @@ kirraNG.buildInstanceListController = function(entity) {
 	        instanceService.extent(entity).then(function(instances) { 
 	        	$scope.instances = instances;
 	            $scope.rows = kirraNG.buildTableData(entity, instances);
+	            $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
 	    	});
         }
         
@@ -334,6 +356,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         $scope.objectId = objectId;
         $scope.entity = entity;
         $scope.entityName = entity.fullName;
+        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
 
     	$scope.loadInstanceCallback = function(instance) { 
             $scope.formLabel = creation ? ('Creating ' + entity.label) : ('Editing ' + entity.label + ': ' + instance.shorthand); 
@@ -403,6 +426,7 @@ kirraNG.buildActionController = function(entity) {
         $scope.action = action;
         $scope.inputFields = action.parameters;
         $scope.parameterValues = {};
+        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
         
         $scope.findCandidatesFor = function(parameter, value) {
             var domain = instanceService.getParameterDomain(entity, $scope.objectId, actionName, parameter.name);
@@ -514,7 +538,6 @@ kirraNG.buildInstanceShowController = function(entity) {
     	};
     	
     	$scope.link = function(relationship) {
-    	    console.log('Requested link from ' + this.objectId + " via " + relationship.name);
     	    var objectId = this.objectId;
     	    var modal = $modal.open({
 		      animation: true,
@@ -572,13 +595,16 @@ kirraNG.buildInstanceService = function() {
         var Instance = function (data) {
             angular.extend(this, data);
         };
+        var buildInstanceFromData = function(instanceData) {
+            return new Instance(instanceData);
+        };
         var loadOne = function (response) {
-            return new Instance(response.data);
+            return buildInstanceFromData(response.data);
         };
         var loadMany = function (response) {
             var instances = [];
             angular.forEach(response.data.contents, function(data){
-                instances.push(new Instance(data));
+                instances.push(buildInstanceFromData(data));
             });
             return instances;
         };

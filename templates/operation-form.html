@@ -1,34 +1,43 @@
-	<form>
-		<div ng-repeat="inputField in inputFields track by $index" class="form-group">
-			<div ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
-				<div ng-if="typeKind == 'Primitive' && typeName != 'Memo'">
-				    <label>{{inputField.label}}:</label>
-				    <input type="text" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
-				</div>
-				<div ng-if="typeName == 'Memo'">
-				    <label>{{inputField.label}}:</label>
-				    <textarea class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
-				    </textarea>
-				</div>
-				<div ng-if="typeKind == 'Enumeration'">
-				    <label>{{inputField.label}}:</label>
-				    <p>
-				    <select ng-model="parameterValues[inputField.name]" class="form-control">
-						<option ng-repeat="literal in inputField.enumerationLiterals">{{literal}}</option>
+    <form>
+        <div ng-repeat="inputField in inputFields track by $index" class="form-group">
+            <div ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
+                <div ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date'">
+                    <label>{{inputField.label}}:</label>
+                    <input type="text" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
+                </div>
+                <div ng-if="typeName == 'Memo'">
+                    <label>{{inputField.label}}:</label>
+                    <textarea class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
+                    </textarea>
+                </div>
+                <div ng-if="typeKind == 'Primitive' && typeName == 'Date'">
+                    <label>{{inputField.label}}:</label>
+                    <p class="input-group">
+				    	<input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
+				    	<span class="input-group-btn">
+			                <button type="button" class="btn btn-default" ng-click="toggleDatePicker($event, inputField.name)"><i class="glyphicon glyphicon-calendar"></i></button>
+			            </span>
+                    </p>
+                </div>                
+                <div ng-if="typeKind == 'Enumeration'">
+                    <label>{{inputField.label}}:</label>
+                    <p>
+                    <select ng-model="parameterValues[inputField.name]" class="form-control">
+                        <option ng-repeat="literal in inputField.enumerationLiterals">{{literal}}</option>
                     </select>
                     </p>
-				</div>
-				<div ng-if="typeKind == 'Entity'">
-				    <label>{{inputField.label}}:</label>
-				    <input
-				        type="text" class="form-control" 
-				        id="{{inputField.name}}"
-				        ng-model="parameterValues[inputField.name].shorthand"
-				        typeahead-min-length="0"
-				        typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
-				        typeahead-input-formatter="formatCandidate(inputField)"
-				        typeahead-on-select="onCandidateSelected($item, inputField, $label)">
-				</div>
-			</div>
-		</div>
-	</form>
+                </div>
+                <div ng-if="typeKind == 'Entity'">
+                    <label>{{inputField.label}}:</label>
+                    <input
+                        type="text" class="form-control" 
+                        id="{{inputField.name}}"
+                        ng-model="parameterValues[inputField.name].shorthand"
+                        typeahead-min-length="0"
+                        typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
+                        typeahead-input-formatter="formatCandidate(inputField)"
+                        typeahead-on-select="onCandidateSelected($item, inputField, $label)">
+                </div>
+            </div>
+        </div>
+    </form>

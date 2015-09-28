@@ -7,10 +7,20 @@
 		<form>
 			<div ng-repeat="inputField in inputFields track by $index" class="form-group">
 				<div ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
-					<div ng-if="typeKind == 'Primitive' && typeName != 'Memo'">
+					<div ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date'">
 					    <label>{{inputField.label}}:</label>
 					    <input type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
 					</div>
+					<div ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
+					    <label>{{inputField.label}}:</label>
+					    <p class="input-group">
+					    	<input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
+					    	<span class="input-group-btn">
+				                <button type="button" class="btn btn-default" ng-click="toggleDatePicker($event, inputField.name)"><i class="glyphicon glyphicon-calendar"></i></button>
+				            </span>
+				    	</p>
+					</div>
+					
 					<div ng-if="typeKind == 'Enumeration'">
 					    <label>{{inputField.label}}:</label>
 					    <p>
