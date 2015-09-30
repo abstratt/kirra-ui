@@ -11,6 +11,13 @@
 					    <label>{{inputField.label}}:</label>
 					    <input type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
 					</div>
+					
+                <div ng-if="typeKind == 'Primitive' && typeName == 'Memo'">
+                    <label>{{inputField.label}}:</label>
+                    <textarea class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
+                    </textarea>
+                </div>
+					
 					<div ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
 					    <label>{{inputField.label}}:</label>
 					    <p class="input-group">

@@ -5,7 +5,7 @@
                     <label>{{inputField.label}}:</label>
                     <input type="text" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
                 </div>
-                <div ng-if="typeName == 'Memo'">
+                <div ng-if="typeKind == 'Primitive' && typeName == 'Memo'">
                     <label>{{inputField.label}}:</label>
                     <textarea class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
                     </textarea>
