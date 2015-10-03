@@ -146,7 +146,7 @@ kirraNG.buildViewDataAsArray = function(instance, properties, relationships) {
     });
     angular.forEach(relationships, function(relationship) {
         if (relationship.userVisible && !relationship.multiple) {
-            if (instance.links[relationship.name].length > 0) { 
+            if (instance.links[relationship.name] && instance.links[relationship.name].length > 0) { 
 	            fieldValues.push({
 		            shorthand: instance.links[relationship.name][0].shorthand,
 		            objectId: instance.links[relationship.name][0].objectId
@@ -525,7 +525,6 @@ kirraNG.buildInstanceShowController = function(entity) {
 	    	$scope.raw = instance;
 	    	$scope.enabledActions = kirraNG.getEnabledActions(instance, kirraNG.getInstanceActions(entity));
 	    	$scope.fieldValues = kirraNG.buildViewDataAsArray(instance, entity.properties, entity.relationships);
-	    	$scope.viewData = kirraNG.buildViewData(instance);
 	    	$scope.relatedData = [];
 	    	$scope.childrenData = [];
 	    	return instance;
