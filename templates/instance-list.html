@@ -54,20 +54,12 @@
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
                     <td ng-repeat="property in tableProperties" >
-                        <a ng-if="(property.name == entity.mnemonicProperty) || property.unique" ui-sref="{{kirraNG.toState(entityName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.data[property.name]}}</a>
-                        <div ng-if="property.name != entity.mnemonicProperty && !property.unique && property.typeRef.typeName != 'Boolean' && property.typeRef.typeName != 'Date' && property.typeRef.kind != 'Entity'">
-                            {{row.data[property.name]}}
+                        <div ng-if="((property.name != entity.mnemonicProperty) && !property.unique)"">
+                        	<div ng-include src="'templates/table-value.html'"></div>
                         </div>
-                        <div ng-if="property.name != entity.mnemonicProperty && !property.unique && property.typeRef.kind == 'Entity'">
-                            <a ui-sref="{{kirraNG.toState(property.typeRef.fullName, 'show')}}({ objectId: '{{row.data[property.name].objectId}}' })">{{row.data[property.name].shorthand}}</a>
-                        </div>
-                        <div ng-if="property.typeRef.typeName == 'Boolean' && row.data[property.name]">
-                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                        </div>
-                        <div ng-if="property.typeRef.typeName == 'Boolean' && !row.data[property.name]">-</div>
-                        <div ng-if="property.typeRef.typeName == 'Date'">
-                        	{{row.data[property.name] | date: 'yyyy/MM/dd'}}
-                        </div>
+                        <a ng-if="((property.name == entity.mnemonicProperty) || property.unique)" ui-sref="{{kirraNG.toState(entityName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">
+                        	<div ng-include src="'templates/table-value.html'"></div>
+                        </a>
                     </td>
                     <td ng-if="actions.length">
                         <div class="btn-group-vertical" dropdown role="group">

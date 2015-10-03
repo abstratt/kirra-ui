@@ -1,0 +1,15 @@
+<div ng-if="property.typeRef.typeName != 'Boolean' && property.typeRef.typeName != 'Date' && property.typeRef.kind != 'Entity'">
+    {{row.data[property.name]}}
+</div>
+<div ng-if="property.typeRef.kind == 'Entity'">
+    <a ui-sref="{{kirraNG.toState(property.typeRef.fullName, 'show')}}({ objectId: '{{row.data[property.name].objectId}}' })">
+    	{{row.data[property.name].shorthand}}
+	</a>
+</div>
+<div ng-if="property.typeRef.typeName == 'Boolean' && row.data[property.name]">
+    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+</div>
+<div ng-if="property.typeRef.typeName == 'Boolean' && !row.data[property.name]">-</div>
+<div ng-if="property.typeRef.typeName == 'Date'">
+	{{row.data[property.name] | date: 'yyyy/MM/dd'}}
+</div>
