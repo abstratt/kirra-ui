@@ -15,6 +15,8 @@ var entitiesByName;
 var entityNames;
 var kirraModule;
 
+var foo = function(it) { console.log('I was called'); console.log(it); return "foo"; }; 
+
 kirraNG.capitalize = function(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -127,34 +129,37 @@ kirraNG.buildViewFields = function(entity) {
     return viewFields;
 };
 
-kirraNG.buildFieldValues = function(instance, properties, relationships, initializable, editable) {
-    // need to preserve order to allow retrieval by index
-    var fieldValues = [];
-    angular.forEach(properties, function(property) {
-        if (property.userVisible && (!initializable || property.initializable) && (!editable || property.editable)) {
-        	fieldValues.push(instance.values[property.name]);
-    	}
-    });
-    angular.forEach(relationships, function(relationship) {
-        if (relationship.userVisible && !relationship.multiple && (!initializable || relationship.initializable) && (!editable || relationship.editable)) {
-            if (instance.links[relationship.name]) { 
-	            fieldValues.push(instance.links[relationship.name][0].shorthand);
-        	} else {
-        	    fieldValues.push(undefined);    
-        	}
-    	}
-    });
-    return fieldValues;
-};
-
 kirraNG.getEnabledActions = function(instance, instanceActions) {
     return kirraNG.filter(instanceActions, function(action) { 
         return instance.disabledActions[action.name] == undefined;
     });
 };
 
-kirraNG.buildRowData = function(entity, instance, instanceActions) {
-    var enabledActions = kirraNG.getEnabledActions(instance, instanceActions);
+// this version is required to workaround a weird issue were using an object (as the basic buildViewData does) would cause all sorts of problems
+kirraNG.buildViewDataAsArray = function(instance, properties, relationships) {
+    // need to preserve order to allow retrieval by index
+    var fieldValues = [];
+    angular.forEach(properties, function(property) {
+        if (property.userVisible) {
+        	fieldValues.push(instance.values[property.name]);
+    	}
+    });
+    angular.forEach(relationships, function(relationship) {
+        if (relationship.userVisible && !relationship.multiple) {
+            if (instance.links[relationship.name].length > 0) { 
+	            fieldValues.push({
+		            shorthand: instance.links[relationship.name][0].shorthand,
+		            objectId: instance.links[relationship.name][0].objectId
+		        });
+        	} else {
+        	    fieldValues.push({});    
+        	}
+    	}
+    });
+    return fieldValues;
+};
+
+kirraNG.buildViewData = function(instance) {
     var data = {};
     angular.forEach(instance.values, function(value, name) {
         data[name] = value;
@@ -165,7 +170,13 @@ kirraNG.buildRowData = function(entity, instance, instanceActions) {
             objectId: link[0].objectId
         } : {}
     });
-    
+    return data;
+};
+
+
+kirraNG.buildRowData = function(entity, instance, instanceActions) {
+    var enabledActions = kirraNG.getEnabledActions(instance, instanceActions);
+    var data = kirraNG.buildViewData(instance);
     var row = { 
         data: data, 
         raw: instance, 
@@ -513,7 +524,8 @@ kirraNG.buildInstanceShowController = function(entity) {
     	$scope.loadInstanceCallback = function(instance) { 
 	    	$scope.raw = instance;
 	    	$scope.enabledActions = kirraNG.getEnabledActions(instance, kirraNG.getInstanceActions(entity));
-	    	$scope.fieldValues = kirraNG.buildFieldValues(instance, entity.properties, entity.relationships);
+	    	$scope.fieldValues = kirraNG.buildViewDataAsArray(instance, entity.properties, entity.relationships);
+	    	$scope.viewData = kirraNG.buildViewData(instance);
 	    	$scope.relatedData = [];
 	    	$scope.childrenData = [];
 	    	return instance;

@@ -4,34 +4,15 @@
 
 <div ng-show="raw">
 		<legend>{{entity.label}}: {{raw.shorthand}}</legend>
-		<div ng-repeat="fieldValue in fieldValues track by $index" ng-init="field = viewFields[$index]">
-			<div ng-init="typeName = field.typeRef.typeName; typeKind = field.typeRef.kind">
-				<div class="span4 display-values" ng-if="typeKind != 'Entity' && typeName != 'Memo' && typeName != 'Boolean' && typeName != 'Date'" class="input-xlarge uneditable-input">
+		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]">		
+			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind">
+				<div class="span4 display-values" class="input-xlarge uneditable-input">
 				    <strong class="span2 display-label">{{field.label}}:</strong>
-					<p>{{fieldValue}}</p>
-				</div>
-				<div class="span4 display-values" ng-if="typeKind != 'Entity' && typeName == 'Memo'" class="span12">
-					<strong class="span2 display-label">{{field.label}}:</strong>
-					<p ng-repeat="line in fieldValue.split('\n')">{{line}}</p>
-				</div>
-				<div class="span3 display-values" ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="span9">
-				    <strong class="span2 display-label">{{field.label}}:
-				    <span class="glyphicon {{fieldValue ? 'glyphicon-ok' : 'glyphicon-remove'}}" aria-hidden="true"></span>
-				    </strong>
-				    <p></p>
-				</div>
-				<div class="span3 display-values" ng-if="typeKind == 'Primitive' && typeName == 'Date'" class="span9">
-				    <strong class="span2 display-label">{{field.label}}:</strong>
-					<p>{{fieldValue | date: 'yyyy/MM/dd'}}</p>
-				</div>
-				<div class="span4 display-values" ng-if="typeKind == 'Entity'" class="input-xlarge uneditable-input" ng-init="relatedObjectId = raw.links[field.name][0].objectId">
-				    <strong class="span2 display-label">{{field.label}}:</strong>
-					<p ng-if="fieldValue"><a ui-sref="{{kirraNG.toState(field.typeRef.fullName, 'show')}}({ objectId: '{{relatedObjectId}}' })">{{fieldValue}}</a></p>
-					<p ng-if="!fieldValue">N/A</p>
+					<p ng-include src="'templates/table-value.html'" ></p>
 				</div>
 			</div>
 		</div>
-		
+
 		<div ng-repeat="edge in childrenData">
 			<h4>{{edge.relationship.label}} <span class="badge">{{edge.rows.length}}</span></h4>
 			

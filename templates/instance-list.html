@@ -53,13 +53,15 @@
                     <th ng-if="actions.length">Actions</td>
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
-                    <td ng-repeat="property in tableProperties" >
-                        <div ng-if="((property.name != entity.mnemonicProperty) && !property.unique)"">
-                        	<div ng-include src="'templates/table-value.html'"></div>
+                    <td ng-repeat="property in tableProperties" ng-init="fieldData = row.data[property.name]">
+                        <div ng-init="field = property">
+	                        <div ng-if="((property.name != entity.mnemonicProperty) && !property.unique)"">
+	                        	<div ng-include src="'templates/table-value.html'"></div>
+	                        </div>
+	                        <a ng-if="((property.name == entity.mnemonicProperty) || property.unique)" ui-sref="{{kirraNG.toState(entityName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">
+	                        	<div ng-include src="'templates/table-value.html'"></div>
+	                        </a>
                         </div>
-                        <a ng-if="((property.name == entity.mnemonicProperty) || property.unique)" ui-sref="{{kirraNG.toState(entityName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">
-                        	<div ng-include src="'templates/table-value.html'"></div>
-                        </a>
                     </td>
                     <td ng-if="actions.length">
                         <div class="btn-group-vertical" dropdown role="group">

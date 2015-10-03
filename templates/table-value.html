@@ -1,15 +1,15 @@
-<div ng-if="property.typeRef.typeName != 'Boolean' && property.typeRef.typeName != 'Date' && property.typeRef.kind != 'Entity'">
-    {{row.data[property.name]}}
+<div ng-if="field.typeRef.typeName != 'Boolean' && field.typeRef.typeName != 'Date' && field.typeRef.kind != 'Entity'">
+    {{fieldData}}
 </div>
-<div ng-if="property.typeRef.kind == 'Entity'">
-    <a ui-sref="{{kirraNG.toState(property.typeRef.fullName, 'show')}}({ objectId: '{{row.data[property.name].objectId}}' })">
-    	{{row.data[property.name].shorthand}}
+<div ng-if="field.typeRef.kind == 'Entity'" ng-init="relatedObjectId = fieldData.objectId">
+    <a ui-sref="{{kirraNG.toState(field.typeRef.fullName, 'show')}}({ objectId: '{{ relatedObjectId }}' })">
+    	{{fieldData.shorthand}}
 	</a>
 </div>
-<div ng-if="property.typeRef.typeName == 'Boolean' && row.data[property.name]">
+<div ng-if="field.typeRef.typeName == 'Boolean' && fieldData">
     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 </div>
-<div ng-if="property.typeRef.typeName == 'Boolean' && !row.data[property.name]">-</div>
-<div ng-if="property.typeRef.typeName == 'Date'">
-	{{row.data[property.name] | date: 'yyyy/MM/dd'}}
+<div ng-if="field.typeRef.typeName == 'Boolean' && !fieldData">-</div>
+<div ng-if="field.typeRef.typeName == 'Date'">
+	{{fieldData | date: 'yyyy/MM/dd'}}
 </div>
