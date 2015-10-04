@@ -16,19 +16,15 @@
 		<div ng-repeat="edge in childrenData">
 			<h4>{{edge.relationship.label}} <span class="badge">{{edge.rows.length}}</span></h4>
 			
-			<ul ng-show="edge.rows.length > 0" class="inline-block">
-				<li ng-repeat="row in edge.rows" class="label label-inverse span2 text-center">{{row.raw.shorthand}}</li>
-				
-				<div ng-repeat="row in edge.rows"> 
-				    <p>
-					    <a ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
-					    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)">
+			    <div class="list-group">
+					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
+					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-11">
+					    </div>
+					    <a sref="$state.get()" ng-click="unlink(edge.relationship, child.raw.objectId)"  class="col-sm-1">
 					        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-remove"></span>
 					    </a>
-				    </p>
+					</div>
 				</div>
-				
-			</ul>
 			<span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationship.label}}</span>
 		</div>
 		
