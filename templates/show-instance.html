@@ -14,7 +14,13 @@
 		</div>
 
 		<div ng-repeat="edge in childrenData">
-			<h4>{{edge.relationship.label}} <span class="badge">{{edge.rows.length}}</span></h4>
+			<h4>
+				{{edge.relationship.label}}
+				<span class="badge">{{edge.rows.length}}</span>
+				<a ng-click="createChild(edge.relationship)" ng-if="!edge.relationship.readOnly">
+			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
+			    </a>
+			</h4>
 			
 			    <div class="list-group">
 					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 

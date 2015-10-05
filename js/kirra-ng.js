@@ -232,7 +232,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.entityName = entity.fullName;
         $scope.tableProperties = kirraNG.buildTableColumns(entity);
         $scope.actions = kirraNG.getInstanceActions(entity);
-        $scope.instances = null;
+        $scope.instances = undefined;
         $scope.queries = kirraNG.getQueries(entity);
         $scope.entityActions = kirraNG.getEntityActions(entity);
         $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
@@ -264,7 +264,10 @@ kirraNG.buildInstanceListController = function(entity) {
 	                    $scope.instances = instances;
 	                    $scope.rows = kirraNG.buildTableData(entity, instances);
 	                    $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
-	                });
+	                }).catch(function(error) {
+	                	$scope.resultMessage = error.data.message;
+	                	$scope.clearAlerts();
+	            	});
             } else {
                 var parameterLabels = kirraNG.map(missingArguments, function (parameterName) {
             		var parameter = kirraNG.find(finder.parameters, function (p) { return p.name == parameterName; });
@@ -360,9 +363,18 @@ kirraNG.buildInstanceListController = function(entity) {
 
 kirraNG.buildInstanceEditController = function(entity, mode) {
     var creation = mode == 'create';
+    var childCreation = mode == 'createChild';
     var editing = mode == 'edit';
     var controller = function($scope, $state, $stateParams, instanceService, $q) {
         var objectId = $stateParams.objectId;
+        
+        if (childCreation) {
+            var relationship = entity.relationships[$state.params.relationshipName];
+            var parentEntity = entity;
+            var parentObjectId = objectId;
+            objectId = undefined;
+            entity = entitiesByName[relationship.typeRef.fullName];
+        }
 
         $scope.objectId = objectId;
         $scope.entity = entity;
@@ -382,7 +394,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         
         $scope.findCandidatesFor = function(relationship, value) {
             var domain;
-            if (creation) {
+            if (creation || childCreation) {
                 var relatedEntity = entitiesByName[relationship.typeRef.fullName];
                 domain = instanceService.extent(relatedEntity);
             } else {
@@ -414,11 +426,16 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
                 instanceService.post(entity, newRepresentation).then(function(created) {
                     $state.go(kirraNG.toState(entity.fullName, 'show'), { objectId: created.objectId } ); 
             	});
-            } else {
+            } else if (editing) {
                 instanceService.put(entity, newRepresentation).then(function() { window.history.back(); });
-            } 
+            } else if (childCreation) {
+                newRepresentation.links[relationship.opposite] = [ { objectId: parentObjectId, scopeName: parentEntity.name, scopeNamespace: parentEntity.namespace } ];
+                instanceService.post(entity, newRepresentation).then(function(created) {
+                    $state.go(kirraNG.toState(parentEntity.fullName, 'show'), { objectId: parentObjectId } ); 
+            	});
+            }
     	};
-        instanceService.get(entity, creation ? '_template' : objectId).then($scope.loadInstanceCallback);
+        instanceService.get(entity, editing ? objectId : '_template').then($scope.loadInstanceCallback);
     };
     controller.$inject = ['$scope', '$state', '$stateParams', 'instanceService', '$q'];
     return controller;
@@ -567,6 +584,10 @@ kirraNG.buildInstanceShowController = function(entity) {
 		    }).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback); 
     	};
 
+    	$scope.createChild = function(relationship) {
+    	    $state.go(kirraNG.toState(entity.fullName, 'createChild'), { objectId: this.objectId, relationshipName: relationship.name } );
+    	};
+
     	$scope.performAction = function(action) {
     	    if (action.parameters.length > 0) {
     	        $state.go(kirraNG.toState(entity.fullName, 'performInstanceAction'), { objectId: objectId, actionName: action.name } );
@@ -583,7 +604,7 @@ kirraNG.buildInstanceShowController = function(entity) {
         	    var edgeData = { 
         	        relationship: relationship, 
         	        relatedEntity: entitiesByName[relationship.typeRef.fullName], 
-        	        rows: null 
+        	        rows: undefined 
     	        };
     	        var edgeList = relationship.style == 'CHILD' ? $scope.childrenData : $scope.relatedData;
     	        edgeList.push(edgeData);
@@ -729,6 +750,10 @@ repository.loadApplication(function(loadedApp) {
 		        this.addAlert('danger', message);
 		    };
 		    
+		    $scope.clearAlerts = function() {
+		        $scope.alerts = [];
+		    };
+		    
 		    this.handleError = function(error) {
 		        $scope.logError(error);
 		    };
@@ -774,7 +799,8 @@ repository.loadApplication(function(loadedApp) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
             kirraModule.controller(entityName + 'InstanceLinkCtrl', kirraNG.buildInstanceLinkController(entity));                
             kirraModule.controller(entityName + 'InstanceEditCtrl', kirraNG.buildInstanceEditController(entity, 'edit'));
-            kirraModule.controller(entityName + 'InstanceCreateCtrl', kirraNG.buildInstanceEditController(entity, 'create'));            
+            kirraModule.controller(entityName + 'InstanceCreateCtrl', kirraNG.buildInstanceEditController(entity, 'create'));
+            kirraModule.controller(entityName + 'InstanceCreateChildCtrl', kirraNG.buildInstanceEditController(entity, 'createChild'));            
             kirraModule.controller(entityName + 'ActionCtrl', kirraNG.buildActionController(entity));
             kirraModule.controller(entityName + 'InstanceListCtrl', kirraNG.buildInstanceListController(entity));
         });
@@ -808,6 +834,12 @@ repository.loadApplication(function(loadedApp) {
 	                controller: entityName + 'InstanceCreateCtrl',
 	                templateUrl: 'templates/edit-instance.html'
 	            });
+	            $stateProvider.state(kirraNG.toState(entityName, 'createChild'), {
+	                url: "/" + entityName + "/:objectId/createChild/:relationshipName",
+	                controller: entityName + 'InstanceCreateChildCtrl',
+	                templateUrl: 'templates/edit-instance.html',
+	                params: { objectId: { value: undefined }, relationshipName: { value: undefined } }
+	            });	            
 	            $stateProvider.state(kirraNG.toState(entityName, 'performInstanceAction'), {
 	                url: "/" + entityName + "/:objectId/perform/:actionName",
 	                controller: entityName + 'ActionCtrl',
