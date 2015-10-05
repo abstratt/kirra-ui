@@ -1,9 +1,17 @@
+<div ng-include src="'templates/header.html'"></div>
 <div class="container-fluid">
 <div class="row">
 <div class="col-sm-8">
 
 <div ng-show="raw">
-		<legend>{{entity.label}}: {{raw.shorthand}}</legend>
+		<legend>
+		{{entity.label}}: {{raw.shorthand}}
+		<span ng-if="parentLink">under
+			<a ui-sref="{{kirraNG.toState(parentRelationship.typeRef.fullName, 'show')}}({ objectId: '{{parentLink.objectId}}' })">
+				{{parentRelationship.label}} {{parentLink.shorthand}}
+			</a>
+		</span>
+		</legend>
 		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]">		
 			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind">
 				<div class="span4 display-values" class="input-xlarge uneditable-input">
@@ -26,8 +34,11 @@
 					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
 					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-11">
 					    </div>
-					    <a sref="$state.get()" ng-click="unlink(edge.relationship, child.raw.objectId)"  class="col-sm-1">
-					        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-remove"></span>
+					    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.objectId)"  class="col-sm-1">
+					        <span class="glyphicon glyphicon-remove"></span>
+					    </a>
+					    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })"  class="col-sm-1">
+					        <span class="glyphicon glyphicon-edit"></span>
 					    </a>
 					</div>
 				</div>

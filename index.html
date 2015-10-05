@@ -11,21 +11,20 @@
   <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
   <script src="js/kirra-ng.js"></script>
 </head>
-<body>
-
-
-<div ng-controller="KirraRepositoryCtrl">
+<body ng-controller="KirraBaseCtrl">
     <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>{{alert.msg}}</alert>
-    <div ng-include src="'templates/nav-bar.html'"></div>	
-    <div ui-view></div>        
-</div>
 
-<div ng-if="false" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; width: 230px; height: 100px; text-align: center;">
-      <p align="center">Loading application...</p>
-      <img src="images/loading66.gif">
-    </div>
-</div>
+	<div ng-controller="KirraRepositoryCtrl">
+	    <div ng-include src="'templates/nav-bar.html'"></div>
+	    <div ui-view></div>        
+	</div>
+	
+	<div ng-if="false" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
+	    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; margin: auto; width: 230px; height: 100px; text-align: center;">
+	      <p align="center">Loading application...</p>
+	      <img src="images/loading66.gif">
+	    </div>
+	</div>
 
 </body>
 </html>

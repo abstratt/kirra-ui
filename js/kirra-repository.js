@@ -49,7 +49,7 @@ kirra.template = {
     },
     
     /* Generic helper for performing Ajax invocations. */
-    load: function (uri, callback, slotName) {
+    load: function (uri, callback, slotName, errorCalback) {
         var me = this;
         var request = new XMLHttpRequest();
         console.log(uri);
@@ -60,13 +60,11 @@ kirra.template = {
             if (request.readyState !== 4) {
                 return;
             }
-            if (request.responseText) {
-                var parsedResponse = JSON.parse(request.responseText);
-		        if (slotName) {
-		            me[slotName] = parsedResponse;
-	            }
-            	callback(parsedResponse);
-        	}
+            var parsedResponse = request.responseText && JSON.parse(request.responseText);
+	        if (slotName && request.status == 200) {
+	            me[slotName] = parsedResponse;
+            }
+        	callback(parsedResponse, request.status);
         };
         request.send();
     }
