@@ -798,10 +798,10 @@ kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
 
     
 repository.loadApplication(function(loadedApp, status) {
-    if (status && status != 200) {
+    if (status != 200) {
         console.log(loadedApp);
         kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
-	        $scope.applicationName = "Application not found, URL: " + applicationUrl;
+	        $scope.applicationName = "Application not found or not available: " + applicationUrl;
 	        $scope.entities = [];
 	    });
         angular.element(document).ready(function() {
