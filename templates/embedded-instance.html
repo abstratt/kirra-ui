@@ -1,7 +1,8 @@
 <div ng-show="child">
 		<div class="row" ng-repeat="(fieldName, fieldData) in childFieldValues" ng-init="field = childFields[fieldName] || childRelationships[fieldName]" ng-show="field.style != 'PARENT'">
 		    <strong class="display-label col-sm-2">{{field.label}}:</strong>
-			<div class="col-sm-10 display-values" ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind" ng-include src="'templates/table-value.html'">
+			<div class="col-sm-10 display-values">
+				<ka-data slot="field" slot-data="fieldData"></ka-data>
 			</div>
 		</div>
 </div>

@@ -16,7 +16,7 @@
 			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind">
 				<div class="span4 display-values" class="input-xlarge uneditable-input">
 				    <strong class="span2 display-label">{{field.label}}:</strong>
-					<p ng-include src="'templates/table-value.html'" ></p>
+				    <ka-data slot="field" slot-data="fieldData"></ka-data>
 				</div>
 			</div>
 		</div>

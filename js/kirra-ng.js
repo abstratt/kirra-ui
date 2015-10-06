@@ -832,6 +832,34 @@ repository.loadApplication(function(loadedApp, status) {
 	        };
 	    });
 	    
+	    kirraModule.directive('kaData', function() {
+		    return {
+		        restrict: 'E',
+		        scope: {
+			        slot: '=',
+			        slotData: '=',
+			        objectId: '='
+			    },
+			    link: function (scope, element) {
+			        var slot = scope.slot;
+			        var slotData = scope.slotData;
+			        var objectId = scope.objectId;
+			        scope.slotTypeName = slot.typeRef.typeName;
+			        scope.slotTypeKind = slot.typeRef.kind;
+			        if (slot.mnemonic || slot.unique) {
+			            if (objectId) {
+					        scope.targetObjectId = objectId;
+					        scope.targetStateName = kirraNG.toState(slot.owner.fullName, 'show');
+				        }
+			        } else if (slot.typeRef.kind == 'Entity') {
+				        scope.targetObjectId = slotData && slotData.objectId ;
+				        scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
+			        }
+			    },
+		        templateUrl: 'templates/ka-data.html'
+		    };
+		});
+	    
         angular.forEach(entitiesByName, function(entity, entityName) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
             kirraModule.controller(entityName + 'InstanceLinkCtrl', kirraNG.buildInstanceLinkController(entity));                

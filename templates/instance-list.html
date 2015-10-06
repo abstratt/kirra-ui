@@ -55,14 +55,7 @@
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
                     <td ng-repeat="property in tableProperties">
-                        <div ng-init="field = property; fieldData = row.data[property.name]">
-	                        <div ng-if="((property.name != entity.mnemonicProperty) && !property.unique)"">
-	                        	<div ng-include src="'templates/table-value.html'"></div>
-	                        </div>
-	                        <a ng-if="((property.name == entity.mnemonicProperty) || property.unique)" ui-sref="{{kirraNG.toState(entityName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">
-	                        	<div ng-include src="'templates/table-value.html'"></div>
-	                        </a>
-                        </div>
+                    	<ka-data slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
                     </td>
                     <td ng-if="actions.length">
                         <div class="btn-group-vertical" dropdown role="group">
