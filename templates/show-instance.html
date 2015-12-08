@@ -25,8 +25,8 @@
 			<h4>
 				{{edge.relationship.label}}
 				<span class="badge">{{edge.rows.length}}</span>
-				<a ng-click="createChild(edge.relationship)" ng-if="!edge.relationship.readOnly">
-			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
+				<a ng-click="createChild(edge.relationship)" ng-if="edge.relationship.editable">
+			        <span class="glyphicon glyphicon-plus"></span>
 			    </a>
 			</h4>
 			
