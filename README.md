@@ -30,6 +30,12 @@ This is still in early development, many features are missing. You can try it ou
 * [Expenses](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses)
 * [Ship It](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
 
+### Video
+
+This video shows kirra-angular in action:
+
+[![Video](http://img.youtube.com/vi/twHCj-WddB8/0.jpg)](https://www.youtube.com/watch?v=twHCj-WddB8&t=117)
+
 ### Screenshots  
 
 ##### Navigation and list views
