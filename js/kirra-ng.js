@@ -620,13 +620,34 @@ kirraNG.buildInstanceShowController = function(entity) {
     	$scope.loadInstanceRelatedCallback = function(relationship) {
     	    var relationshipTasks = [];
         	angular.forEach(multipleRelationships, function(relationship) {
-        	    var edgeData = { 
+        	    var edgeData = {
+        	        relationshipLabel: relationship.label, 
         	        relationship: relationship, 
         	        relatedEntity: entitiesByName[relationship.typeRef.fullName], 
         	        rows: undefined 
     	        };
+    	        var edgeDatas = [];
+    	        if (edgeData.relatedEntity.concrete) {
+    	            edgeDatas.push(edgeData);
+    	        }
+    	        if (edgeData.relatedEntity.subTypes && edgeData.relatedEntity.subTypes.length > 0) {
+    	            angular.forEach(edgeData.relatedEntity.subTypes, function (subType) {
+    	                var subEntity = entitiesByName[subType.fullName];
+    	                if (subEntity.concrete) {
+	    	                edgeDatas.push({
+	    	                    relationshipLabel: relationship.label + " ( " + subType.typeName + " )",
+	    	        	        relationship: relationship, 
+	        			        relatedEntity: subEntity, 
+	        	    		    rows: undefined 
+	    	                });
+    	                }
+    	            });
+    	        }
+    	        
     	        var edgeList = relationship.style == 'CHILD' ? $scope.childrenData : $scope.relatedData;
-    	        edgeList.push(edgeData);
+    	        angular.forEach(edgeDatas, function(edgeData) {
+        	        edgeList.push(edgeData);
+    	        });
         	    var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
         	        edgeData.rows = kirraNG.buildTableData(entity, relatedInstances);
         	    });

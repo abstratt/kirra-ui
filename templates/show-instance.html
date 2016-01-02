@@ -23,7 +23,7 @@
 
 		<div ng-repeat="edge in childrenData">
 			<h4>
-				{{edge.relationship.label}}
+				{{edge.relationshipLabel}}
 				<span class="badge">{{edge.rows.length}}</span>
 				<a ng-click="createChild(edge.relationship)" ng-if="edge.relationship.editable">
 			        <span class="glyphicon glyphicon-plus"></span>
@@ -37,7 +37,7 @@
 					    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.objectId)"  class="col-sm-1">
 					        <span class="glyphicon glyphicon-remove"></span>
 					    </a>
-					    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })"  class="col-sm-1">
+					    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(row.raw.typeRef.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })"  class="col-sm-1">
 					        <span class="glyphicon glyphicon-edit"></span>
 					    </a>
 					</div>
@@ -66,7 +66,7 @@
     </div>
     <div class="row">
 		<div ng-repeat="edge in relatedData">
-			<h4>{{edge.relationship.label}}
+			<h4>{{edge.relationshipLabel}}
 			    <span class="badge">{{edge.rows.length}}</span>
 			    <a ng-click="link(edge.relationship)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
 			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
@@ -74,7 +74,7 @@
 		    </h4>
 			<div>
 			<div ng-repeat="row in edge.rows"> 
-			        <a ui-sref="{{kirraNG.toState(edge.relationship.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
+			        <a ui-sref="{{kirraNG.toState(row.raw.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
 				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
 				        <span class="glyphicon glyphicon-minus" style="color: #D00020"></span>
 				    </a>
