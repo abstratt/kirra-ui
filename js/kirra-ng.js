@@ -59,6 +59,7 @@ kirraNG.generateEntityServiceName = function(entity) {
 };
 
 kirraNG.toState = function(entityFullName, kind) {
+    console.log({ entityFullName: entityFullName, kind: kind }); 
     return entityFullName.replace('.', ':') + ":" + kind;
 };
 
@@ -376,7 +377,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
 	        var relationship = entity.relationships[$stateParams.relationshipName];
             $scope.parentEntity = entity;
 	        $scope.relationshipName = $stateParams.relationshipName;
-    		$scope.entity = actualEntity = entitiesByName[relationship.typeRef.fullName];
+    		$scope.entity = actualEntity = entitiesByName[$stateParams.relatedEntity];
     		$scope.childObjectId = $stateParams.childObjectId;
         } else {
             $scope.entity = actualEntity = entity;
@@ -569,6 +570,7 @@ kirraNG.buildInstanceShowController = function(entity) {
         $scope.viewFields = kirraNG.buildViewFields(entity);
 
         $scope.edit = function() {
+            console.log(entity);
             $state.go(kirraNG.toState(entity.fullName, 'edit'), { objectId: objectId } );
     	};
     	
@@ -603,8 +605,8 @@ kirraNG.buildInstanceShowController = function(entity) {
 		    }).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback); 
     	};
 
-    	$scope.createChild = function(relationship) {
-    	    $state.go(kirraNG.toState(entity.fullName, 'createChild'), { objectId: this.objectId, relationshipName: relationship.name } );
+    	$scope.createChild = function(relationship, relatedEntity) {
+    	    $state.go(kirraNG.toState(entity.fullName, 'createChild'), { objectId: this.objectId, relationshipName: relationship.name, relatedEntity: relatedEntity.fullName } );
     	};
 
     	$scope.performAction = function(action) {
@@ -624,7 +626,7 @@ kirraNG.buildInstanceShowController = function(entity) {
         	        relationshipLabel: relationship.label, 
         	        relationship: relationship, 
         	        relatedEntity: entitiesByName[relationship.typeRef.fullName], 
-        	        rows: undefined 
+        	        rows: [] 
     	        };
     	        var edgeDatas = [];
     	        if (edgeData.relatedEntity.concrete) {
@@ -635,10 +637,10 @@ kirraNG.buildInstanceShowController = function(entity) {
     	                var subEntity = entitiesByName[subType.fullName];
     	                if (subEntity.concrete) {
 	    	                edgeDatas.push({
-	    	                    relationshipLabel: relationship.label + " ( " + subType.typeName + " )",
+	    	                    relationshipLabel: relationship.label + " (" + subType.typeName + ")",
 	    	        	        relationship: relationship, 
 	        			        relatedEntity: subEntity, 
-	        	    		    rows: undefined 
+	        	    		    rows: [] 
 	    	                });
     	                }
     	            });
@@ -649,7 +651,14 @@ kirraNG.buildInstanceShowController = function(entity) {
         	        edgeList.push(edgeData);
     	        });
         	    var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
-        	        edgeData.rows = kirraNG.buildTableData(entity, relatedInstances);
+        	        // the list of related instances may be heterogeneous - need to find the proper edgeData object to inject the results into
+        	        var tableData = kirraNG.buildTableData(entity, relatedInstances);
+        	        angular.forEach(tableData, function(rowData) {
+        	            var edgeData = kirraNG.find(edgeDatas, function(edgeData) {
+        	                return edgeData.relatedEntity.fullName == rowData.raw.typeRef.fullName;
+        	            });
+        	            edgeData.rows.push(rowData);
+        	        });
         	    });
         	    relationshipTasks.push(next);
         	});
@@ -928,7 +937,7 @@ repository.loadApplication(function(loadedApp, status) {
 	                params: { childObjectId: { value: undefined }, objectId: { value: undefined }, relationshipName: { value: undefined } }
 	            });
 	            $stateProvider.state(kirraNG.toState(entityName, 'createChild'), {
-	                url: "/" + entityName + "/:objectId/createChild/:relationshipName",
+	                url: "/" + entityName + "/:objectId/createChild/:relationshipName/as/:relatedEntity",
 	                controller: entityName + 'InstanceCreateChildCtrl',
 	                templateUrl: 'templates/edit-instance.html',
 	                params: { objectId: { value: undefined }, relationshipName: { value: undefined } }
