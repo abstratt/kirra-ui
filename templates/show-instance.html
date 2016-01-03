@@ -31,13 +31,18 @@
 			</h4>
 			    <div class="list-group">
 					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
-					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-11"></div>
-					    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName + '@' + child.raw.objectId)"  class="col-sm-1">
-					        <span class="glyphicon glyphicon-remove"></span>
-					    </a>
-					    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })"  class="col-sm-1">
-					        <span class="glyphicon glyphicon-edit"></span>
-					    </a>
+					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-10"></div>
+					    <div class="col-sm-2">
+						    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName + '@' + child.raw.objectId)">
+						        <span class="glyphicon glyphicon-remove"></span>
+						    </a>
+						    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
+						        <span class="glyphicon glyphicon-edit"></span>
+						    </a>
+						    <a ng-if="edge.relatedEntity.topLevel" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'show')}}({ objectId: '{{child.raw.objectId}}' })">
+						        <span class="glyphicon glyphicon-link"></span>
+						    </a>
+					    </div>
 					</div>
 				</div>
 			<span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationshipLabel}}</span>

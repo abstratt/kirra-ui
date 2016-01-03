@@ -59,7 +59,6 @@ kirraNG.generateEntityServiceName = function(entity) {
 };
 
 kirraNG.toState = function(entityFullName, kind) {
-    console.log({ entityFullName: entityFullName, kind: kind }); 
     return entityFullName.replace('.', ':') + ":" + kind;
 };
 
@@ -160,16 +159,21 @@ kirraNG.buildViewDataAsArray = function(instance, properties, relationships) {
     return fieldValues;
 };
 
-kirraNG.buildViewData = function(instance) {
+kirraNG.buildViewData = function(entity, instance) {
     var data = {};
-    angular.forEach(instance.values, function(value, name) {
-        data[name] = value;
+    angular.forEach(entity.properties, function(property, name) {
+        if (property.userVisible && instance.values[name] != undefined) {
+        	data[name] = instance.values[name];
+    	}
     });
-    angular.forEach(instance.links, function(link, name) {
-        data[name] = link.length > 0 ? {
-            shorthand: link[0].shorthand,
-            objectId: link[0].objectId
-        } : {}
+    angular.forEach(entity.relationships, function(relationship, name) {
+        if (relationship.userVisible && !relationship.multiple) {
+	        var link = instance.links[name];
+	        data[name] = link && link.length > 0 ? {
+	            shorthand: link[0].shorthand,
+	            objectId: link[0].objectId
+	        } : {}
+        }
     });
     return data;
 };
@@ -177,7 +181,7 @@ kirraNG.buildViewData = function(instance) {
 
 kirraNG.buildRowData = function(entity, instance, instanceActions) {
     var enabledActions = kirraNG.getEnabledActions(instance, instanceActions);
-    var data = kirraNG.buildViewData(instance);
+    var data = kirraNG.buildViewData(entity, instance);
     var row = { 
         data: data, 
         raw: instance, 
@@ -187,10 +191,13 @@ kirraNG.buildRowData = function(entity, instance, instanceActions) {
     return row;
 };
 
-kirraNG.buildTableData = function(entity, instances) {
+kirraNG.buildTableData = function(instances, fixedEntity) {
 	var rows = [];
-	var instanceActions = kirraNG.getInstanceActions(entity);
+	var fixedInstanceActions = fixedEntity && kirraNG.getInstanceActions(fixedEntity);
 	angular.forEach(instances, function(instance){
+	    // we compute the entity every time to allow for heterogeneous collections
+	    var entity = fixedEntity || entitiesByName[instance.typeRef.fullName];
+    	var instanceActions = fixedInstanceActions || kirraNG.getInstanceActions(entity);
         rows.push(kirraNG.buildRowData(entity, instance, instanceActions));
     });
     return rows;
@@ -264,7 +271,7 @@ kirraNG.buildInstanceListController = function(entity) {
 	        	instanceService.performQuery(entity, finderName, arguments)
 	    	    	.then(function(instances) {
 	                    $scope.instances = instances;
-	                    $scope.rows = kirraNG.buildTableData(entity, instances);
+	                    $scope.rows = kirraNG.buildTableData(instances, entity);
 	                    $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
 	                }).catch(function(error) {
 	                	$scope.resultMessage = error.data.message;
@@ -284,7 +291,7 @@ kirraNG.buildInstanceListController = function(entity) {
         } else {
 	        instanceService.extent(entity).then(function(instances) { 
 	        	$scope.instances = instances;
-	            $scope.rows = kirraNG.buildTableData(entity, instances);
+	            $scope.rows = kirraNG.buildTableData(instances, entity);
 	            $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
 	    	});
         }
@@ -652,7 +659,7 @@ kirraNG.buildInstanceShowController = function(entity) {
     	        });
         	    var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
         	        // the list of related instances may be heterogeneous - need to find the proper edgeData object to inject the results into
-        	        var tableData = kirraNG.buildTableData(entity, relatedInstances);
+        	        var tableData = kirraNG.buildTableData(relatedInstances);
         	        angular.forEach(tableData, function(rowData) {
         	            var edgeData = kirraNG.find(edgeDatas, function(edgeData) {
         	                return edgeData.relatedEntity.fullName == rowData.raw.typeRef.fullName;
