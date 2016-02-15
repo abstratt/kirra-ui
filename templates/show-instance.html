@@ -33,7 +33,7 @@
 					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
 					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-10"></div>
 					    <div class="col-sm-2">
-						    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName + '@' + child.raw.objectId)">
+						    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
 						        <span class="glyphicon glyphicon-remove"></span>
 						    </a>
 						    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
@@ -71,14 +71,14 @@
 		<div ng-repeat="edge in relatedData">
 			<h4>{{edge.relationshipLabel}}
 			    <span class="badge">{{edge.rows.length}}</span>
-			    <a ng-click="link(edge.relationship)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
+			    <a ng-click="link(edge.relationship, edge.relatedEntity)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
 			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
 			    </a>
 		    </h4>
 			<div>
 			<div ng-repeat="row in edge.rows"> 
 			        <a ui-sref="{{kirraNG.toState(row.raw.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
-				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
+				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.typeRef.fullName, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
 				        <span class="glyphicon glyphicon-minus" style="color: #D00020"></span>
 				    </a>
 			</div>

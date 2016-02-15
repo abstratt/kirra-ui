@@ -303,14 +303,15 @@ kirraNG.buildInstanceListController = function(entity) {
         };
         
         $scope.onCandidateSelected =  function(selectedCandidate, inputField, $label) {
-            $scope.parameterValues[inputField.name] = [selectedCandidate];
+            $scope.parameterValues[inputField.name] = selectedCandidate;
         };
         
         $scope.formatCandidate = function(inputField) {
             if (!$scope.parameterValues || !$scope.parameterValues[inputField.name]) {
                 return '';
             }
-            return $scope.parameterValues[inputField.name][0].shorthand;
+            var value = $scope.parameterValues[inputField.name]; 
+            return (value && value.shorthand) || value;
         };
         
         $scope.unfiltered = function() {
@@ -359,7 +360,10 @@ kirraNG.buildInstanceListController = function(entity) {
     	};
     	
     	$scope.performQuery = function(finder) {
-	        $state.go(kirraNG.toState(entity.fullName, 'performQuery'), { finderName: finder.name } );
+	        $state.go(kirraNG.toState(entity.fullName, 'performQuery'), { 
+	            finderName: finder.name, 
+	            /* reset when switching*/ arguments: {} 
+            });
     	};
     	
     	$scope.create = function() {
@@ -419,14 +423,15 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         };
         
         $scope.onCandidateSelected =  function(selectedCandidate, inputField, $label) {
-            $scope.linkValues[inputField.name] = [selectedCandidate];
+            $scope.linkValues[inputField.name] = selectedCandidate;
         };
         
         $scope.formatCandidate = function(inputField) {
             if (!$scope.linkValues || !$scope.linkValues[inputField.name]) {
                 return '';
             }
-            return $scope.linkValues[inputField.name][0].shorthand;
+            var value = $scope.linkValues[inputField.name];
+            return (value && value.shorthand) || value;
         };
         
         $scope.cancel = function() {
@@ -487,7 +492,8 @@ kirraNG.buildActionController = function(entity) {
             if (!$scope.parameterValues || !$scope.parameterValues[inputField.name]) {
                 return '';
             }
-            return $scope.parameterValues[inputField.name].shorthand;
+            var value = $scope.parameterValues[inputField.name];
+            return (value && value.shorthand) || value;
         };
         
         $scope.cancel = function() {
@@ -527,7 +533,8 @@ kirraNG.buildInstanceLinkController = function(entity) {
             if (!$scope.selected) {
                 return '';
             }
-            return $scope.selected.shorthand;
+            var value = $scope.selected;
+            return (value && value.shorthand) || value;
         };
         $scope.ok = function() {
         	$modalInstance.close($scope.selected);
@@ -587,13 +594,13 @@ kirraNG.buildInstanceShowController = function(entity) {
     	    });
     	};
     	
-    	$scope.unlink = function(relationship, otherId) {
-    	    instanceService.unlink(entity, objectId, relationship.name, otherId).then(function() {
+    	$scope.unlink = function(relationship, relatedEntityName, otherId) {
+    	    instanceService.unlink(entity, objectId, relationship.name, relatedEntityName + '@' + otherId).then(function() {
     	        return instanceService.get(entity, objectId).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback);
     	    });
     	};
     	
-    	$scope.link = function(relationship) {
+    	$scope.link = function(relationship, relatedEntity) {
     	    var objectId = this.objectId;
     	    var modal = $modal.open({
 		      animation: true,
@@ -606,7 +613,7 @@ kirraNG.buildInstanceShowController = function(entity) {
 		      }
 		    });
 		    modal.result.then(function(selected) {
-		        return instanceService.link(entity, objectId, relationship.name, selected.objectId);
+		        return instanceService.link(entity, objectId, relationship.name, relatedEntity.fullName + '@' + selected.objectId);
 		    }).then(function() {
 		        return instanceService.get(entity, objectId);
 		    }).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback); 
