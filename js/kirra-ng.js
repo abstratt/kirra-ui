@@ -146,10 +146,10 @@ kirraNG.buildViewDataAsArray = function(instance, properties, relationships) {
     });
     angular.forEach(relationships, function(relationship) {
         if (relationship.userVisible && !relationship.multiple) {
-            if (instance.links[relationship.name] && instance.links[relationship.name].length > 0) { 
+            if (instance.links[relationship.name]) { 
 	            fieldValues.push({
-		            shorthand: instance.links[relationship.name][0].shorthand,
-		            objectId: instance.links[relationship.name][0].objectId
+		            shorthand: instance.links[relationship.name].shorthand,
+		            objectId: instance.links[relationship.name].objectId
 		        });
         	} else {
         	    fieldValues.push({});    
@@ -169,9 +169,9 @@ kirraNG.buildViewData = function(entity, instance) {
     angular.forEach(entity.relationships, function(relationship, name) {
         if (relationship.userVisible && !relationship.multiple) {
 	        var link = instance.links[name];
-	        data[name] = link && link.length > 0 ? {
-	            shorthand: link[0].shorthand,
-	            objectId: link[0].objectId
+	        data[name] = link ? {
+	            shorthand: link.shorthand,
+	            objectId: link.objectId
 	        } : {}
         }
     });
@@ -451,7 +451,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
                 instanceService.put(actualEntity, newRepresentation).then(function() { window.history.back(); });
             } else if (childCreation) {
                 var relationship = $scope.parentEntity.relationships[$scope.relationshipName];
-                newRepresentation.links[relationship.opposite] = [ { objectId: $scope.objectId, scopeName: $scope.parentEntity.name, scopeNamespace: $scope.parentEntity.namespace } ];
+                newRepresentation.links[relationship.opposite] = { objectId: $scope.objectId, scopeName: $scope.parentEntity.name, scopeNamespace: $scope.parentEntity.namespace };
                 instanceService.post(actualEntity, newRepresentation).then(function(created) {
                     $state.go(kirraNG.toState($scope.parentEntity.fullName, 'show'), { objectId: $scope.objectId } ); 
             	});
@@ -576,7 +576,7 @@ kirraNG.buildInstanceShowController = function(entity) {
 	    	$scope.relatedData = [];
 	    	$scope.childrenData = [];
 	    	if (!entity.topLevel) {
-	    		$scope.parentLink = instance.links[$scope.parentRelationship.name][0];
+	    		$scope.parentLink = instance.links[$scope.parentRelationship.name];
     		}
 	    	return instance;
 		};
