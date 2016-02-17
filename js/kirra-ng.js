@@ -894,6 +894,7 @@ repository.loadApplication(function(loadedApp, status) {
         
 	    kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
 	        $scope.applicationName = application.applicationName;
+	        $scope.applicationUrl = window.location + '/?app-uri=' + application.uri;
 	        $scope.entities = loadedEntities;
 	        $scope.kirraNG = kirraNG;
 	        

@@ -23,7 +23,7 @@
                     <label>{{inputField.label}}:</label>
                     <p>
                     <select ng-model="parameterValues[inputField.name]" class="form-control">
-                        <option ng-repeat="literal in inputField.enumerationLiterals">{{literal}}</option>
+                        <option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
                     </select>
                     </p>
                 </div>
