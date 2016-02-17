@@ -58,16 +58,13 @@
                     	<ka-data slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
                     </td>
                     <td ng-if="actions.length">
-                        <div class="btn-group-vertical" dropdown role="group">
-                            <button ng-if="!row.useDropdown" ng-repeat="action in row.enabledActions" type="button" class="btn btn-default btn-sm btn-block" ng-click="performInstanceAction(row, action)">
-                            {{action.label}}
-                            </button>
-                            <button ng-if="row.useDropdown" type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
+                        <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
+                            <button ng-disabled="!row.actionEnablement.useDropdown" type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
                             Actions
-                            <span class="caret"></span>
+                            <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
                             </button>
-                            <ul ng-if="row.useDropdown" class="dropdown-menu" role="menu">
-                                <li ng-repeat="action in row.enabledActions" role="menuitem"><a ng-click="performInstanceAction(row, action)">{{action.label}}</a></li>
+                            <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">
+                                <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceAction(row, action)">{{action.label}}</a></li>
                             </ul>
                         </div>
                     </td>

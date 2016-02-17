@@ -131,7 +131,7 @@ kirraNG.buildViewFields = function(entity) {
 
 kirraNG.getEnabledActions = function(instance, instanceActions) {
     return kirraNG.filter(instanceActions, function(action) { 
-        return instance.disabledActions[action.name] == undefined;
+        return instance.disabledActions && instance.disabledActions[action.name] == undefined;
     });
 };
 
@@ -180,15 +180,33 @@ kirraNG.buildViewData = function(entity, instance) {
 
 
 kirraNG.buildRowData = function(entity, instance, instanceActions) {
-    var enabledActions = kirraNG.getEnabledActions(instance, instanceActions);
     var data = kirraNG.buildViewData(entity, instance);
     var row = { 
         data: data, 
-        raw: instance, 
-        enabledActions: enabledActions,
-        useDropdown: enabledActions.length > 2
+        raw: instance,
+        actionEnablement: kirraNG.buildActionEnablement(instanceActions)
     };
     return row;
+};
+
+kirraNG.buildActionEnablement = function(instanceActions) {
+    return {
+	    enabledActions: [],
+        useDropdown: true,
+        loaded: false,
+        load: function(instance) {
+            this.enabledActions = kirraNG.getEnabledActions(instance, instanceActions);
+            this.useDropdown = this.enabledActions.length > 0;
+            this.loaded = true;
+            return this; 
+        },
+        reset: function() {
+            this.loaded = false;
+            enabledActions = [];
+            useDropdown = true;
+            return this;
+        }
+    };
 };
 
 kirraNG.buildTableData = function(instances, fixedEntity) {
@@ -248,6 +266,15 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.applyFilter = function() {
             var newStateParams = angular.merge({}, $state.params, { arguments: $scope.parameterValues, forceFetch: true });
             $state.go($state.current.name, newStateParams, { reload: true });
+        };
+        $scope.updateActionEnablement = function(row) {
+            instanceService.get(entity, row.raw.objectId)
+    	    	.then(function(loaded) {
+    	    	    row.actionEnablement.load(loaded);
+                }).catch(function(error) {
+                	$scope.resultMessage = error.data.message;
+                	$scope.clearAlerts();
+            	});
         };
         $scope.maxSize = 5;
         $scope.totalItems = 34;
@@ -339,8 +366,7 @@ kirraNG.buildInstanceListController = function(entity) {
 	                    var newRow = kirraNG.buildRowData(entity, instance, kirraNG.getInstanceActions(entity));
 	                    row.data = newRow.data;
 	                    row.raw = newRow.raw;
-	                    row.enabledActions = newRow.enabledActions;
-	                    row.useDropdown = newRow.enabledActions.length > 2;
+	                    row.actionEnablement.load(instance);
 	                }
 	            );
             }
@@ -397,13 +423,14 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         $scope.mode = mode;
 		$scope.$state = $state;
         $scope.objectId = objectId;
+        $scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(actualEntity));
         $scope.entityName = actualEntity.fullName;
         $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
 
     	$scope.loadInstanceCallback = function(instance) { 
             $scope.formLabel = creation ? ('Creating ' + actualEntity.label) : (childCreation ? ('Adding ' + actualEntity.label) : ('Editing ' + actualEntity.label + ': ' + instance.shorthand)); 
 	    	$scope.raw = instance;
-	    	$scope.enabledActions = kirraNG.getEnabledActions(instance, kirraNG.getInstanceActions(actualEntity));
+	    	$scope.actionEnablement.load(instance);
 	    	$scope.propertyValues = angular.copy(instance.values);
 	    	$scope.linkValues = angular.copy(instance.links);
 	    	return instance;
@@ -571,7 +598,7 @@ kirraNG.buildInstanceShowController = function(entity) {
 
     	$scope.loadInstanceCallback = function(instance) { 
 	    	$scope.raw = instance;
-	    	$scope.enabledActions = kirraNG.getEnabledActions(instance, kirraNG.getInstanceActions(entity));
+	    	$scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(entity)).load(instance);
 	    	$scope.fieldValues = kirraNG.buildViewDataAsArray(instance, entity.properties, entity.relationships);
 	    	$scope.relatedData = [];
 	    	$scope.childrenData = [];
