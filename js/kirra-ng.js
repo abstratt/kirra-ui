@@ -236,7 +236,6 @@ kirraNG.getQueries = function(entity) {
 	});
 };
 
-
 kirraNG.isEditable = function(entity) {
     var check = function (it) { return it.editable; };
     return kirraNG.find(entity.properties, check) || kirraNG.find(entity.relationships, check);
