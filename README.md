@@ -3,13 +3,12 @@
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
 application schema that is discovered using the back-end (Kirra-based) REST API. 
 
-kirra-angular is not limited to basic CRUD. Besides basic UI elements for CRUD, kirra-angular also actions and queries,
-typical in richer domain models.
+kirra-angular is not limited to basic CRUD. Besides basic UI elements for CRUD, kirra-angular also exposes actions and queries, typical in richer domain models.
 
 ### How to use
 
 For Kirra-based APIs, no custom code has to be written to produce a kirra-angular-based UI. Just publish it to a static web server,
-and load it on the browser pointing it to your application back-end using the app-path or app-url query parameters:
+and load it on the browser pointing it to your application back-end using the app-path or app-uri query parameters:
 
 ```
 http://myserver.org/kirra-angular?app-uri=<my-kirra-application-uri>
@@ -22,6 +21,7 @@ between the Kirra-based format and your application's format.
 
 ### Live demos
 
+#### Cloudfier-based prototypes
 This is still in early development, many features are missing. You can try it out against any [Cloudfier](http://cloudfier.com)-based application using URLs like these:
 
 * [Taxi Fleet](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet)
@@ -29,6 +29,13 @@ This is still in early development, many features are missing. You can try it ou
 * [Car rental](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-car-rental)
 * [Expenses](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses)
 * [Ship It](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
+
+#### Example Java EE applications
+
+* [Example 1](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples-abstratt.rhcloud.com)
+* [Example 2](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples2-abstratt.rhcloud.com)
+
+These Java EE apps were fully generated from Cloudfier applications (no handwritten code) but look like typical standalone code you would write by hand. See code for all generated Java EE apps [here](https://textuml.ci.cloudbees.com/job/codegen-examples-JEE/ws/jee/).
 
 ### Video
 
