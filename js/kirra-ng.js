@@ -563,7 +563,7 @@ kirraNG.buildInstanceLinkController = function(entity) {
             return (value && value.shorthand) || value;
         };
         $scope.ok = function() {
-        	$modalInstance.close($scope.selected);
+        	$modalInstance.close($scope);
         };
         $scope.cancel = function() {
             $modalInstance.dismiss();
@@ -800,6 +800,15 @@ kirraNG.buildInstanceService = function() {
     return serviceFactory;
 };
 
+kirraNG.loginController = function($scope, $http, $modalInstance) {
+    $scope.ok = function() {
+        console.log("Ok pressed");
+        $modalInstance.close($scope.credentials);
+    };
+    $scope.credentials = {};
+};
+
+
 kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router']);
 
 kirraModule.factory('kirraNotification', function($rootScope) {
@@ -824,15 +833,44 @@ kirraModule.factory('kirraNotification', function($rootScope) {
     return Notification;
 });
 
+kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
+    var LoginDialog = function () {
+        angular.extend(this);
+    };
+    LoginDialog.show = function() {
+	    var modal = $modal.open({
+	      animation: true,
+	      templateUrl: 'templates/login.html',
+	      size: 'sm',
+	      controller: 'LoginCtrl'
+	    });
+	    modal.result.then(function(credentials) {
+	        return $http.post(application.uri + 'login', "username="+credentials.username+"&password="+credentials.password);
+	    }).then(function(loginResponse) {
+	        if (loginResponse.status == 204) {
+	            window.location.reload(); 
+	        }
+	    });
+    };
+    return LoginDialog;
+});
+
 kirraModule.config(function($httpProvider) {
-    $httpProvider.interceptors.push(function($q, kirraNotification) {
+    $httpProvider.interceptors.push(function($q, kirraNotification, $injector) {
 	  return {
 	   'responseError': function(rejection) {
-	      kirraNotification.logError(rejection);
+	      if (rejection.status == 401) {
+	          console.log('Unauthorized: ' + (rejection.config && rejection.config.uri));
+	          $injector.get('loginDialog').show();
+	      } else {
+	          kirraNotification.logError(rejection);
+          }
 	      return $q.reject(rejection);
 	    }
 	  };
 	});
+	$httpProvider.defaults.withCredentials = true;
+	$httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
 });
 
 kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
@@ -891,16 +929,33 @@ repository.loadApplication(function(loadedApp, status) {
             entityNames.push(entity.fullName);
         });
         
-	    kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
+	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService) {
 	        $scope.applicationName = application.applicationName;
 	        $scope.applicationUrl = window.location + '/?app-uri=' + application.uri;
 	        $scope.entities = loadedEntities;
 	        $scope.kirraNG = kirraNG;
+	        $scope.currentUser = undefined;
+	        $scope.logout = function() {
+	            console.log("Logging out");
+	            $http.get(application.uri + "logout").then(function(loaded) {
+	                window.location.reload();
+		        });
+	        };
+	        $scope.login = function() {
+	            console.log("Logging in");
+	        };
 	        
 	        $scope.entityLabel = function(entityName) {
 	            var entity = entitiesByName[entityName];
 	            return entity ? entity.label : entityName;
 	        };
+	        
+	        console.log(application);
+	        if (application.currentUser) {
+		        $http.get(application.currentUser).then(function(loaded) {
+		            $scope.currentUser = loaded.data;
+		        });
+	        }
 	    });
 	    
 	    kirraModule.directive('kaData', function() {
@@ -941,6 +996,10 @@ repository.loadApplication(function(loadedApp, status) {
             kirraModule.controller(entityName + 'ActionCtrl', kirraNG.buildActionController(entity));
             kirraModule.controller(entityName + 'InstanceListCtrl', kirraNG.buildInstanceListController(entity));
         });
+        
+        
+        kirraModule.controller('LoginCtrl', kirraNG.loginController);
+        
         kirraModule.factory('instanceService', kirraNG.buildInstanceService());
         
         kirraModule.config(function($stateProvider, $urlRouterProvider) {
@@ -1000,7 +1059,7 @@ repository.loadApplication(function(loadedApp, status) {
 	                controller: entityName + 'InstanceListCtrl',
 	                templateUrl: 'templates/instance-list.html',
 	                params: { finderName: { value: undefined }, arguments: { value: undefined }, forceFetch: { value: false } }
-	            });                
+	            });
             }); 
         });
         

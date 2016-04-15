@@ -1,5 +1,5 @@
 
-    <nav class="navbar navbar-default ">
+    <nav class="navbar navbar-default">
       <div class="container-fluid" ng-cloak>
           <div class="navbar-header">
             <p class="navbar-brand"><a ng-href="{{applicationUrl}}">{{applicationName}}</a></p>
@@ -9,6 +9,19 @@
 		        <li ng-repeat="entity in entities | filter:{topLevel: true}" class="divider-vertical">
 		            <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>
 		        </li>
+    	    </ul>
+    	    <ul class="nav navbar-nav navbar-right">
+    	        <li ng-if="currentUser">
+    	            <a>User: {{currentUser.values.username}}</a>
+    	        </li>
+    	        <li ng-if="!currentUser">
+    	            <a ng-click="login()">Log in</a>
+    	        </li>
+     	        <li ng-if="currentUser">
+     	        <p class="navbar-btn">
+    	            <a class="btn btn-default btn-sm" ng-click="logout()">Log out</a>
+	            </p>
+    	        </li>
     	    </ul>
 		  </div>	    	
 	  </div>

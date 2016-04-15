@@ -52,8 +52,11 @@ kirra.template = {
     load: function (uri, callback, slotName, errorCalback) {
         var me = this;
         var request = new XMLHttpRequest();
+        
         console.log(uri);
         request.open("GET", uri, true);
+        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        request.withCredentials = true;
         request.onreadystatechange = function() {
             console.log(request.readyState);
             console.log(request.responseURL);            
