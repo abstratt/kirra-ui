@@ -9,10 +9,10 @@
     	<div class="col-sm-5">
     		<div class="row">    	
 	            <div class="btn-group" role="group" ng-if="queries.length">
-	                <button type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
+	                <button ng-if="entityCapabilities.entity.indexOf('List') >= 0" type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
 	                All
 	                </button>
-	                <button ng-repeat="query in queries" ng-if="query.parameters.length == 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
+	                <button ng-repeat="query in queries" ng-if="query.parameters.length == 0 && entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
 	                {{query.label}}
 	                </button>
 	            </div>
@@ -22,8 +22,8 @@
 		    </div>
     		<div class="row">    	
 	            <div class="btn-group" role="group">
-	                <button ng-if="entity.instantiable" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
-	                <button ng-repeat="action in entityActions" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
+	                <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
+	                <button ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
 	                {{action.label}}
 	                </button>
 	            </div>
@@ -32,12 +32,12 @@
         <div class="col-sm-5">
 			<div class="row">        
 	            <div class="btn-group" role="group" ng-if="queries.length">    
-	                <button ng-repeat="query in queries" ng-if="query.parameters.length > 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
+	                <button ng-repeat="query in queries" ng-if="query.parameters.length > 0 && entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
 	                {{query.label}}
 	                </button>
 	            </div>
 			</div>	            
-			<div class="row"  ng-if="finder && finder.parameters.length">        
+			<div class="row" ng-if="finder && finder.parameters.length">        
 	    	    <div ng-include src="'templates/operation-form.html'"></div>
 	    	    <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
 			</div>    	    

@@ -12,10 +12,10 @@ var kirraNG = {};
 
 var application;
 var entitiesByName;
+var entityCapabilitiesByName;
 var entityNames;
 var kirraModule;
-
-var foo = function(it) { console.log('I was called'); console.log(it); return "foo"; }; 
+var encodedCredentials = undefined;
 
 kirraNG.capitalize = function(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -178,6 +178,17 @@ kirraNG.buildViewData = function(entity, instance) {
     return data;
 };
 
+kirraNG.loadCapabilities = function(http, entity) {
+    if (entity.topLevel && entity.concrete) {
+        http.get(entity.entityCapabilityUri).then(function(loaded) {
+            var capabilities = entityCapabilitiesByName[entity.fullName] = loaded.data;
+            if (capabilities.entity.indexOf('List') >= 0 || kirraNG.find(capabilities.queries, function (query) { return query.length > 0; })) {
+                entity.allowed = true;
+            } 
+        });
+    }
+};
+
 
 kirraNG.buildRowData = function(entity, instance, instanceActions) {
     var data = kirraNG.buildViewData(entity, instance);
@@ -248,6 +259,7 @@ kirraNG.buildInstanceListController = function(entity) {
         var finderArguments = $state.params && $state.params.arguments;
         var finder = finderName && entity.operations[finderName];
         var forceFetch = $state.params && $state.params.forceFetch;
+        var reloadFunction = function() { $state.go($state.current.name, $state.params, { reload: true }); };
     
 		$scope.$state = $state;
         $scope.entity = entity;
@@ -310,17 +322,49 @@ kirraNG.buildInstanceListController = function(entity) {
             	});
                 $scope.resultMessage = "Before you can apply this filter, you must fill in: " + parameterLabels;
             }
-        }; 
+        };
         
-        if (finder) {
-    	    performQuery(finderArguments, forceFetch);
-        } else {
-	        instanceService.extent(entity).then(function(instances) { 
-	        	$scope.instances = instances;
-	            $scope.rows = kirraNG.buildTableData(instances, entity);
-	            $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
-	    	});
-        }
+        var populate = function() {
+	        if (finder) {
+	    	    performQuery(finderArguments, forceFetch);
+	        } else {
+		        instanceService.extent(entity).then(function(instances) { 
+		        	$scope.instances = instances;
+		            $scope.rows = kirraNG.buildTableData(instances, entity);
+		            $scope.resultMessage = instances.length > 0 ? "" : "No instances found";
+		    	});
+	        }
+        };
+        
+        instanceService.getEntityCapabilities(entity).then(
+            function(loaded) {
+                var entityCapabilities = loaded.data;
+                $scope.entityCapabilities = entityCapabilitiesByName[entity.fullName] = entityCapabilities;
+                if (finderName) {
+                    if (!entityCapabilities.queries[finderName] || entityCapabilities.queries[finderName].length == 0) {
+                        // we don't actually have permission for the requested query 
+                        $scope.finder = finder = undefined;
+                    }
+                    populate();
+                } else {
+                    if (entityCapabilities.entity.indexOf('List') == -1) {
+                        // no permission to list all instances, fallback to first query that we can execute  
+                        var firstQuery = kirraNG.find($scope.queries, function(q) { 
+                        	return entityCapabilities.queries[q.name] && entityCapabilities.queries[q.name].length > 0; 
+                    	});
+                        if (firstQuery) {
+                            $scope.performQuery(firstQuery);
+                        } 
+                    } else {
+		                populate();
+                    }
+                }
+            },
+            function(error) {
+                populate();
+                $scope.entityCapabilities = undefined;
+            }
+        );
         
         $scope.findCandidatesFor = function(parameter, value) {
             return instanceService.extent(entitiesByName[parameter.typeRef.fullName]).then(function(instances) {
@@ -355,7 +399,7 @@ kirraNG.buildInstanceListController = function(entity) {
     	    var performResult = instanceService.performInstanceAction(entity, objectId, action.name);
     	    if (finder) {
     	        // better reload as the row may no longer satisfy the filter
-    	        performResult.then(function() { $state.go($state.current.name, $state.params, { reload: true }); });
+    	        performResult.then(reloadFunction);
     	    } else {
     	        // when showing all, update only the row affected
 	    	    performResult.then(
@@ -366,7 +410,8 @@ kirraNG.buildInstanceListController = function(entity) {
 	                    row.data = newRow.data;
 	                    row.raw = newRow.raw;
 	                    row.actionEnablement.load(instance);
-	                }
+	                },
+	                reloadFunction
 	            );
             }
     	};
@@ -604,6 +649,10 @@ kirraNG.buildInstanceShowController = function(entity) {
 	    	if (!entity.topLevel) {
 	    		$scope.parentLink = instance.links[$scope.parentRelationship.name];
     		}
+    		instanceService.getInstanceCapabilities(entity, objectId).then(function(loaded) {
+    		    var capabilities = loaded.data;
+    		    $scope.instanceCapabilities = capabilities;     
+    		});
 	    	return instance;
 		};
     
@@ -795,6 +844,12 @@ kirraNG.buildInstanceService = function() {
             var relatedInstancesUri = entity.relatedInstancesUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName);
 	        return $http.get(relatedInstancesUri).then(loadMany);
 	    };
+	    Instance.getInstanceCapabilities = function (entity, objectId) {
+	        return $http.get(entity.instanceCapabilityUriTemplate.replace('(objectId)', objectId));
+	    };
+	    Instance.getEntityCapabilities = function (entity) {
+	        return $http.get(entity.entityCapabilityUri);
+	    };
 	    return Instance;
     };
     return serviceFactory;
@@ -837,7 +892,13 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
     var LoginDialog = function () {
         angular.extend(this);
     };
+    LoginDialog.showing = false;
     LoginDialog.show = function() {
+        var dialog = this;
+        if (this.showing) {
+            return;
+        }
+        this.showing = true;
 	    var modal = $modal.open({
 	      animation: true,
 	      templateUrl: 'templates/login.html',
@@ -845,10 +906,15 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
 	      controller: 'LoginCtrl'
 	    });
 	    modal.result.then(function(credentials) {
-	        return $http.post(application.uri + 'login', "username="+credentials.username+"&password="+credentials.password);
+	        dialog.showing = false;
+	        encodedCredentials = btoa(credentials.username+":"+credentials.password);
+	        return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+	    }, function() {
+	        dialog.showing = false;
+	        dialog.show();
 	    }).then(function(loginResponse) {
-	        if (loginResponse.status == 204) {
-	            window.location.reload(); 
+	        if (loginResponse.status == 200) {
+	            window.location.reload();
 	        }
 	    });
     };
@@ -858,10 +924,12 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
 kirraModule.config(function($httpProvider) {
     $httpProvider.interceptors.push(function($q, kirraNotification, $injector) {
 	  return {
-	   'responseError': function(rejection) {
+	   responseError: function(rejection) {
 	      if (rejection.status == 401) {
 	          console.log('Unauthorized: ' + (rejection.config && rejection.config.uri));
 	          $injector.get('loginDialog').show();
+	      } else if (rejection.status == 404) {
+	          // no biggie, don't report
 	      } else {
 	          kirraNotification.logError(rejection);
           }
@@ -922,27 +990,29 @@ repository.loadApplication(function(loadedApp, status) {
 	        
     repository.loadEntities(function(loadedEntities) {
         entitiesByName = {};
+        entityCapabilitiesByName = {};
         entityNames = [];
         
         angular.forEach(loadedEntities, function(entity) {
             entitiesByName[entity.fullName] = entity;
+            entityCapabilitiesByName[entity.fullName] = {};
             entityNames.push(entity.fullName);
         });
         
 	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService) {
 	        $scope.applicationName = application.applicationName;
-	        $scope.applicationUrl = window.location + '/?app-uri=' + application.uri;
+	        var querylessUri = window.location.href.split(/[?#]/)[0];
+	        $scope.applicationUrl = querylessUri + '?app-uri=' + application.uri + '#/';
 	        $scope.entities = loadedEntities;
 	        $scope.kirraNG = kirraNG;
 	        $scope.currentUser = undefined;
 	        $scope.logout = function() {
 	            console.log("Logging out");
-	            $http.get(application.uri + "logout").then(function(loaded) {
+	            $http.get(application.uri + "session/logout").then(function(loaded) {
 	                window.location.reload();
 		        });
 	        };
 	        $scope.login = function() {
-	            console.log("Logging in");
 	        };
 	        
 	        $scope.entityLabel = function(entityName) {
@@ -956,6 +1026,11 @@ repository.loadApplication(function(loadedApp, status) {
 		            $scope.currentUser = loaded.data;
 		        });
 	        }
+	        
+	        angular.forEach(loadedEntities, function(entity) {
+	            kirraNG.loadCapabilities($http, entity);
+	        });
+	        
 	    });
 	    
 	    kirraModule.directive('kaData', function() {

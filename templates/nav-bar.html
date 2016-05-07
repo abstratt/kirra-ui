@@ -2,24 +2,22 @@
     <nav class="navbar navbar-default">
       <div class="container-fluid" ng-cloak>
           <div class="navbar-header">
-            <p class="navbar-brand"><a ng-href="{{applicationUrl}}">{{applicationName}}</a></p>
+            <p class="navbar-brand"><a href="{{applicationUrl}}">{{applicationName}}</a></p>
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-		        <li ng-repeat="entity in entities | filter:{topLevel: true}" class="divider-vertical">
+		        <li ng-repeat="entity in entities" ng-if="entity.allowed" class="divider-vertical">
 		            <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>
 		        </li>
     	    </ul>
     	    <ul class="nav navbar-nav navbar-right">
     	        <li ng-if="currentUser">
-    	            <a>User: {{currentUser.values.username}}</a>
+    	            <a ui-sref="{{kirraNG.toState(currentUser.typeRef.fullName, 'show')}}({ objectId: '{{currentUser.objectId}}' })">User: {{currentUser.values.username}}</a>
     	        </li>
-    	        <li ng-if="!currentUser">
-    	            <a ng-click="login()">Log in</a>
-    	        </li>
-     	        <li ng-if="currentUser">
+    	        <li>
      	        <p class="navbar-btn">
-    	            <a class="btn btn-default btn-sm" ng-click="logout()">Log out</a>
+    	            <a ng-if="!currentUser" class="btn btn-default btn-sm glyphicon glyphicon-log-in" ng-click="login()"> Login</a>
+    	            <a ng-if="currentUser" class="btn btn-default btn-sm glyphicon glyphicon-log-out" ng-click="logout()"> Logout</a>
 	            </p>
     	        </li>
     	    </ul>

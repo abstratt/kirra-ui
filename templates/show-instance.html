@@ -54,15 +54,15 @@
 <div class="col-sm-4">
     <div class="row">
           <div class="btn-group" role="group">
-              <button type="button" class="btn btn-default" ng-click="edit()" ng-if="editable">
+              <button type="button" class="btn btn-default" ng-click="edit()" ng-if="editable && instanceCapabilities.instance.indexOf('Update') >= 0">
                   Edit
               </button>
-              <button type="button" class="btn btn-default" ng-click="delete()">
+              <button type="button" class="btn btn-default" ng-click="delete()" ng-if="instanceCapabilities.instance.indexOf('Delete') >= 0">
                   Delete
               </button>
           </div>
           <div class="btn-group" role="group">
-              <button ng-repeat="action in actionEnablement.enabledActions" type="button" class="btn btn-default" ng-click="performAction(action)">
+              <button ng-repeat="action in actionEnablement.enabledActions" ng-if="instanceCapabilities.actions[action.name].indexOf('Call') >= 0" type="button" class="btn btn-default" ng-click="performAction(action)">
                   {{action.label}}
               </button>
           </div>
