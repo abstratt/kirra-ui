@@ -913,7 +913,7 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
 	        dialog.showing = false;
 	        dialog.show();
 	    }).then(function(loginResponse) {
-	        if (loginResponse.status == 200) {
+	        if (loginResponse.status >= 200 && loginResponse.status < 300) {
 	            window.location.reload();
 	        }
 	    });
