@@ -928,8 +928,6 @@ kirraModule.config(function($httpProvider) {
 	      if (rejection.status == 401) {
 	          console.log('Unauthorized: ' + (rejection.config && rejection.config.uri));
 	          $injector.get('loginDialog').show();
-	      } else if (rejection.status == 404) {
-	          // no biggie, don't report
 	      } else {
 	          kirraNotification.logError(rejection);
           }
