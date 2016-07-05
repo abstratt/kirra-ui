@@ -21,7 +21,7 @@
 	    <div ng-if="!slotData">-</div>
 	</div>
 	<div ng-if="slotTypeName == 'Date'">
-		{{slotData | date: 'yyyy/MM/dd'}}
+		{{slotData | date:'yyyy/MM/dd':'UTC'}}
 	</div>
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
