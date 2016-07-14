@@ -22,7 +22,7 @@
 		    </div>
     		<div class="row">    	
 	            <div class="btn-group" role="group">
-	                <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"> Create</span></button>
+	                <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</button>
 	                <button ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
 	                {{action.label}}
 	                </button>
