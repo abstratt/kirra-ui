@@ -3,6 +3,15 @@
       <div class="container-fluid" ng-cloak>
           <div class="navbar-header">
             <p class="navbar-brand"><a href="{{applicationUrl}}">{{applicationName}}</a></p>
+	        <div ng-if="canChangeTheme" class="btn-group-vertical navbar-btn" dropdown role="group">
+                    <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
+                    Theme
+                    <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-repeat="theme in ['cerulean', 'cosmo', 'cyborg', 'darkly', 'flatly', 'journal', 'lumen', 'paper', 'readable', 'simplex', 'slate', 'spacelab', 'superhero', 'united', 'yeti']" role="menuitem"><a ng-click="changeTheme(theme)">{{theme}}</a></li>
+                    </ul>
+            </div>
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -10,6 +19,7 @@
 		            <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>
 		        </li>
     	    </ul>
+    	    
     	    <ul class="nav navbar-nav navbar-right">
     	        <li ng-if="currentUser">
     	            <a ui-sref="{{kirraNG.toState(currentUser.typeRef.fullName, 'show')}}({ objectId: '{{currentUser.objectId}}' })">User: {{currentUser.values.username}}</a>
@@ -21,6 +31,6 @@
 	            </p>
     	        </li>
     	    </ul>
-		  </div>	    	
+		  </div>
 	  </div>
     </nav>

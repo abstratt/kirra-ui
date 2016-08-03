@@ -1,10 +1,26 @@
-var uriMatches = window.location.search.match("[?&]?app-uri\=(.*)\&?");
-var pathMatches = window.location.search.match("[?&]?app-path\=(.*)\&?");
+var uriMatches = window.location.search.match("[?&]?app-uri\=([^&]+)");
+var pathMatches = window.location.search.match("[?&]?app-path\=([^&]+)");
+var themeMatches = window.location.search.match("[?&]?theme\=([^&]*)")
+
+
 if (!uriMatches && !pathMatches) {
      throw Error("You must specify an application URI or path (same server) using the app-uri or app-path query parameters, like '...?app-uri=http://myserver.com/myapp/rest/' or '...?app-path=/myapp/rest/'.");
 }
 var applicationUrl = uriMatches ? uriMatches[1] : (window.location.origin + pathMatches[1]);
 if (!applicationUrl.endsWith('/')) applicationUrl = applicationUrl + '/';
+
+var changeTheme = function(theme) {
+    var themeElement = document.getElementById('bootstrap_theme');
+    var newThemeURI = 'https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/' + theme + '/bootstrap.min.css';
+	document.getElementById('bootstrap_theme').href = newThemeURI;
+};
+
+var canChangeTheme = themeMatches;
+
+if (canChangeTheme && themeMatches[1]) {
+    var theme = themeMatches[1];
+    changeTheme(theme); 
+}
 
 var repository = kirra.newRepository(applicationUrl);
 
@@ -511,8 +527,11 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
     	
         $scope.save = function() {
             var newValues = angular.copy($scope.propertyValues);
+            console.log(newValues);
             var newLinks = angular.copy($scope.linkValues);
             var newRepresentation = { values: newValues, links: newLinks };
+            console.log("newRepresentation");
+            console.log(newRepresentation);
             if (creation) {
                 instanceService.post(actualEntity, newRepresentation).then(function(created) {
                     $state.go(kirraNG.toState(actualEntity.fullName, 'show'), { objectId: created.objectId } ); 
@@ -1012,6 +1031,13 @@ repository.loadApplication(function(loadedApp, status) {
 	        };
 	        $scope.login = function() {
 	        };
+	        
+	        $scope.canChangeTheme = canChangeTheme;
+	        
+	        $scope.changeTheme = function(theme) {
+	            
+	        	changeTheme(theme);
+	        };	        
 	        
 	        $scope.entityLabel = function(entityName) {
 	            var entity = entitiesByName[entityName];
