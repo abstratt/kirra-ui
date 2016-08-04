@@ -55,7 +55,7 @@
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
                     <td ng-repeat="property in tableProperties">
-                    	<ka-data slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
+                    	<ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
                     </td>
                     <td ng-if="actions.length">
                         <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">

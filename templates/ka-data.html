@@ -1,8 +1,8 @@
 <div ng-if="slot.mnemonic">
-	<a ng-if="objectId" ui-sref="{{targetStateName}}({ objectId: '{{ targetObjectId }}' })">
-    	{{slotData}}
+	<a ng-if="objectId || slotData.objectId" ui-sref="{{targetStateName}}({ objectId: '{{ targetObjectId }}' })">
+    	{{slotData.shorthand || slotData}}
 	</a>    
-	<div ng-if="!objectId">
+	<div ng-if="!objectId && !slotData.objectId">
 	    {{slotData}}
 	</div>
 </div>

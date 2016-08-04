@@ -103,7 +103,7 @@ kirraNG.buildTableColumns = function(entity) {
         	tableColumns.push(relationship);
     	}
     });
-    
+    kirraNG.sortFields(entity, tableColumns);
     return tableColumns;
 };
 
@@ -127,7 +127,15 @@ kirraNG.buildInputFields = function(entity, createMode) {
         	inputFields.push(relationship);
     	}
     });
+    kirraNG.sortFields(entity, inputFields);
     return inputFields;
+};
+
+kirraNG.sortFields = function(entity, fields) {
+    var orderedDataElements = kirraNG.getOrderedDataElements(entity);
+    fields.sort(function(a, b) { 
+    	return orderedDataElements.indexOf(a.name) - orderedDataElements.indexOf(b.name); }
+	);
 };
 
 kirraNG.buildViewFields = function(entity) {
@@ -142,6 +150,7 @@ kirraNG.buildViewFields = function(entity) {
         	viewFields.push(relationship);
     	}
     });
+    kirraNG.sortFields(entity, viewFields);
     return viewFields;
 };
 
@@ -152,27 +161,52 @@ kirraNG.getEnabledActions = function(instance, instanceActions) {
 };
 
 // this version is required to workaround a weird issue were using an object (as the basic buildViewData does) would cause all sorts of problems
-kirraNG.buildViewDataAsArray = function(instance, properties, relationships) {
+kirraNG.buildViewDataAsArray = function(entity, instance) {
     // need to preserve order to allow retrieval by index
-    var fieldValues = [];
-    angular.forEach(properties, function(property) {
+    var fieldValuesByName = {};
+    angular.forEach(entity.properties, function(property) {
         if (property.userVisible) {
-        	fieldValues.push(instance.values[property.name]);
+        	fieldValuesByName[property.name] = instance.values[property.name];
     	}
     });
-    angular.forEach(relationships, function(relationship) {
+    angular.forEach(entity.relationships, function(relationship) {
         if (relationship.userVisible && !relationship.multiple) {
             if (instance.links[relationship.name]) { 
-	            fieldValues.push({
+	            fieldValuesByName[relationship.name] = {
 		            shorthand: instance.links[relationship.name].shorthand,
 		            objectId: instance.links[relationship.name].objectId
-		        });
+		        };
         	} else {
-        	    fieldValues.push({});    
+        	    fieldValuesByName[relationship.name] = {};    
         	}
     	}
     });
+    var orderedDataElements = kirraNG.getOrderedDataElements(entity); 
+    var fieldValues = [];
+    angular.forEach(orderedDataElements, function(name) {
+        if (fieldValuesByName.hasOwnProperty(name)) {
+        	fieldValues.push(fieldValuesByName[name]);
+    	}
+    });
     return fieldValues;
+};
+
+kirraNG.getOrderedDataElements = function(entity) {
+    if (entity.orderedDataElements) {
+        return entity.orderedDataElements;
+    }
+    var orderedDataElements = [];
+    angular.forEach(entity.properties, function(property, name) {
+        if (property.userVisible) {
+        	orderedDataElements.push(name);
+    	}
+    });
+    angular.forEach(entity.relationships, function(relationship, name) {
+        if (relationship.userVisible && !relationship.multiple) {
+            orderedDataElements.push(name);
+        }
+    });
+    return orderedDataElements;
 };
 
 kirraNG.buildViewData = function(entity, instance) {
@@ -662,7 +696,7 @@ kirraNG.buildInstanceShowController = function(entity) {
     	$scope.loadInstanceCallback = function(instance) { 
 	    	$scope.raw = instance;
 	    	$scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(entity)).load(instance);
-	    	$scope.fieldValues = kirraNG.buildViewDataAsArray(instance, entity.properties, entity.relationships);
+	    	$scope.fieldValues = kirraNG.buildViewDataAsArray(entity, instance);
 	    	$scope.relatedData = [];
 	    	$scope.childrenData = [];
 	    	if (!entity.topLevel) {
@@ -1063,16 +1097,21 @@ repository.loadApplication(function(loadedApp, status) {
 		        scope: {
 			        slot: '=',
 			        slotData: '=',
-			        objectId: '='
+			        objectId: '=',
+			        table: '='
 			    },
 			    link: function (scope, element) {
 			        var slot = scope.slot;
 			        var slotData = scope.slotData;
 			        var objectId = scope.objectId;
+			        var isTable = scope.table;
 			        scope.slotTypeName = slot.typeRef.typeName;
 			        scope.slotTypeKind = slot.typeRef.kind;
 			        if (slot.mnemonic || slot.unique) {
-			            if (objectId) {
+			            if (!isTable && slot.typeRef.kind == 'Entity') {
+					        scope.targetObjectId = slotData && slotData.objectId ;
+					        scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
+			            } else if (objectId) {
 					        scope.targetObjectId = objectId;
 					        scope.targetStateName = kirraNG.toState(slot.owner.fullName, 'show');
 				        }
