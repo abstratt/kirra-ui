@@ -740,8 +740,8 @@ kirraNG.buildInstanceShowController = function(entity) {
 		        relationship: function() { return relationship; },
 		      }
 		    });
-		    modal.result.then(function(selected) {
-		        return instanceService.link(entity, objectId, relationship.name, relatedEntity.fullName + '@' + selected.objectId);
+		    modal.result.then(function(scope) {
+		        return instanceService.link(entity, objectId, relationship.name, relatedEntity.fullName + '@' + scope.selected.objectId);
 		    }).then(function() {
 		        return instanceService.get(entity, objectId);
 		    }).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback); 
