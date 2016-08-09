@@ -333,7 +333,7 @@ kirraNG.buildInstanceListController = function(entity) {
     	    	.then(function(loaded) {
     	    	    row.actionEnablement.load(loaded);
                 }).catch(function(error) {
-                	$scope.resultMessage = error.data.message;
+            	    $scope.resultMessage = error.data.message;
                 	$scope.clearAlerts();
             	});
         };
@@ -540,11 +540,17 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
             } else {
                 domain = instanceService.getRelationshipDomain(actualEntity, $scope.objectId, relationship.name);
             }
-            return domain.then(function(instances) { return kirraNG.filterCandidates(instances, value); });
+            return domain.then(function(instances) {
+                var candidates = kirraNG.filterCandidates(instances, value);
+                if (!relationship.required) {
+                    candidates.splice(0, 0, { shorthand: '- None -' });
+                } 
+            	return candidates; 
+        	});
         };
         
         $scope.onCandidateSelected =  function(selectedCandidate, inputField, $label) {
-            $scope.linkValues[inputField.name] = selectedCandidate;
+            $scope.linkValues[inputField.name] = selectedCandidate.objectId ? selectedCandidate : null;
         };
         
         $scope.formatCandidate = function(inputField) {
@@ -835,11 +841,6 @@ kirraNG.buildInstanceService = function() {
         var removeNulls = function(representation) {
             if (!representation) {
             	return {};
-            }
-            for (var slot in representation) {
-                if (representation[slot] == undefined || (typeof representation[slot] == 'string' && representation[slot] == false)) {
-                    delete representation[slot];
-                }
             }
             return representation;
         };
