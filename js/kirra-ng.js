@@ -440,28 +440,21 @@ kirraNG.buildInstanceListController = function(entity) {
 
     	$scope.performInstanceAction = function(row, action) {
     	    var objectId = row.raw.objectId;
+    	    var shorthand = row.raw.shorthand; 
     	    
     	    if (action.parameters.length > 0) {
-    	        $state.go(kirraNG.toState(entity.fullName, 'performInstanceAction'), { objectId: objectId, actionName: action.name } );
+    	        $state.go(kirraNG.toState(entity.fullName, 'performInstanceAction'), { objectId: objectId, shorthand: shorthand, actionName: action.name } );
     	        return;
     	    }
     	    
     	    var performResult = instanceService.performInstanceAction(entity, objectId, action.name);
     	    if (finder) {
     	        // better reload as the row may no longer satisfy the filter
-    	        performResult.then(reloadFunction);
+    	        performResult.then(populate);
     	    } else {
     	        // when showing all, update only the row affected
 	    	    performResult.then(
-	    	        function() { return instanceService.get(entity, objectId); }
-	            ).then(
-	                function(instance) {
-	                    var newRow = kirraNG.buildRowData(entity, instance, kirraNG.getInstanceActions(entity));
-	                    row.data = newRow.data;
-	                    row.raw = newRow.raw;
-	                    row.actionEnablement.load(instance);
-	                },
-	                reloadFunction
+	    	        populate
 	            );
             }
     	};
@@ -608,6 +601,10 @@ kirraNG.buildActionController = function(entity) {
         $scope.inputFields = action.parameters;
         $scope.parameterValues = {};
         $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
+        
+        instanceService.get(entity, objectId).then(function(instance) { 
+            $scope.shorthand = instance.shorthand; 
+        });
         
         $scope.findCandidatesFor = function(parameter, value) {
             var domain = instanceService.getParameterDomain(entity, $scope.objectId, actionName, parameter.name);

@@ -36,7 +36,8 @@
                         typeahead-min-length="0"
                         typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
                         typeahead-input-formatter="formatCandidate(inputField)"
-                        typeahead-on-select="onCandidateSelected($item, inputField, $label)">
+                        typeahead-on-select="onCandidateSelected($item, inputField, $label)"
+                        autocomplete="off">
                 </div>
             </div>
         </div>

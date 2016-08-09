@@ -3,7 +3,7 @@
 <div class="row">
 <div class="col-sm-8">
 
-    <legend>{{action.label}}</legend>
+    <legend>{{action.label}} <span ng-if="shorthand">- {{shorthand}}</span></legend>
     <div ng-include src="'templates/operation-form.html'"></div>
     <div>
           <div class="btn-group" role="group">
