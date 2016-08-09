@@ -602,9 +602,11 @@ kirraNG.buildActionController = function(entity) {
         $scope.parameterValues = {};
         $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
         
-        instanceService.get(entity, objectId).then(function(instance) { 
-            $scope.shorthand = instance.shorthand; 
-        });
+        if (objectId) {
+        	instanceService.get(entity, objectId).then(function(instance) { 
+            	$scope.shorthand = instance.shorthand; 
+        	});
+    	}
         
         $scope.findCandidatesFor = function(parameter, value) {
             var domain = instanceService.getParameterDomain(entity, $scope.objectId, actionName, parameter.name);
