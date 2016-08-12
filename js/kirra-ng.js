@@ -676,6 +676,57 @@ kirraNG.buildInstanceLinkController = function(entity) {
 	return controller;
 };
 
+kirraNG.buildDashboardController = function() {
+    var controller = function($scope, $state, $stateParams, instanceService, $q, $http) {
+        var metrics = [];
+        var entities = $scope.entities;
+        angular.forEach(entities, function (entity) {
+            var queries = kirraNG.filter(entity.operations, function(op) { 
+		    	var isMatch = !op.instanceOperation && op.kind == 'Finder';
+		    	return isMatch; 
+			});
+            angular.forEach(queries, function (query) {
+                if (!query.parameters || query.parameters.length == 0) {
+                    var finderUri = entity.finderUriTemplate.replace('(finderName)', query.name);
+                    var metric = {
+	                    query: query,
+	                    entity: entity,
+	                    result: "-",
+	                    finderUri: finderUri,
+	                    multiple: ((query.typeRef.kind != 'Entity') && query.multiple)
+    	            };
+	                metrics.push(metric);
+                }
+            });
+        });
+        $scope.metrics = metrics.slice();
+        var loadMetrics;
+        loadMetrics = function () {
+            var next = metrics.shift();
+            if (next) {
+                $http.post(next.finderUri, {}).then(function(response) {
+                    if (next.query.multiple) {
+                        next.result = next.query.typeRef.kind == 'Entity' ? response.data.length : kirraNG.map(response.data.contents, function(row) {
+                            var key;
+                            for (key in row) {
+                                if (Array.isArray(row[key])) {
+                                    row[key] = row[key].length;
+                                }
+                            }
+                            return row;
+                        });
+                    } else {
+                        next.result = response.data.contents[0].shorthand || response.data.contents[0];  
+                    }
+                }).then(loadMetrics);
+            }
+        };
+        loadMetrics();
+    };
+    controller.$inject = ['$scope', '$state', '$stateParams', 'instanceService', '$q', '$http'];
+    return controller;
+};
+
 
 kirraNG.buildInstanceShowController = function(entity) {
     var multipleRelationships = kirraNG.filter(entity.relationships, function(rel) { return rel.multiple && rel.userVisible; });
@@ -1028,7 +1079,7 @@ repository.loadApplication(function(loadedApp, status) {
     if (status != 200) {
         console.log(loadedApp);
         kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
-	        $scope.applicationName = "Application not found or not available: " + applicationUrl;
+	        $scope.applicationLabel = "Application not found or not available: " + applicationUrl;
 	        $scope.entities = [];
 	    });
         angular.element(document).ready(function() {
@@ -1037,7 +1088,7 @@ repository.loadApplication(function(loadedApp, status) {
         return;
     }
     application = loadedApp;
-    document.title = application.applicationName;
+    document.title = application.applicationLabel;
 	        
     repository.loadEntities(function(loadedEntities) {
         entitiesByName = {};
@@ -1052,6 +1103,7 @@ repository.loadApplication(function(loadedApp, status) {
         
 	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService) {
 	        $scope.applicationName = application.applicationName;
+	        $scope.applicationLabel = application.applicationLabel || application.applicationName;
 	        var querylessUri = window.location.href.split(/[?#]/)[0];
 	        $scope.applicationUrl = querylessUri + '?app-uri=' + application.uri + '#/';
 	        $scope.entities = loadedEntities;
@@ -1123,6 +1175,8 @@ repository.loadApplication(function(loadedApp, status) {
 		        templateUrl: 'templates/ka-data.html'
 		    };
 		});
+		
+		kirraModule.controller('DashboardCtrl', kirraNG.buildDashboardController());
 	    
         angular.forEach(entitiesByName, function(entity, entityName) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
@@ -1142,7 +1196,13 @@ repository.loadApplication(function(loadedApp, status) {
         
         kirraModule.config(function($stateProvider, $urlRouterProvider) {
             var first = entityNames.find(function(name) { return entitiesByName[name].topLevel });
-            $urlRouterProvider.otherwise("/" + first + "/");
+            $urlRouterProvider.otherwise("/dashboard/");
+
+            $stateProvider.state('dashboard', {
+                url: "/dashboard/",
+                controller: 'DashboardCtrl',
+                templateUrl: 'templates/dashboard.html'
+            });
             
             angular.forEach(entityNames, function(entityName) {
                 var entity = entitiesByName[entityName];
