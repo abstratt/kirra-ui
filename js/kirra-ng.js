@@ -1025,6 +1025,40 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
     return LoginDialog;
 });
 
+kirraModule.service('signupDialog', function($rootScope, $modal, $http, $state) {
+    var SignupDialog = function () {
+        angular.extend(this);
+    };
+    SignupDialog.showing = false;
+    SignupDialog.show = function() {
+        var dialog = this;
+        if (this.showing) {
+            return;
+        }
+        this.showing = true;
+        var modal = $modal.open({
+          animation: true,
+          templateUrl: 'templates/login.html',
+          size: 'sm',
+          controller: 'LoginCtrl'
+        });
+        modal.result.then(function(credentials) {
+            dialog.showing = false;
+            encodedCredentials = btoa(credentials.username+":"+credentials.password);
+            return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+        }, function() {
+            dialog.showing = false;
+            dialog.show();
+        }).then(function(loginResponse) {
+            if (loginResponse.status >= 200 && loginResponse.status < 300) {
+                window.location.reload();
+            }
+        });
+    };
+    return SignupDialog;
+});
+
+
 kirraModule.config(function($httpProvider) {
     $httpProvider.interceptors.push(function($q, kirraNotification, $injector) {
 	  return {
@@ -1101,7 +1135,7 @@ repository.loadApplication(function(loadedApp, status) {
             entityNames.push(entity.fullName);
         });
         
-	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService) {
+	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, signupDialog) {
 	        $scope.applicationName = application.applicationName;
 	        $scope.applicationLabel = application.applicationLabel || application.applicationName;
 	        var querylessUri = window.location.href.split(/[?#]/)[0];
@@ -1116,7 +1150,13 @@ repository.loadApplication(function(loadedApp, status) {
 		        });
 	        };
 	        $scope.login = function() {
+	           console.log("Log-in requested");
+	           loginDialog.show();
 	        };
+	        $scope.signUp = function() {
+               console.log("Sign-up requested");
+               signupDialog.show();
+            };
 	        
 	        $scope.canChangeTheme = canChangeTheme;
 	        
