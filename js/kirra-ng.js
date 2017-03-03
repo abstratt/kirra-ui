@@ -967,6 +967,14 @@ kirraNG.loginController = function($scope, $http, $modalInstance) {
     $scope.credentials = {};
 };
 
+kirraNG.signupController = function($scope, $http, $modalInstance) {
+    $scope.ok = function() {
+        console.log("Ok pressed");
+        $modalInstance.close($scope.credentials);
+    };
+    $scope.credentials = {};
+};
+
 
 kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router']);
 
@@ -1038,14 +1046,14 @@ kirraModule.service('signupDialog', function($rootScope, $modal, $http, $state) 
         this.showing = true;
         var modal = $modal.open({
           animation: true,
-          templateUrl: 'templates/login.html',
+          templateUrl: 'templates/signup.html',
           size: 'sm',
-          controller: 'LoginCtrl'
+          controller: 'SignupCtrl'
         });
         modal.result.then(function(credentials) {
             dialog.showing = false;
             encodedCredentials = btoa(credentials.username+":"+credentials.password);
-            return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+            return $http.post(application.uri + 'session/signup', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
         }, function() {
             dialog.showing = false;
             dialog.show();
@@ -1075,6 +1083,7 @@ kirraModule.config(function($httpProvider) {
 	});
 	$httpProvider.defaults.withCredentials = true;
 	$httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
+    $httpProvider.defaults.headers.common["Cache-control"] = 'no-cache';	
 });
 
 kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
@@ -1231,6 +1240,7 @@ repository.loadApplication(function(loadedApp, status) {
         
         
         kirraModule.controller('LoginCtrl', kirraNG.loginController);
+        kirraModule.controller('SignupCtrl', kirraNG.signupController);
         
         kirraModule.factory('instanceService', kirraNG.buildInstanceService());
         
