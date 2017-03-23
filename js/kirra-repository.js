@@ -9,10 +9,24 @@ kirra.newRepository = function(applicationUri) {
 kirra.template = {
     _application: {},
     _entityList: [],
+    _entityCapabilityList: [],
     _applicationUri: null,
 
     loadApplication: function (callback)	 {
         this.load(this._applicationUri, callback, "_application");
+    },
+    
+    loadEntityCapabilities: function (callback, retry) {
+        var me = this;
+        if (!me._application.entityCapabilities) {
+            if (retry === false)
+                return;
+            this.loadApplication(function () {
+                me.loadEntityCapabilities(callback, false);
+            });
+            return;
+        }
+        this.load(me._application.entityCapabilities, callback, "_entityCapabilityList");
     },
     
     loadEntities: function (callback, retry) {
@@ -27,6 +41,7 @@ kirra.template = {
         }
         this.load(me._application.entities, callback, "_entityList");
     },
+    
 
     loadEntity: function (entityFullName, callback, retry) {
         if (!entityFullName)

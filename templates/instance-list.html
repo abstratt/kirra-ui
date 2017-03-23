@@ -1,7 +1,7 @@
-<div class="container-fluid">
+<div class="container-fluid" ng-if="instances">
     <div ng-include src="'templates/header.html'"></div>
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-10">
             <legend>{{entity.label}}: {{finder ? finder.label : 'All'}}</legend>
         </div>
 	</div>
@@ -47,18 +47,15 @@
     	<p></p>
     </div>
 	<div class="row"> 
-        <div ng-show="instances.length > 0" class="col-sm-10">
-            <table  class="table table-striped" class="table table-striped">
+        <div ng-show="instances.length > 0" class="col-sm-10 table-responsive">
+            <table  class="table table-striped">
                 <tr>
-                    <th ng-repeat="property in tableProperties">{{::property.label}}</th>
                     <th ng-if="actions.length">Actions</td>
+                    <th ng-repeat="property in tableProperties">{{::property.label}}</th>
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
-                    <td ng-repeat="property in tableProperties">
-                    	<ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
-                    </td>
                     <td ng-if="actions.length">
-                        <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
+                        <div class="btn-group-vertical hidden-md hidden-sm hidden-xs" dropdown role="group" on-toggle="updateActionEnablement(row)">
                             <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
                             Actions
                             <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
@@ -67,6 +64,15 @@
                                 <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceAction(row, action)">{{action.label}}</a></li>
                             </ul>
                         </div>
+                        <div class="visible-md visible-sm visible-xs">
+                            <a ng-if="!row.actionEnablement.enabledActions.length" ng-click="updateActionEnablement(row)">Actions</a>
+                            <div ng-repeat="action in row.actionEnablement.enabledActions" >
+                                <a ng-click="performInstanceAction(row, action)">{{action.label}}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td ng-repeat="property in tableProperties">
+                    	<ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
                     </td>
                 </tr>
             </table>

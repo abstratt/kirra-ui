@@ -1,26 +1,18 @@
 <div ng-include src="'templates/header.html'"></div>
-<div class="container-fluid">
-<div class="row">
-<div class="col-sm-8">
+<div class="container-fluid ng-show="propertyValues || linkValues"">
 
-<div ng-show="propertyValues || linkValues">
+<div class="row">
+    <div class="col-md-8 col-xs-12">
         <legend>{{formLabel}}</legend>
 		<form>
-			<div ng-repeat="inputField in inputFields track by $index" class="form-group">
-				<div ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
-					<div ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date'">
-					    <label>{{inputField.label}}:</label>
-					    <input type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
-					</div>
+			<div ng-repeat="inputField in inputFields track by $index">
+			    <div class="form-group-xs" ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
+			    <label for="{{inputField.name}}">{{inputField.label}}:</label>
+			    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
+                <textarea ng-if="typeKind == 'Primitive' && typeName == 'Memo'" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]"></textarea>
+                <toggle class="col-md-8 col-xs-12" ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="btn-xs" ng-model="propertyValues[inputField.name]" id="{{inputField.name}}"  on="Yes" off="No"></toggle>					
 					
-                <div ng-if="typeKind == 'Primitive' && typeName == 'Memo'">
-                    <label>{{inputField.label}}:</label>
-                    <textarea class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
-                    </textarea>
-                </div>
-					
-					<div ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
-					    <label>{{inputField.label}}:</label>
+					<div id="{{inputField.name}}" ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
 					    <p class="input-group">
 					    	<input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
 					    	<span class="input-group-btn">
@@ -28,43 +20,33 @@
 				            </span>
 				    	</p>
 					</div>
-					
-					<div ng-if="typeKind == 'Enumeration'">
-					    <label>{{inputField.label}}:</label>
-					    <p>
-					    <select ng-model="propertyValues[inputField.name]" class="form-control">
+					    <select ng-if="typeKind == 'Enumeration'" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]" class="form-control">
 							<option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
                         </select>
-                        </p>
-					</div>
-					<div ng-if="typeKind == 'Entity'">
-					    <label>{{inputField.label}}:</label>
-					    <input
-					        type="text" class="form-control" 
-					        id="{{inputField.name}}"
-					        ng-model="linkValues[inputField.name].shorthand"
-					        typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
-					        typeahead-min-length="0"
-					        typeahead-input-formatter="formatCandidate(inputField)"
-					        typeahead-on-select="onCandidateSelected($item, inputField, $label)"
-					        autocomplete="off">
-					</div>
+				    <input
+				        ng-if="typeKind == 'Entity'"
+				        type="text" class="form-control" 
+				        id="{{inputField.name}}"
+				        ng-model="linkValues[inputField.name].shorthand"
+				        typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
+				        typeahead-min-length="0"
+				        typeahead-input-formatter="formatCandidate(inputField)"
+				        typeahead-on-select="onCandidateSelected($item, inputField, $label)"
+				        autocomplete="off">
 				</div>
 			</div>
 		</form>
+    </div>
+    <div class="col-md-4 col-xs-12">
+      <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" ng-click="cancel()">
+              Cancel
+          </button>
+          <button type="button" class="btn btn-default" ng-click="save()">
+              Save
+          </button>
+      </div>
+    </div>
 </div>
 <div ng-show="raw==undefined">Loading...</div>
-</div>
-<div class="col-sm-4">
-        <div >
-              <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-default" ng-click="cancel()">
-                      Cancel
-	              </button>
-	              <button type="button" class="btn btn-default" ng-click="save()">
-                      Save
-	              </button>
-              </div>
-        </div>
-</div>
 </div>

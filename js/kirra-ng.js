@@ -27,6 +27,7 @@ var repository = kirra.newRepository(applicationUrl);
 var kirraNG = {};
 
 var application;
+var entities;
 var entitiesByName;
 var entityCapabilitiesByName;
 var entityNames;
@@ -50,8 +51,8 @@ kirraNG.filter = function(arrayOrMap, filter, mapping) {
 
 kirraNG.find = function(arrayOrMap, filter) {
     var found = undefined;
-    angular.forEach(arrayOrMap, function(it) {
-        if (!found && filter(it)) {
+    angular.forEach(arrayOrMap, function(it, it2) {
+        if (!found && filter(it, it2)) {
             found = it;
         }
     });
@@ -228,15 +229,11 @@ kirraNG.buildViewData = function(entity, instance) {
     return data;
 };
 
-kirraNG.loadCapabilities = function(http, entity) {
-    if (entity.topLevel && entity.concrete) {
-        http.get(entity.entityCapabilityUri).then(function(loaded) {
-            var capabilities = entityCapabilitiesByName[entity.fullName] = loaded.data;
-            if (capabilities.entity.indexOf('List') >= 0 || kirraNG.find(capabilities.queries, function (query) { return query.length > 0; })) {
-                entity.allowed = true;
-            } 
-        });
-    }
+kirraNG.loadEntityCapabilities = function(loadedCallback) {
+    repository.loadEntityCapabilities(function(loadedEntityCapabilities) {
+        entityCapabilitiesByName = loadedEntityCapabilities;
+        loadedCallback();
+    });
 };
 
 
@@ -312,6 +309,7 @@ kirraNG.buildInstanceListController = function(entity) {
         var reloadFunction = function() { $state.go($state.current.name, $state.params, { reload: true }); };
     
 		$scope.$state = $state;
+		$scope.table = true;
         $scope.entity = entity;
         $scope.filtered = finderName != undefined;
         $scope.finder = finder;
@@ -320,6 +318,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.entityName = entity.fullName;
         $scope.tableProperties = kirraNG.buildTableColumns(entity);
         $scope.actions = kirraNG.getInstanceActions(entity);
+        $scope.anyListCapability = true;
         $scope.instances = undefined;
         $scope.queries = kirraNG.getQueries(entity);
         $scope.entityActions = kirraNG.getEntityActions(entity);
@@ -559,6 +558,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
     	};
     	
         $scope.save = function() {
+            console.log("Save pressed");
             var newValues = angular.copy($scope.propertyValues);
             console.log(newValues);
             var newLinks = angular.copy($scope.linkValues);
@@ -677,26 +677,33 @@ kirraNG.buildInstanceLinkController = function(entity) {
 };
 
 kirraNG.buildDashboardController = function() {
+    console.log("dashboard entities: ");
+    console.log(entities);
     var controller = function($scope, $state, $stateParams, instanceService, $q, $http) {
         var metrics = [];
-        var entities = $scope.entities;
         angular.forEach(entities, function (entity) {
             var queries = kirraNG.filter(entity.operations, function(op) { 
 		    	var isMatch = !op.instanceOperation && op.kind == 'Finder';
 		    	return isMatch; 
 			});
             angular.forEach(queries, function (query) {
-                if (!query.parameters || query.parameters.length == 0) {
-                    var finderUri = entity.finderUriTemplate.replace('(finderName)', query.name);
-                    var metric = {
-	                    query: query,
-	                    entity: entity,
-	                    result: "-",
-	                    finderUri: finderUri,
-	                    multiple: ((query.typeRef.kind != 'Entity') && query.multiple)
-    	            };
-	                metrics.push(metric);
+                var entityCapabilities = entityCapabilitiesByName[entity.fullName];
+                if (query.parameters && query.parameters.length > 0) {
+                    return;
                 }
+                var queryCapabilities = entityCapabilities.queries && entityCapabilities.queries[query.name];
+                if (!queryCapabilities || queryCapabilities.indexOf('StaticCall') < 0) {
+                    return;
+                }
+                var finderUri = entity.finderUriTemplate.replace('(finderName)', query.name);
+                var metric = {
+                    query: query,
+                    entity: entity,
+                    result: "-",
+                    finderUri: finderUri,
+                    multiple: (query.typeRef.kind != 'Entity') && query.multiple
+	            };
+                metrics.push(metric);
             });
         });
         $scope.metrics = metrics.slice();
@@ -736,7 +743,6 @@ kirraNG.buildInstanceShowController = function(entity) {
         var objectId = $stateParams.objectId;
 
 		$scope.$state = $state;
-
         $scope.objectId = objectId;
 
         $scope.entity = entity;
@@ -954,6 +960,18 @@ kirraNG.buildInstanceService = function() {
 	    Instance.getEntityCapabilities = function (entity) {
 	        return $http.get(entity.entityCapabilityUri);
 	    };
+	    Instance.getNewBlobUri = function (entity, propertyName, objectId) {
+	        var newAttachmentUri = entity.instanceNewBlobUriTemplate.replace('(objectId)', objectId).replace('(propertyName)', propertyName);
+	        return newAttachmentUri;
+	    };
+        Instance.getBlobUri = function (entity, propertyName, objectId, token) {
+            var blobUri = entity.instanceExistingBlobUriTemplate.replace('(objectId)', objectId).replace('(propertyName)', propertyName).replace('(token)', token);
+            return blobUri;
+        };
+	    Instance.deleteBlob = function (entity, propertyName, objectId, token) {
+            var blobUri = entity.instanceExistingBlobUriTemplate.replace('(objectId)', objectId).replace('(propertyName)', propertyName).replace('(token)', token);
+            return $http.delete(blobUri);
+        };
 	    return Instance;
     };
     return serviceFactory;
@@ -975,8 +993,16 @@ kirraNG.signupController = function($scope, $http, $modalInstance) {
     $scope.credentials = {};
 };
 
+kirraNG.registrationController = function($scope, $http, $modalInstance) {
+    $scope.ok = function() {
+        console.log("Ok pressed");
+        $modalInstance.close($scope.credentials);
+    };
+    $scope.credentials = {};
+};
 
-kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router']);
+
+kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router', 'ui.uploader', 'ui.toggle', 'bootstrapLightbox']);
 
 kirraModule.factory('kirraNotification', function($rootScope) {
     var listeners = [];
@@ -1011,24 +1037,33 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
             return;
         }
         this.showing = true;
-	    var modal = $modal.open({
+	    this.modal = $modal.open({
 	      animation: true,
 	      templateUrl: 'templates/login.html',
 	      size: 'sm',
 	      controller: 'LoginCtrl'
 	    });
-	    modal.result.then(function(credentials) {
+	    this.modal.result.then(function(credentials) {
 	        dialog.showing = false;
-	        encodedCredentials = btoa(credentials.username+":"+credentials.password);
-	        return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+	        if (credentials) {
+    	        encodedCredentials = btoa(credentials.username+":"+credentials.password);
+    	        return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+	        }
 	    }, function() {
 	        dialog.showing = false;
 	        dialog.show();
 	    }).then(function(loginResponse) {
-	        if (loginResponse.status >= 200 && loginResponse.status < 300) {
+	        if (loginResponse && loginResponse.status >= 200 && loginResponse.status < 300) {
 	            window.location.reload();
 	        }
 	    });
+    };
+    LoginDialog.close = function() {
+        if (this.showing && this.modal) {
+            this.modal.close();
+        }
+        this.showing = false;
+        delete this.modal;
     };
     return LoginDialog;
 });
@@ -1044,27 +1079,65 @@ kirraModule.service('signupDialog', function($rootScope, $modal, $http, $state) 
             return;
         }
         this.showing = true;
-        var modal = $modal.open({
+        this.modal = $modal.open({
           animation: true,
           templateUrl: 'templates/signup.html',
           size: 'sm',
           controller: 'SignupCtrl'
         });
-        modal.result.then(function(credentials) {
+    };
+    SignupDialog.close = function() {
+        if (this.showing && this.modal) {
+            this.modal.close();
+        }
+        this.showing = false;
+        delete this.modal;
+    };
+    
+    return SignupDialog;
+});
+
+kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $state) {
+    var RegistrationDialog = function () {
+        angular.extend(this);
+    };
+    RegistrationDialog.showing = false;
+    RegistrationDialog.show = function(scope) {
+        var dialog = this;
+        if (this.showing) {
+            return;
+        }
+        this.showing = true;
+        this.modal = $modal.open({
+          animation: true,
+          templateUrl: 'templates/registration.html',
+          size: 'lg',
+          controller: kirraNG.buildInstanceEditController(scope.entity, 'create'),
+          scope: scope
+        });
+        this.modal.result.then(function(credentials) {
             dialog.showing = false;
             encodedCredentials = btoa(credentials.username+":"+credentials.password);
             return $http.post(application.uri + 'session/signup', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
         }, function() {
-            dialog.showing = false;
-            dialog.show();
+            dialog.close();
         }).then(function(loginResponse) {
-            if (loginResponse.status >= 200 && loginResponse.status < 300) {
+            if (loginResponse && loginResponse.status >= 200 && loginResponse.status < 300) {
                 window.location.reload();
             }
         });
     };
-    return SignupDialog;
+    RegistrationDialog.close = function() {
+        if (this.showing && this.modal) {
+            this.modal.close();
+        }
+        this.showing = false;
+        delete this.modal;
+    };
+    
+    return RegistrationDialog;
 });
+
 
 
 kirraModule.config(function($httpProvider) {
@@ -1133,23 +1206,14 @@ repository.loadApplication(function(loadedApp, status) {
     application = loadedApp;
     document.title = application.applicationLabel;
 	        
-    repository.loadEntities(function(loadedEntities) {
-        entitiesByName = {};
-        entityCapabilitiesByName = {};
-        entityNames = [];
+    var buildUI = function(entities, entityCapabilities, status) {
         
-        angular.forEach(loadedEntities, function(entity) {
-            entitiesByName[entity.fullName] = entity;
-            entityCapabilitiesByName[entity.fullName] = {};
-            entityNames.push(entity.fullName);
-        });
-        
-	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, signupDialog) {
+	    kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, signupDialog, registrationDialog) {
 	        $scope.applicationName = application.applicationName;
 	        $scope.applicationLabel = application.applicationLabel || application.applicationName;
 	        var querylessUri = window.location.href.split(/[?#]/)[0];
 	        $scope.applicationUrl = querylessUri + '?app-uri=' + application.uri + '#/';
-	        $scope.entities = loadedEntities;
+	        $scope.entities = entities;	        
 	        $scope.kirraNG = kirraNG;
 	        $scope.currentUser = undefined;
 	        $scope.logout = function() {
@@ -1161,10 +1225,17 @@ repository.loadApplication(function(loadedApp, status) {
 	        $scope.login = function() {
 	           console.log("Log-in requested");
 	           loginDialog.show();
+	           signupDialog.close();
 	        };
 	        $scope.signUp = function() {
                console.log("Sign-up requested");
                signupDialog.show();
+               loginDialog.close();
+            };
+            $scope.registerAs = function(entity) {
+               console.log("Registration as " + entity.label);
+               registrationDialog.show(this);
+               signupDialog.close();
             };
 	        
 	        $scope.canChangeTheme = canChangeTheme;
@@ -1186,20 +1257,21 @@ repository.loadApplication(function(loadedApp, status) {
 		        });
 	        }
 	        
-	        angular.forEach(loadedEntities, function(entity) {
-	            kirraNG.loadCapabilities($http, entity);
-	        });
-	        
+	        if (status != 200) {
+	            loginDialog.show();
+	        }
 	    });
 	    
-	    kirraModule.directive('kaData', function() {
+	    kirraModule.directive('kaData', function(uiUploader, instanceService, kirraNotification, $state, Lightbox) {
 		    return {
 		        restrict: 'E',
 		        scope: {
+		            // these are set at the directive call site
 			        slot: '=',
 			        slotData: '=',
 			        objectId: '=',
-			        table: '='
+			        table: '=',
+			        
 			    },
 			    link: function (scope, element) {
 			        var slot = scope.slot;
@@ -1208,6 +1280,9 @@ repository.loadApplication(function(loadedApp, status) {
 			        var isTable = scope.table;
 			        scope.slotTypeName = slot.typeRef.typeName;
 			        scope.slotTypeKind = slot.typeRef.kind;
+			        
+			        console.log("objectId = "+ scope.objectId);
+			        console.log(scope);
 			        if (slot.mnemonic || slot.unique) {
 			            if (!isTable && slot.typeRef.kind == 'Entity') {
 					        scope.targetObjectId = slotData && slotData.objectId ;
@@ -1219,7 +1294,49 @@ repository.loadApplication(function(loadedApp, status) {
 			        } else if (slot.typeRef.kind == 'Entity') {
 				        scope.targetObjectId = slotData && slotData.objectId ;
 				        scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
-			        }
+			        } else if (slot.typeRef.kind == 'Blob') {
+                        element.on('change', function(e) {
+                            var fileInput = document.getElementById(slot.name + 'FileInput');
+                            var files = fileInput.files;
+                            scope.files = files;
+                            scope.$apply();
+                        });			            
+                        scope.attachmentUpload = function(slot, files) {
+                            uiUploader.addFiles(files);
+                            uiUploader.startUpload({
+                                url: instanceService.getNewBlobUri(entitiesByName[slot.owner.fullName], slot.name, objectId  || scope.$parent.$parent.objectId),
+                                onProgress: function(file) {
+                                    scope.$apply();
+                                },
+                                onCompleted: function(file, response, status) {
+                                    if (status >= 400) {
+                                        kirraNotification.logError({ data: JSON.parse(response) });
+                                    }
+                                    $state.go($state.current.name, $state.params, { reload: true });
+                                }
+                            });
+                        };
+                        scope.attachmentCancel = function(slot, slotData, files) {
+                            var fileInput = document.getElementById(slot.name + 'FileInput');
+                            delete fileInput.files;
+                            fileInput.value = '';
+                            scope.files = undefined;
+                        };
+                        scope.attachmentRemove = function(slot, slotData, files) {
+                            instanceService.deleteBlob(entitiesByName[slot.owner.fullName], slot.name, objectId  || scope.$parent.$parent.objectId, slotData.token).then(function() {
+                                $state.go($state.current.name, $state.params, { reload: true });
+                            });
+                        };
+                        scope.getAttachmentDownloadUri = function(slot, slotData) {
+                            return instanceService.getBlobUri(entitiesByName[slot.owner.fullName], slot.name, objectId  || scope.$parent.$parent.objectId, slotData.token);
+                        };
+                        scope.attachmentShow = function (slot, slotData) {
+                            Lightbox.openModal([{
+                                url: this.getAttachmentDownloadUri(slot, slotData)
+                            }], 0);
+                        };
+			        } 
+			        
 			    },
 		        templateUrl: 'templates/ka-data.html'
 		    };
@@ -1227,7 +1344,7 @@ repository.loadApplication(function(loadedApp, status) {
 		
 		kirraModule.controller('DashboardCtrl', kirraNG.buildDashboardController());
 	    
-        angular.forEach(entitiesByName, function(entity, entityName) {
+        angular.forEach(entitiesByName, function (entity, entityName) {
             kirraModule.controller(entityName + 'InstanceShowCtrl', kirraNG.buildInstanceShowController(entity));
             kirraModule.controller(entityName + 'InstanceLinkCtrl', kirraNG.buildInstanceLinkController(entity));                
             kirraModule.controller(entityName + 'InstanceEditCtrl', kirraNG.buildInstanceEditController(entity, 'edit'));
@@ -1241,6 +1358,7 @@ repository.loadApplication(function(loadedApp, status) {
         
         kirraModule.controller('LoginCtrl', kirraNG.loginController);
         kirraModule.controller('SignupCtrl', kirraNG.signupController);
+        kirraModule.controller('RegistrationCtrl', kirraNG.registrationController);
         
         kirraModule.factory('instanceService', kirraNG.buildInstanceService());
         
@@ -1314,5 +1432,36 @@ repository.loadApplication(function(loadedApp, status) {
         angular.element(document).ready(function() {
 	      angular.bootstrap(document, ['kirraModule']);
 	    });
-    });
+    };
+    
+    repository.loadEntities(function(loadedEntities) {
+        entitiesByName = {};
+        entityCapabilitiesByName = {};
+        entityNames = [];
+        entities = loadedEntities;
+        
+        angular.forEach(loadedEntities, function(entity) {
+            entitiesByName[entity.fullName] = entity;
+            entityCapabilitiesByName[entity.fullName] = {};
+            entityNames.push(entity.fullName);
+        });
+        
+        repository.loadEntityCapabilities(function(loadedEntityCapabilities, status) {
+            if (status == 200) {
+                entityCapabilitiesByName = loadedEntityCapabilities;
+                angular.forEach(entityCapabilitiesByName, function(capabilities, entityName) {
+                    var actualAccessibleQuery = kirraNG.find(capabilities.queries, function (queryCaps, queryName) {
+                        var query = entitiesByName[entityName].operations[queryName]; 
+                        return queryCaps.length && query.multiple && query.typeRef.kind == "Entity";
+                    });
+                    if (capabilities.entity.indexOf('List') < 0 && (!Object.keys(capabilities.queries).length || !actualAccessibleQuery)) {
+                        entitiesByName[entityName].forbidden = true;
+                    }
+                });
+                buildUI(loadedEntities, loadedEntityCapabilities, status);
+            } else {
+                buildUI(loadedEntities, {}, status);
+            }
+        });
+    });    
 });	        	

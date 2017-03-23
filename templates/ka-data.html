@@ -8,7 +8,7 @@
 </div>
 
 <div ng-if="!slot.mnemonic && slotData !== undefined" >
-	<div ng-if="slotTypeName != 'Boolean' && slotTypeName != 'Date' && slotTypeKind != 'Entity' && slotTypeKind != 'Enumeration'">
+	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Date' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
 	    {{slotData}}
 	</div>
 	<div ng-if="slotTypeKind == 'Entity'">
@@ -16,15 +16,35 @@
 	    	{{slotData.shorthand}}
 		</a>
 	</div>
+	<div ng-if="slotTypeName == 'Double'">
+	{{slotData | number:2}}
+	</div>
 	<div ng-if="slotTypeName == 'Boolean'">
 	    <span ng-if="slotData" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-	    <div ng-if="!slotData">-</div>
+	    <span ng-if="!slotData" class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 	</div>
 	<div ng-if="slotTypeName == 'Date'">
 		{{slotData | date:'yyyy/MM/dd':'UTC'}}
-	</div>
+    </div>
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
-	</div>	
+	</div>
+	<div ng-if="slotTypeKind == 'Blob' && table">
+	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" height="42" width="42">
+    </div>
+    <div ng-if="slotTypeKind == 'Blob' && !table">
+        <a class="btn btn-default btn-sm" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
+        <button class="btn-sm btn-default btn-sm" ng-click="attachmentShow(slot, slotData)">View</button>
+        <button class="btn-sm btn-default btn-sm" ng-click="attachmentRemove(slot, slotData)">Remove</button>
+    </div>
 </div>
-<div ng-if="slotData === undefined">-</div>
+<div ng-if="slotData == undefined && slotTypeKind != 'Blob'">-</div>
+<div ng-if="slotData == undefined && slotTypeKind == 'Blob' && !table">
+    <input class="btn btn-default btn-sm" type="file" id="{{slot.name}}FileInput"/>
+    <button class="btn btn-default" ng-if="files" ng-click="attachmentUpload(slot, files)">Upload</button>
+    <button class="btn btn-default" ng-if="files" ng-click="attachmentCancel(slot, slotData, files)">Cancel</button>
+</div>
+<div ng-if="slotData == undefined && slotTypeKind == 'Blob' && table">
+    <div ng-if="!slotData">-</div>
+</div>

@@ -4,8 +4,13 @@
                     <h3 class="page-header">Dashboard</h3>
                 </div>
             </div>
+            <div class="row" ng-if="!metrics.length">
+                <div class="alert alert-info" role="alert">
+                    This application does not define any metrics yet.
+                </div>
+            </div>
             <div class="row">
-                <div class="col-xs-3" ng-repeat="metric in metrics" ng-if="!metric.multiple">
+                <div class="col-xs-6 col-md-3" ng-repeat="metric in metrics" ng-if="!metric.multiple">
                     <div class="panel panel-primary" ng-if="!metric.multiple">
                         <div class="panel-heading">
                             <div class="row">
