@@ -29,14 +29,6 @@
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
 	</div>
-	<div ng-if="slotTypeName == 'Geolocation'">
-    	<img 
-    	    ng-src="{{getMapAsImageURL(slot,slotData)}}" 
-    	    width="300"
-            height="300">
-        <button class="btn btn-default" ng-click="setToMyLocation(slot, slotData)">My location</button>
-        <button class="btn btn-default" ng-click="chooseALocation(slot, slotData)">Choose location</button>
-    </div>
 	<!--
 	<div ng-if="slotTypeName == 'Geolocation'">
     	<iframe
@@ -62,7 +54,7 @@
         </div>
     </div>
 </div>
-<div ng-if="slotData == undefined && slotTypeKind != 'Blob'">-</div>
+<div ng-if="slotData == undefined && slotTypeKind != 'Blob' && slotTypeName != 'Geolocation'"">-</div>
 <div ng-if="slotData == undefined && slotTypeKind == 'Blob' && !table">
     <input class="btn btn-default btn-sm" type="file" id="{{slot.name}}FileInput"/>
     <button class="btn btn-default" ng-if="files" ng-click="attachmentUpload(slot, files)">Upload</button>
@@ -70,4 +62,17 @@
 </div>
 <div ng-if="slotData == undefined && slotTypeKind == 'Blob' && table">
     <div ng-if="!slotData">-</div>
+</div>
+<div ng-if="slotTypeName == 'Geolocation' && !table">
+    <img 
+        ng-if="slotData"
+        ng-src="{{getMapAsImageURL(slot,slotData)}}" 
+        width="300"
+        height="300">
+    <button class="btn btn-default" ng-click="setToMyLocation(slot, slotData)">My location</button>
+    <button class="btn btn-default" ng-click="chooseALocation(slot, slotData)">Choose location</button>
+</div>
+<div ng-if="slotTypeName == 'Geolocation' && table">
+    <span ng-if="slotData" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+    <span ng-if="!slotData" class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 </div>
