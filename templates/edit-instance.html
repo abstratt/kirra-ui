@@ -4,14 +4,13 @@
 <div class="row">
     <div class="col-md-8 col-xs-12">
         <legend>{{formLabel}}</legend>
-		<form>
-			<div ng-repeat="inputField in inputFields track by $index">
+		<form class="form">
+			<div ng-repeat="inputField in inputFields track by $index" class="row">
 			    <div class="form-group-xs" ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
-			    <label for="{{inputField.name}}">{{inputField.label}}:</label>
-			    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
-                <textarea ng-if="typeKind == 'Primitive' && typeName == 'Memo'" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]"></textarea>
-                <toggle class="col-md-8 col-xs-12" ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="btn-xs" ng-model="propertyValues[inputField.name]" id="{{inputField.name}}"  on="Yes" off="No"></toggle>					
-					
+    			    <label for="{{inputField.name}}">{{inputField.label}}:</label>
+    			    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
+                    <textarea ng-if="typeKind == 'Primitive' && typeName == 'Memo'" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]"></textarea>
+                    <toggle ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="btn-xs" ng-model="propertyValues[inputField.name]" id="{{inputField.name}}"  on="Yes" off="No"></toggle>					
 					<div id="{{inputField.name}}" ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
 					    <p class="input-group">
 					    	<input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
@@ -20,9 +19,9 @@
 				            </span>
 				    	</p>
 					</div>
-					    <select ng-if="typeKind == 'Enumeration'" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]" class="form-control">
-							<option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
-                        </select>
+				    <select ng-if="typeKind == 'Enumeration'" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]" class="form-control">
+						<option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
+                    </select>
 				    <input
 				        ng-if="typeKind == 'Entity'"
 				        type="text" class="form-control" 

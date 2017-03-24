@@ -1262,7 +1262,7 @@ repository.loadApplication(function(loadedApp, status) {
 	        }
 	    });
 	    
-	    kirraModule.directive('kaData', function(uiUploader, instanceService, kirraNotification, $state, Lightbox) {
+	    kirraModule.directive('kaData', function(uiUploader, instanceService, kirraNotification, $state, $sce, Lightbox) {
 		    return {
 		        restrict: 'E',
 		        scope: {
@@ -1281,8 +1281,6 @@ repository.loadApplication(function(loadedApp, status) {
 			        scope.slotTypeName = slot.typeRef.typeName;
 			        scope.slotTypeKind = slot.typeRef.kind;
 			        
-			        console.log("objectId = "+ scope.objectId);
-			        console.log(scope);
 			        if (slot.mnemonic || slot.unique) {
 			            if (!isTable && slot.typeRef.kind == 'Entity') {
 					        scope.targetObjectId = slotData && slotData.objectId ;
@@ -1335,7 +1333,44 @@ repository.loadApplication(function(loadedApp, status) {
                                 url: this.getAttachmentDownloadUri(slot, slotData)
                             }], 0);
                         };
-			        } 
+			        } else if (slot.typeRef.typeName == 'Geolocation') {
+                        scope.generateMapURL = function (slot, slotData) {                            
+                            var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
+                            var urlTemplate = "https://www.google.com/maps/embed/v1/place?key={apiKey}&q={geolocation}&zoom=19&maptype=satellite";
+                            var url = urlTemplate.replace('{geolocation}', slotData).replace('{apiKey}', apiKey);
+                            return $sce.trustAsResourceUrl(url);
+                        };
+                        scope.getMapAsImageURL =  function (slot, slotData) {
+                            var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
+                            var urlTemplate = "https://maps.googleapis.com/maps/api/staticmap?zoom=15&size=300x300&maptype=roadmap&markers={geolocation}&key=AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0";
+                            var url = urlTemplate.replace('{geolocation}', slotData).replace('{apiKey}', apiKey);
+                            return url; //$sce.trustAsResourceUrl(url);
+                        };
+                        scope.setToMyLocation = function (slot, slotData) {
+                            if (!navigator.geolocation) {
+                                alert("Geolocation is not supported by this browser.");
+                                return;
+                            }
+                            var objectId = scope.$parent.objectId;
+                            navigator.geolocation.getCurrentPosition(function(position) {
+                                instanceService.get(
+                                    entitiesByName[slot.owner.fullName],
+                                    objectId
+                                ).then(function(loaded) {
+                                    loaded.values[slot.name] = position.coords.latitude + "," + position.coords.longitude;
+                                    return instanceService.put(
+                                        entitiesByName[slot.owner.fullName], 
+                                        loaded);
+                                }).then(function() {
+                                    $state.go($state.current.name, $state.params, { reload: true });
+                                }).catch(function(error) {
+                                    kirraNotification.logError(error);
+                                });
+                            }, function(positionError) {
+                                alert("Error obtaining geolocation: " + positionError.message);
+                            });
+                        };
+                    };
 			        
 			    },
 		        templateUrl: 'templates/ka-data.html'

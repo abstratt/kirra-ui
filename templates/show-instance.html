@@ -12,11 +12,15 @@
 			</a>
 		</span>
 		</legend>
-		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]">		
-			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind">
-				<div class="span4 display-values" class="input-xlarge input-group">
-				    <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
-				    <ka-data slot="field" slot-data="fieldData" id="{{field.name}}"></ka-data>
+		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]" class="form-horizontal">		
+			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind" class="row">
+				<div class="span4 display-values" class="form-group">
+				    <div class="col-sm-3">
+				        <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
+				    </div>
+				    <div class="col-sm-9">
+				        <ka-data slot="field" slot-data="fieldData" id="{{field.name}}"></ka-data>
+				    </div>
 				</div>
 			</div>
 		</div>

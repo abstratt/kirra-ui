@@ -16,7 +16,6 @@
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>    
   <script src="https://cdnjs.cloudflare.com/ajax/libs/metisMenu/2.5.2/metisMenu.min.js"></script>  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/3.3.7/js/sb-admin-2.min.js"></script>
-  <script src="lib/angular-google-maps/angular-google-maps.min.js"></script>
   
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/metisMenu/2.5.2/metisMenu.min.css">
@@ -25,6 +24,13 @@
   <link rel="stylesheet" href="lib/angular-bootstrap-toggle/angular-bootstrap-toggle.min.css">
   <link id="bootstrap_theme" rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
   <script src="js/kirra-ng.js"></script>
+  
+    <style type="text/css">
+    body {
+       font-size: 16px;
+    }
+    </style>
+  
 </head>
 <body ng-controller="KirraBaseCtrl">
     <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>{{alert.msg}}</alert>

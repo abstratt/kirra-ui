@@ -8,7 +8,7 @@
 </div>
 
 <div ng-if="!slot.mnemonic && slotData !== undefined" >
-	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Date' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
+	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Date' && slotTypeName != 'Geolocation' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
 	    {{slotData}}
 	</div>
 	<div ng-if="slotTypeKind == 'Entity'">
@@ -29,14 +29,37 @@
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
 	</div>
+	<div ng-if="slotTypeName == 'Geolocation'">
+    	<img 
+    	    ng-src="{{getMapAsImageURL(slot,slotData)}}" 
+    	    width="300"
+            height="300">
+        <button class="btn btn-default" ng-click="setToMyLocation(slot, slotData)">My location</button>
+        <button class="btn btn-default" ng-click="chooseALocation(slot, slotData)">Choose location</button>
+    </div>
+	<!--
+	<div ng-if="slotTypeName == 'Geolocation'">
+    	<iframe
+          width="600"
+          height="450"
+          frameborder="0" style="border:0"
+          src="{{generateMapURL(slot, slotData)}}" allowfullscreen>
+        </iframe>
+	</div>
+	-->
 	<div ng-if="slotTypeKind == 'Blob' && table">
 	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" height="42" width="42">
     </div>
     <div ng-if="slotTypeKind == 'Blob' && !table">
-        <a class="btn btn-default btn-sm" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
-        <button class="btn-sm btn-default btn-sm" ng-click="attachmentShow(slot, slotData)">View</button>
-        <button class="btn-sm btn-default btn-sm" ng-click="attachmentRemove(slot, slotData)">Remove</button>
+        <!--
+        <a class="btn btn-default" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
+        -->
+        <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12" height="300" width="300">
+        <div  class="col-sm-12">
+            <button class="btn btn-default" ng-click="attachmentShow(slot, slotData)">View</button>
+            <button class="btn btn-default" ng-click="attachmentRemove(slot, slotData)">Remove</button>
+        </div>
     </div>
 </div>
 <div ng-if="slotData == undefined && slotTypeKind != 'Blob'">-</div>
