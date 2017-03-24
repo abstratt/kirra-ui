@@ -48,8 +48,8 @@
             <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs img-thumbnail">
         </div>
         <div  class="col-sm-12 btn-group">
-            <a class="btn btn-default btn-md visible-lg" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
-            <button class="btn btn-default btn-md" ng-click="attachmentShow(slot, slotData)">View</button>
+            <a class="btn btn-default btn-md" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
+            <button class="btn btn-default btn-md visible-lg" ng-click="attachmentShow(slot, slotData)">View</button>
             <button class="btn btn-default btn-md" ng-click="attachmentRemove(slot, slotData)">Remove</button>
         </div>
     </div>
