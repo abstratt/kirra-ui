@@ -44,9 +44,11 @@
 	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" height="42" width="42">
     </div>
     <div ng-if="slotTypeKind == 'Blob' && !table">
-        <a class="btn btn-default visible-lg" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
-        <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs">
         <div  class="col-sm-12">
+            <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs">
+        </div>
+        <div  class="col-sm-12">
+            <a class="btn btn-default visible-lg" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
             <button class="btn btn-default" ng-click="attachmentShow(slot, slotData)">View</button>
             <button class="btn btn-default" ng-click="attachmentRemove(slot, slotData)">Remove</button>
         </div>
