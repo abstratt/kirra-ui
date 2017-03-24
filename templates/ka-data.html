@@ -41,11 +41,11 @@
 	-->
 	<div ng-if="slotTypeKind == 'Blob' && table">
 	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" height="42" width="42">
+	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
     </div>
     <div ng-if="slotTypeKind == 'Blob' && !table">
         <div  class="col-sm-12">
-            <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs">
+            <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs img-thumbnail">
         </div>
         <div  class="col-sm-12 btn-group">
             <a class="btn btn-default btn-md visible-lg" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
@@ -65,6 +65,7 @@
 </div>
 <div ng-if="slotTypeName == 'Geolocation' && !table">
     <img 
+        class="img-thumbnail"
         ng-if="slotData"
         ng-src="{{getMapAsImageURL(slot,slotData)}}" 
         width="300"
