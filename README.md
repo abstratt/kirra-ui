@@ -1,4 +1,8 @@
-**kirra-angular** is a generic HTML5/JavaScript(Angular) client for any application exposing their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+## kirra-ui or kirra-angular?
+
+**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+
+**kirra-angular** is a kirra-ui implementation, based on HTML5/JavaScript(Angular). 
 
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
 application schema that is discovered using the back-end (Kirra-based) REST API. 
