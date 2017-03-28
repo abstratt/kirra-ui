@@ -30,7 +30,7 @@ between the Kirra-based format and your application's format.
 #### Cloudfier-based prototypes
 This is still in early development, many features are missing. You can try it out against any [Cloudfier](http://cloudfier.com)-based application using URLs like these:
 
-* [Taxi Fleet](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet) (log in as mechanic1 or customer1, password 'pass')
+* [Taxi Fleet](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet)
 * [Car Service](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv) (log in as mechanic1 or customer1, password 'pass')
 * [Expenses](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses) (log in as employee1, employee2 or approver1, password 'pass')
 * [Ship It](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
