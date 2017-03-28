@@ -4,7 +4,7 @@
 
 ## kirra-angular
 
-**kirra-angular** is a kirra-ui implementation, based on HTML5/JavaScript(Angular). 
+**kirra-angular** is a kirra-ui implementation based on HTML5/JavaScript(Angular). 
 
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
 application schema that is discovered using the back-end (Kirra-based) REST API. 
