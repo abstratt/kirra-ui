@@ -1,4 +1,10 @@
-**kirra-angular** is a generic HTML5/JavaScript(Angular) client for any application exposing their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+# kirra-ui
+
+**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+
+## kirra-angular
+
+**kirra-angular** is a kirra-ui implementation based on HTML5/JavaScript(Angular). 
 
 kirra-angular provides a generic Angular admin application that renders a UI dynamically based on the 
 application schema that is discovered using the back-end (Kirra-based) REST API. 
@@ -24,16 +30,16 @@ between the Kirra-based format and your application's format.
 #### Cloudfier-based prototypes
 This is still in early development, many features are missing. You can try it out against any [Cloudfier](http://cloudfier.com)-based application using URLs like these:
 
-* [Taxi Fleet](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet)
-* [Car Service](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv)
-* [Car rental](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-car-rental)
-* [Expenses](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses)
-* [Ship It](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
+* [Taxi Fleet](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-taxi-fleet)
+* [Car Service](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv) (log in as mechanic1 or customer1, password 'pass')
+* [Expenses](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses) (log in as employee1, employee2 or approver1, password 'pass')
+* [Ship It](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
+* [Car rental](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-car-rental)
 
 #### Example Java EE applications
 
-* [Example 1](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples-abstratt.rhcloud.com)
-* [Example 2](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples2-abstratt.rhcloud.com)
+* [Example 1](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples-abstratt.rhcloud.com) (offline at this time)
+* [Example 2](http://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=http://examples2-abstratt.rhcloud.com) (offline at this time)
 
 These Java EE apps were fully generated from Cloudfier applications (no handwritten code) but look like typical standalone code you would write by hand. See code for all generated Java EE apps [here](https://textuml.ci.cloudbees.com/job/codegen-examples-JEE/ws/jee/).
 
