@@ -50,7 +50,7 @@
         <div ng-show="instances.length > 0" class="col-sm-10 table-responsive">
             <table  class="table table-striped">
                 <tr>
-                    <th ng-if="actions.length" class="hidden-md hidden-sm hidden-xs">Actions</td>
+                    <th ng-if="actions.length" class="hidden-md hidden-sm hidden-xs">Actions</th>
                     <th ng-repeat="property in tableProperties">{{::property.label}}</th>
                 </tr>
                 <tr ng-repeat="row in rows track by $index">
@@ -76,6 +76,14 @@
                     <td ng-repeat="property in tableProperties">
                     	<ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
                     </td>
+                </tr>
+                <tr>
+                    <!-- 
+                        Additional empty row, workaround so action dropdown for last row has some room
+                        (if it doesn't have many actions).
+                    -->
+                    <td ng-if="actions.length" class="hidden-md hidden-sm hidden-xs"></td>
+                    <td ng-repeat="property in tableProperties"></td>
                 </tr>
             </table>
         </div>
