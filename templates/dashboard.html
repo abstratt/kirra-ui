@@ -5,8 +5,11 @@
                 </div>
             </div>
             <div class="row" ng-if="!metrics.length">
-                <div class="alert alert-info" role="alert">
+                <div class="alert alert-info" role="alert" ng-if="currentUser || !applicationOptions.isLoginRequired">
                     This application does not define any metrics yet.
+                </div>
+                <div class="alert alert-info" role="alert" ng-if="!currentUser && applicationOptions.isLoginRequired">
+                    Login is required before you can see any metrics.
                 </div>
             </div>
             <div class="row">
