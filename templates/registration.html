@@ -1,9 +1,28 @@
+
 <div class="container" ng-controller="KirraRepositoryCtrl">
 	<div class="row">
-		<div class="col-sm-3">
-            <div ng-include src="'templates/edit-instance.html'"></div>
+        <div class="col-sm-3" ng-include="'templates/edit-form.html'">
         </div>
     </div>
-</div>      
-        
+    <div class="row">
+        <div class="col-sm-3">
+        <form class="form">
+                <div class="form-group-xs">
+                    <label for="username">User name:</label>
+                    <input type="text" class="form-control" id="username" ng-model="credentials.username">
+                </div>
+                <div class="form-group-xs">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" ng-model="credentials.password">
+                </div>
+                <p></p>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">Sign up</button>        
+        </form>
+        </div>        
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <p>Already a user? Click <a ng-click="login()">here</a> to sign in.</p>
+        </div>
+    </div>
 </div>      

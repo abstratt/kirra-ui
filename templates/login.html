@@ -20,11 +20,11 @@
             <p></p>
         </div>
     </div>
-    <div class="row">
+    <div class="row" ng-repeat="entity in selfServiceRoleEntities">
         <div class="col-sm-3">
-            <p>Not a user? Click <a ng-click="signUp()">here</a> to register.</p>
+            <p>Register as <a ng-click="registerAs(entity)">{{entity.label}}    </a></p>
         </div>
-    </div>    
+    </div>
 	<div class="row">
 		<div class="col-sm-3">
 			<p></p>

@@ -21,7 +21,7 @@
         </div>
         <div class="navbar-collapse collapse" id="navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete" class="divider-vertical">
+                <li ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel" class="divider-vertical">
                     <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>
                 </li>
             </ul>
@@ -32,7 +32,6 @@
                 <li>
                     <p class="navbar-btn">
                         <a ng-if="!currentUser" class="btn btn-default btn-sm glyphicon glyphicon-log-in" ng-click="login()"> Login</a>
-                        <a ng-if="!currentUser" class="btn btn-default btn-sm glyphicon glyphicon-log-in" ng-click="signUp()"> Sign Up</a>
                         <a ng-if="currentUser" class="btn btn-default btn-sm glyphicon glyphicon-log-out" ng-click="logout()"> Logout</a>
                     </p>
                 </li>

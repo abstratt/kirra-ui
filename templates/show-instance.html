@@ -13,7 +13,7 @@
 		</span>
 		</legend>
 		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]" class="form-horizontal">		
-			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind" class="row">
+			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind;" class="row">
 				<div class="span4 display-values" class="form-group">
 				    <div class="col-sm-3">
 				        <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
@@ -25,7 +25,7 @@
 			</div>
 		</div>
 		
-		<div ng-repeat="edge in childrenData">
+		<div ng-repeat="edge in edges | filter:{ relationshipStyle: 'CHILD'}">
 			<h4>
 				{{edge.relationshipLabel}}			
 				<span class="badge">{{edge.rows.length}}</span>
@@ -33,22 +33,9 @@
 			        <span class="glyphicon glyphicon-plus"></span>
 			    </a>
 			</h4>
-			    <div class="list-group">
-					<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
-					    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-10"></div>
-					    <div class="col-sm-2">
-						    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
-						        <span class="glyphicon glyphicon-remove"></span>
-						    </a>
-						    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
-						        <span class="glyphicon glyphicon-edit"></span>
-						    </a>
-						    <a ng-if="edge.relatedEntity.topLevel" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'show')}}({ objectId: '{{child.raw.objectId}}' })">
-						        <span class="glyphicon glyphicon-link"></span>
-						    </a>
-					    </div>
-					</div>
-				</div>
+            <div ng-include src="'templates/instance-table.html'" class="row" 
+                ng-init="rows = edge.rows; tableProperties = edge.relatedTableProperties; actions = edge.relatedInstanceActions; performInstanceActionOnRow = edge.performRelatedInstanceActionOnRow; inlineActions = true">
+            </div>
 			<span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationshipLabel}}</span>
 		</div>
 		
@@ -72,7 +59,7 @@
           </div>
     </div>
     <div class="row">
-		<div ng-repeat="edge in relatedData">
+		<div ng-repeat="edge in edges | filter:{ relationshipStyle: 'LINK'}">
 			<h4>{{edge.relationshipLabel}}
 			    <span class="badge">{{edge.rows.length}}</span>
 			    <a ng-click="link(edge.relationship, edge.relatedEntity)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">

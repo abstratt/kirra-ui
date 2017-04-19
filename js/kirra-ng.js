@@ -287,6 +287,18 @@ kirraNG.getEntityActions = function(entity) {
     return kirraNG.filter(entity.operations, function(op) { return !op.instanceOperation && op.kind == 'Action'; });
 };
 
+kirraNG.getMultiChildRelationships = function(entity) {
+    return kirraNG.filter(entity.relationships, function(rel) { 
+    	return rel.style == 'CHILD' && rel.multiple && rel.userVisible; 
+	});
+};
+
+kirraNG.getMultiRegularRelationships = function(entity) {
+    return kirraNG.filter(entity.relationships, function(rel) { 
+    	return rel.style != 'CHILD' && rel.multiple && rel.userVisible; 
+	});
+};
+
 kirraNG.getQueries = function(entity) {
     return kirraNG.filter(entity.operations, function(op) { 
         var isMatch = !op.instanceOperation && op.kind == 'Finder' && op.typeRef.fullName == entity.fullName && op.multiple;
@@ -369,6 +381,7 @@ kirraNG.buildInstanceListController = function(entity) {
                     var parameter = kirraNG.find(finder.parameters, function (p) { return p.name == parameterName; });
                     return parameter.label; 
                 });
+                $scope.instances = [];
                 $scope.resultMessage = "Before you can apply this filter, you must fill in: " + parameterLabels;
             }
         };
@@ -437,7 +450,7 @@ kirraNG.buildInstanceListController = function(entity) {
             $state.go(kirraNG.toState(entity.fullName, 'list'));
         };
 
-        $scope.performInstanceAction = function(row, action) {
+        $scope.performInstanceActionOnRow = function(row, action) {
             var objectId = row.raw.objectId;
             var shorthand = row.raw.shorthand; 
             
@@ -494,7 +507,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
     var controller = function($scope, $state, $stateParams, instanceService, $q) {
         var objectId = $stateParams.objectId;
      
-        // in this controller, because it is used both for editing parents and children, the actual entity will depend on the mode   
+        // in this controller, because it is used both for editing parents and children, the  actual entity will depend on the mode   
         var actualEntity;
         if (childCreation || childEditing) {
             var relationship = entity.relationships[$stateParams.relationshipName];
@@ -734,10 +747,14 @@ kirraNG.buildDashboardController = function() {
     return controller;
 };
 
+kirraNG.mergeEdgeRowDatas = function(rows, newRows) {
+	rows.length = 0;
+	newRows.forEach(function(value, index) {
+	    rows.push(value);	
+	});
+};
 
 kirraNG.buildInstanceShowController = function(entity) {
-    var multipleRelationships = kirraNG.filter(entity.relationships, function(rel) { return rel.multiple && rel.userVisible; });
-
     var controller = function($scope, $state, $stateParams, instanceService, $q, $modal) {
 
         var objectId = $stateParams.objectId;
@@ -759,8 +776,10 @@ kirraNG.buildInstanceShowController = function(entity) {
             $scope.raw = instance;
             $scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(entity)).load(instance);
             $scope.fieldValues = kirraNG.buildViewDataAsArray(entity, instance);
-            $scope.relatedData = [];
-            $scope.childrenData = [];
+            if (!$scope.relatedData)
+            	$scope.relatedData = [];
+            if (!$scope.childrenData)
+            	$scope.childrenData = [];
             if (!entity.topLevel) {
                 $scope.parentLink = instance.links[$scope.parentRelationship.name];
             }
@@ -823,23 +842,66 @@ kirraNG.buildInstanceShowController = function(entity) {
             ).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback);
         };
 
-        $scope.loadInstanceRelatedCallback = function(relationship) {
+        /*
+        Data for multivalued relationships is kept in the form of edgeDatas.
+        An edgeData is meant to be bound to a scope, and is the basis for dynamic UI rendering.
+        The edgeData includes both metadata about the relationship,
+        and the data for that relationship (rows). 
+        */
+        var buildEdgeData = function(relationship) {
+            var relatedEntity = entitiesByName[relationship.typeRef.fullName];
+            /*
+             Data for multivalued relationships is kept in the form of edgeDatas.
+             An edgeData is meant to be bound to a scope, and is the basis for dynamic UI rendering.
+             The edgeData includes both metadata about the relationship,
+             and the data for that relationship (rows). 
+             */
+            var newArrayWithTimestamp = [];
+            newArrayWithTimestamp.timestamp = new Date();
+            var edgeData = {
+                relationshipLabel: relationship.label,
+                relationshipStyle: relationship.style,
+                relationship: relationship, 
+                relatedEntity: relatedEntity,
+                relatedTableProperties: kirraNG.buildTableColumns(relatedEntity),
+                relatedInstanceActions: kirraNG.getInstanceActions(relatedEntity),
+                performRelatedInstanceActionOnRow: function(row, action) {
+                    var relatedObjectId = row.raw.objectId;
+                    var shorthand = row.raw.shorthand; 
+                    
+                    if (action.parameters.length > 0) {
+                        $state.go(kirraNG.toState(relatedEntity.fullName, 'performInstanceAction'), { objectId: relatedObjectId, shorthand: shorthand, actionName: action.name } );
+                        return;
+                    }
+                  
+                    instanceService.performInstanceAction(relatedEntity, relatedObjectId, action.name).then(
+                        function() { return instanceService.get(entity, objectId); }
+                    ).then($scope.loadInstanceCallback).then($scope.loadInstanceRelatedCallback);
+                },
+                rows: []
+            };
+            return edgeData;
+        };
+        
+        var childRelationships = kirraNG.getMultiChildRelationships(entity);
+        var regularRelationships = kirraNG.getMultiRegularRelationships(entity);
+        var multipleRelationships = childRelationships.concat(regularRelationships);
+        
+        var edgeDatas = kirraNG.map(multipleRelationships, buildEdgeData);
+        $scope.edges = edgeDatas; 
+        
+        $scope.loadInstanceRelatedCallback = function(relationshipData) {
             var relationshipTasks = [];
+             
             angular.forEach(multipleRelationships, function(relationship) {
-                var edgeData = {
-                    relationshipLabel: relationship.label, 
-                    relationship: relationship, 
-                    relatedEntity: entitiesByName[relationship.typeRef.fullName], 
-                    rows: [] 
-                };
-                var edgeDatas = [];
-                if (edgeData.relatedEntity.concrete) {
-                    edgeDatas.push(edgeData);
-                }
+                var relatedEntity = entitiesByName[relationship.typeRef.fullName];
+                var edgeData = kirraNG.find(edgeDatas, function (edgeData) { return edgeData.relationship == relationship });
+                // take subtyping into account (every concrete subtype gets its own edgeData
                 if (edgeData.relatedEntity.subTypes && edgeData.relatedEntity.subTypes.length > 0) {
                     angular.forEach(edgeData.relatedEntity.subTypes, function (subType) {
                         var subEntity = entitiesByName[subType.fullName];
                         if (subEntity.concrete) {
+                            //TODO-RC this is inconsistent - use a single function to build edgeData 
                             edgeDatas.push({
                                 relationshipLabel: relationship.label + " (" + subType.typeName + ")",
                                 relationship: relationship, 
@@ -850,19 +912,10 @@ kirraNG.buildInstanceShowController = function(entity) {
                     });
                 }
                 
-                var edgeList = relationship.style == 'CHILD' ? $scope.childrenData : $scope.relatedData;
-                angular.forEach(edgeDatas, function(edgeData) {
-                    edgeList.push(edgeData);
-                });
                 var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
                     // the list of related instances may be heterogeneous - need to find the proper edgeData object to inject the results into
                     var tableData = kirraNG.buildTableData(relatedInstances);
-                    angular.forEach(tableData, function(rowData) {
-                        var edgeData = kirraNG.find(edgeDatas, function(edgeData) {
-                            return edgeData.relatedEntity.fullName == rowData.raw.typeRef.fullName;
-                        });
-                        edgeData.rows.push(rowData);
-                    });
+                    kirraNG.mergeEdgeRowDatas(edgeData.rows, tableData);
                 });
                 relationshipTasks.push(next);
             });
@@ -985,20 +1038,24 @@ kirraNG.loginController = function($scope, $http, $modalInstance) {
     $scope.credentials = {};
 };
 
-kirraNG.signupController = function($scope, $http, $modalInstance) {
-    $scope.ok = function() {
-        console.log("Ok pressed");
-        $modalInstance.close($scope.credentials);
-    };
-    $scope.credentials = {};
-};
 
-kirraNG.registrationController = function($scope, $http, $modalInstance) {
+kirraNG.registrationController = function($scope, $http, $modalInstance, $controller, registrationEntity) {
+	var entityName = registrationEntity.fullName
+	$scope.credentials = { username: "", password: "" };
+	$controller(entityName + 'InstanceCreateCtrl', {$scope: $scope});
     $scope.ok = function() {
-        console.log("Ok pressed");
-        $modalInstance.close($scope.credentials);
+        console.log("Save pressed");
+        var newValues = angular.copy($scope.propertyValues);
+        console.log(newValues);
+        var newLinks = angular.copy($scope.linkValues);
+        var newRepresentation = { values: newValues, links: newLinks };
+        console.log("newRepresentation");
+        console.log(newRepresentation);
+        $modalInstance.close({ instance: newRepresentation, credentials: $scope.credentials });
     };
-    $scope.credentials = {};
+    $scope.cancel = function() {
+    	$modalInstance.dismiss();
+    };
 };
 
 
@@ -1026,7 +1083,7 @@ kirraModule.factory('kirraNotification', function($rootScope) {
     return Notification;
 });
 
-kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
+kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state, kirraNotification) {
     var LoginDialog = function () {
         angular.extend(this);
     };
@@ -1050,14 +1107,22 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
                 return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
             }
         }, function() {
-            dialog.showing = false;
-            dialog.show();
+        	// dismissed? reload in case we were here because the user tried to access a protected resource
+            window.location.href = application.viewUri;
+            window.location.reload();
         }).then(function(loginResponse) {
-            if (loginResponse && loginResponse.status >= 200 && loginResponse.status < 300) {
-                // before reloading, send the user to the dashboard.
-                window.location.href = application.viewUri;
-                window.location.reload();
+            if (loginResponse) {
+            	if (loginResponse.status >= 200 && loginResponse.status < 300) {
+	                // before reloading, send the user to the dashboard.
+	                window.location.href = application.viewUri;
+	                window.location.reload();
+            	} else {
+                	console.log("Error 1!");
+                	console.log(errorResponse);
+            	}
             }
+        }, function(errorResponse) {
+    		kirraNotification.logError(errorResponse);	
         });
     };
     LoginDialog.close = function() {
@@ -1070,41 +1135,12 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state) {
     return LoginDialog;
 });
 
-kirraModule.service('signupDialog', function($rootScope, $modal, $http, $state) {
-    var SignupDialog = function () {
-        angular.extend(this);
-    };
-    SignupDialog.showing = false;
-    SignupDialog.show = function() {
-        var dialog = this;
-        if (this.showing) {
-            return;
-        }
-        this.showing = true;
-        this.modal = $modal.open({
-          animation: true,
-          templateUrl: 'templates/signup.html',
-          size: 'sm',
-          controller: 'SignupCtrl'
-        });
-    };
-    SignupDialog.close = function() {
-        if (this.showing && this.modal) {
-            this.modal.close();
-        }
-        this.showing = false;
-        delete this.modal;
-    };
-    
-    return SignupDialog;
-});
-
 kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $state) {
     var RegistrationDialog = function () {
         angular.extend(this);
     };
     RegistrationDialog.showing = false;
-    RegistrationDialog.show = function(scope) {
+    RegistrationDialog.show = function(registrationEntity) {
         var dialog = this;
         if (this.showing) {
             return;
@@ -1113,16 +1149,24 @@ kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $s
         this.modal = $modal.open({
           animation: true,
           templateUrl: 'templates/registration.html',
-          size: 'lg',
-          controller: kirraNG.buildInstanceEditController(scope.entity, 'create'),
-          scope: scope
+          size: 'sm',
+          controller: 'RegistrationCtrl',
+          resolve: {
+              registrationEntity: function () {
+                return registrationEntity;
+              }
+            }
         });
-        this.modal.result.then(function(credentials) {
+        this.modal.result.then(function(modalResult) {
+        	var instance = modalResult.instance;
+        	var credentials = modalResult.credentials;
             dialog.showing = false;
             encodedCredentials = btoa(credentials.username+":"+credentials.password);
-            return $http.post(application.uri + 'session/signup', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
+            return $http.post(application.uri + 'signup/' + registrationEntity.fullName, instance, { headers: { "X-Kirra-Credentials": encodedCredentials }});
         }, function() {
-            dialog.close();
+        	// dismissed? reload in case we were here because the user tried to access a protected resource
+            window.location.href = application.viewUri;
+            window.location.reload();
         }).then(function(loginResponse) {
             if (loginResponse && loginResponse.status >= 200 && loginResponse.status < 300) {
                 window.location.reload();
@@ -1145,7 +1189,8 @@ kirraModule.config(function($httpProvider) {
         return {
             responseError: function(rejection) {
                 if (rejection.status == 401) {
-                    console.log('Unauthorized: ' + (rejection.config && rejection.config.uri));
+                    console.log('Unauthorized: ');
+                    console.log(rejection);
                     $injector.get('loginDialog').show();
                 } else {
                     kirraNotification.logError(rejection);
@@ -1197,6 +1242,7 @@ repository.loadApplication(function(loadedApp, status) {
         kirraModule.controller('KirraRepositoryCtrl', function($scope, kirraNotification) {
             $scope.applicationLabel = "Application not found or not available: " + applicationUrl;
             $scope.entities = [];
+            $scope.entityCapabilities = [];
             $scope.applicationOptions = {};
         });
         angular.element(document).ready(function() {
@@ -1209,15 +1255,19 @@ repository.loadApplication(function(loadedApp, status) {
             
     var buildUI = function(entities, entityCapabilities, status) {
         
-        kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, signupDialog, registrationDialog) {
+        kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, registrationDialog) {
             $scope.applicationName = application.applicationName;
             $scope.applicationLabel = application.applicationLabel || application.applicationName;
             var querylessUri = window.location.href.split(/[?#]/)[0];
             $scope.applicationUrl = application.viewUri = querylessUri + '?app-uri=' + application.uri + '#/';
             $scope.entities = entities;
+            $scope.selfServiceRoleEntities = kirraNG.filter(entities, function(entity) {
+            	return entity.role && entityCapabilities[entity.fullName].entity.indexOf('Create') >= 0;
+            });
             $scope.applicationOptions = application.options;            
             $scope.kirraNG = kirraNG;
             $scope.currentUser = undefined;
+            console.log(entityCapabilities);
             $scope.logout = function() {
                 console.log("Logging out");
                 $http.get(application.uri + "session/logout").then(function(loaded) {
@@ -1226,18 +1276,13 @@ repository.loadApplication(function(loadedApp, status) {
             };
             $scope.login = function() {
                console.log("Log-in requested");
+               registrationDialog.close();
                loginDialog.show();
-               signupDialog.close();
-            };
-            $scope.signUp = function() {
-               console.log("Sign-up requested");
-               signupDialog.show();
-               loginDialog.close();
             };
             $scope.registerAs = function(entity) {
-               console.log("Registration as " + entity.label);
-               registrationDialog.show(this);
-               signupDialog.close();
+               console.log("Sign-up requested");
+               loginDialog.close();
+               registrationDialog.show(entity);
             };
             
             $scope.canChangeTheme = canChangeTheme;
@@ -1394,7 +1439,6 @@ repository.loadApplication(function(loadedApp, status) {
         
         
         kirraModule.controller('LoginCtrl', kirraNG.loginController);
-        kirraModule.controller('SignupCtrl', kirraNG.signupController);
         kirraModule.controller('RegistrationCtrl', kirraNG.registrationController);
         
         kirraModule.factory('instanceService', kirraNG.buildInstanceService());
