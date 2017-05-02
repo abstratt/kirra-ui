@@ -1,0 +1,46 @@
+        <table  class="table table-striped col-sm-12">
+            <tr>
+                <th ng-repeat="property in tableProperties | limitTo: 3">
+                {{::property.label}}
+                </th>
+            </tr>
+            <tbody ng-repeat="row in rows track by $index">
+                <tr>
+                    <td ng-repeat="property in tableProperties | limitTo: 3">
+                        <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
+                    </td>
+                </tr>
+                <tr ng-if="tableProperties.length > 3 || actions.length > 0">
+                    <td colspan="3">
+                        <table width="100%">
+                            <tr ng-repeat="property in tableProperties | limitTo: 100 : 3" class="row">
+                                <td width="45%" align="right">{{property.label}}:</td>
+                                <td width="10%"></td>
+                                <td width="45%">
+                                    <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr ng-if="actions.length > 3">
+                    <td>
+                        <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
+                            <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
+                            Actions
+                            <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
+                            </button>
+                            <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">
+                                <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="actions.length > 0 && actions.length <= 3">
+                    <td ng-repeat="action in actions">
+                        <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</button>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>

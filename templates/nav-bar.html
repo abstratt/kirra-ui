@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default" ng-controller="KirraRepositoryCtrl">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -17,7 +17,11 @@
                     <li ng-repeat="theme in ['cerulean', 'cosmo', 'cyborg', 'darkly', 'flatly', 'journal', 'lumen', 'paper', 'readable', 'simplex', 'slate', 'spacelab', 'superhero', 'united', 'yeti']" role="menuitem"><a ng-click="changeTheme(theme)">{{theme}}</a></li>
                 </ul>
             </div>
-            <a class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
+            
+            <a ng-if="!applicationLogo" class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
+            <a ng-if="applicationLogo" class="navbar-brand" href="{{applicationUrl}}">
+                <img data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35"/>
+            </a>
         </div>
         <div class="navbar-collapse collapse" id="navbar-collapse-1">
             <ul class="nav navbar-nav">

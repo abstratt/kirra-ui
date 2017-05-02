@@ -13,20 +13,20 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-6 col-md-3" ng-repeat="metric in metrics" ng-if="!metric.multiple">
+                <div class="col-xs-12 col-md-3" ng-repeat="metric in metrics" ng-if="!metric.multiple">
                     <div class="panel panel-primary" ng-if="!metric.multiple">
                         <div class="panel-heading">
                             <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-comments fa-5x"></i>
+                                <div class="col-xs-12">
+                                    <i class="fa fa-comments fa-5x">{{metric.query.description}}</i>
                                 </div>
-                                <div class="col-xs-9 text-right">
+                                <div class="col-xs-12 text-right">
                                     <div class="huge" ng-if="metric.query.typeRef.fullName=='mdd_types.Boolean'">
                                         <span ng-if="metric.result" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 	                                    <div ng-if="!metric.result">-</div>
                                     </div>
                                     <div class="huge" ng-if="!(metric.query.typeRef.fullName=='mdd_types.Boolean')">{{metric.result}}</div>
-                                    <div>{{metric.entity.label}}: {{metric.query.label}}</div>
+                                    <div>{{metric.query.label}}</div>
                                 </div>
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-md-6" ng-repeat="metric in metrics" ng-if="metric.multiple">
+                <div class="col-lg-6" ng-repeat="metric in metrics" ng-if="metric.multiple">
                     <div class="panel panel-default" ng-if="metric.multiple">
                         <div class="panel-heading">
                             <h3 class="panel-title">{{metric.query.label}}</h3>

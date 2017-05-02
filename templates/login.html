@@ -1,12 +1,21 @@
 <div class="container" ng-controller="KirraRepositoryCtrl">
+    <div class="row"><div class="col-sm-3"><p></p></div></div>
 	<div class="row">
+	   <div class="col-sm-3" align="center">
+            <p ng-if="!applicationLogo">{{applicationLabel}}</p>
+            <img ng-if="applicationLogo" data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35"/>
+       </div>
+    </div>
+    <div class="row"><div class="col-sm-3"><p></p></div></div>
+    <div class="row">
+	
 		<div class="col-sm-3">
 		
         <legend>Please sign in</legend>
         
       <form class="form-signin">
         <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="string" class="form-control" placeholder="Email address" required autofocus ng-model="credentials.username">
+        <input type="string" class="form-control" placeholder="Username" required autofocus ng-model="credentials.username">
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" class="form-control" placeholder="Password" required ng-model="credentials.password">
         <p></p>
@@ -15,20 +24,15 @@
       
 		</div>
 	</div>
-    <div class="row">
-        <div class="col-sm-3">
-            <p></p>
-        </div>
-    </div>
+    
+    <div class="row"><div class="col-sm-3"><p></p></div></div>
+    
     <div class="row" ng-repeat="entity in selfServiceRoleEntities">
         <div class="col-sm-3">
             <p>Register as <a ng-click="registerAs(entity)">{{entity.label}}    </a></p>
         </div>
     </div>
-	<div class="row">
-		<div class="col-sm-3">
-			<p></p>
-		</div>
-	</div>
+    
+	<div class="row"><div class="col-sm-3"><p></p></div></div>
         
 </div>      

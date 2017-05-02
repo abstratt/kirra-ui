@@ -1,0 +1,57 @@
+    <div class="row">
+        <table  class="table table-striped col-sm-12">
+            <tr>
+                <th ng-repeat="property in tableProperties | filter: !{ essential: false }">
+                {{::property.label}}
+                </th>
+                <th ng-repeat="property in tableProperties | filter: { essential: false }" class="visible-lg">
+                <em>{{::property.label}}</em>
+                </th>
+                <th ng-if="actions.length">Actions</th>
+            </tr>
+            <tr ng-repeat="row in rows track by $index">
+                <td ng-repeat="property in tableProperties | filter: !{ essential: false }">
+                    <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
+                </td>
+                <td ng-repeat="property in tableProperties | filter: { essential: false }" class="visible-lg">
+                    <em>
+                    <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
+                    </em>
+                </td>
+                <td ng-if="!inlineActions && actions.length > 2">
+                    <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
+                        <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
+                        Actions
+                        <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
+                        </button>
+                        <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">
+                            <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</a></li>
+                        </ul>
+                    </div>
+                    <!--
+                    <div class="visible-md visible-sm visible-xs">
+                        <a ng-if="!row.actionEnablement.enabledActions.length" ng-click="updateActionEnablement(row)">Actions</a>
+                        <div ng-repeat="action in row.actionEnablement.enabledActions" >
+                            <a ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</a>
+                        </div>
+                    </div>
+                    -->
+                </td>
+                <td ng-if="actions.length > 0 && (inlineActions || actions.length < 2)"s>
+                    <div ng-repeat="action in actions" >
+                        <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</button>
+                    </div>
+                </td>
+                
+            </tr>
+            <tr>
+                <!-- 
+                    Additional empty row, workaround so action dropdown for last row has some room
+                    (if it doesn't have many actions).
+                -->
+                <td ng-if="actions.length"></td>
+                <td ng-repeat="property in tableProperties | filter: !{ essential: false }"></td>
+                <td ng-repeat="property in tableProperties | filter: { essential: false }" class="visible-lg"></td>
+            </tr>
+        </table>
+    <div>
