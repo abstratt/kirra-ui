@@ -108,12 +108,12 @@ kirraNG.buildTableColumns = function(entity) {
     return tableColumns;
 };
 
-kirraNG.toggleDatePicker = function ($event, $scope, propertyName) { 
+kirraNG.togglePickerStatus = function ($event, $scope, propertyName) { 
     $event.stopPropagation();
-    if (!$scope.datePickerStatus) {
-        $scope.datePickerStatus = {};
+    if (!$scope.pickerStatus) {
+        $scope.pickerStatus = {};
     }
-    $scope.datePickerStatus[propertyName] = !$scope.datePickerStatus[propertyName];
+    $scope.pickerStatus[propertyName] = !$scope.pickerStatus[propertyName];
 };
 
 kirraNG.buildInputFields = function(entity, createMode) {
@@ -334,7 +334,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.instances = undefined;
         $scope.queries = kirraNG.getQueries(entity);
         $scope.entityActions = kirraNG.getEntityActions(entity);
-        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
+        $scope.togglePickerStatus = function($event, propertyName) { kirraNG.togglePickerStatus($event, $scope, propertyName); };
         $scope.applyFilter = function() {
             var newStateParams = angular.merge({}, $state.params, { arguments: $scope.parameterValues, forceFetch: true });
             $state.go($state.current.name, newStateParams, { reload: true });
@@ -524,14 +524,15 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         $scope.objectId = objectId;
         $scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(actualEntity));
         $scope.entityName = actualEntity.fullName;
-        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
-
+        $scope.togglePickerStatus = function($event, propertyName) { kirraNG.togglePickerStatus($event, $scope, propertyName); };
+        $scope.propertyValues = {};
+        $scope.linkValues = {};
         $scope.loadInstanceCallback = function(instance) { 
             $scope.formLabel = creation ? ('Creating ' + actualEntity.label) : (childCreation ? ('Adding ' + actualEntity.label) : ('Editing ' + actualEntity.label + ': ' + instance.shorthand)); 
             $scope.raw = instance;
             $scope.actionEnablement.load(instance);
-            $scope.propertyValues = angular.copy(instance.values);
-            $scope.linkValues = angular.copy(instance.links);
+            angular.merge($scope.propertyValues, angular.copy(instance.values));
+            angular.merge($scope.linkValues, angular.copy(instance.links));
             return instance;
         };
     
@@ -614,7 +615,7 @@ kirraNG.buildActionController = function(entity) {
         $scope.action = action;
         $scope.inputFields = action.parameters;
         $scope.parameterValues = {};
-        $scope.toggleDatePicker = function($event, propertyName) { kirraNG.toggleDatePicker($event, $scope, propertyName); };
+        $scope.togglePickerStatus = function($event, propertyName) { kirraNG.togglePickerStatus($event, $scope, propertyName); };
         
         if (objectId) {
             instanceService.get(entity, objectId).then(function(instance) { 
@@ -678,7 +679,7 @@ kirraNG.buildInstanceLinkController = function(entity) {
         instanceService.getRelationshipDomain(entity, objectId, relationship.name).then(function(candidates) {
             $scope.candidates = candidates;
         });
-        $scope.findCandidatesFor = function(value) {
+        $scope.findCandidatesFor = function(relationship, value) {
             var domain = instanceService.getRelationshipDomain(entity, objectId, relationship.name);
             return domain.then(function(instances) { return kirraNG.filterCandidates(instances, value); });
         };
@@ -948,6 +949,11 @@ kirraNG.buildInstanceService = function() {
             angular.extend(this, data);
         };
         var buildInstanceFromData = function(instanceData) {
+        	var entity = entitiesByName[instanceData.typeRef.fullName];
+        	angular.forEach(entity.properties, function(property) {
+        		if (property.typeRef.typeName == 'Time')
+        			instanceData.values[property.name] = new Date("1970-01-01T" + instanceData.values[property.name] + "+00:00");
+            });
             return new Instance(instanceData);
         };
         var loadOne = function (response) {
@@ -968,11 +974,20 @@ kirraNG.buildInstanceService = function() {
             return representation;
         };
         
-        var removeNullsFromInstance = function(instance) {
+        var beforeInstanceUpload = function(entity, instance) {
             if (!instance) {
                 return {};
             }
             removeNulls(instance.values);
+        	angular.forEach(entity.properties, function(property) {
+        		if (property.typeRef.typeName == 'Time') {
+        			if (instance.values[property.name]) {
+        				var asTimeString = moment(instance.values[property.name]).format("HH:mm:ss")
+        				instance.values[property.name] = asTimeString;
+        			}
+        		}
+            });
+            
             return instance;
         };
         Instance.performInstanceAction = function(entity, objectId, actionName, arguments) {
@@ -1009,13 +1024,13 @@ kirraNG.buildInstanceService = function() {
             return $http.get(instanceUri).then(loadOne);
         };
         Instance.put = function (entity, instance) {
-            return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), removeNullsFromInstance(instance)).then(loadOne);
+            return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), beforeInstanceUpload(entity, instance)).then(loadOne);
         };
         Instance.delete = function (entity, objectId) {
             return $http.delete(entity.instanceUriTemplate.replace('(objectId)', objectId));
         };
         Instance.post = function (entity, instance) {
-            return $http.post(entity.extentUri, removeNullsFromInstance(instance)).then(loadOne);
+            return $http.post(entity.extentUri, beforeInstanceUpload(entity, instance)).then(loadOne);
         };
         Instance.getRelated = function (entity, objectId, relationshipName) {
             var relatedInstancesUri = entity.relatedInstancesUriTemplate.replace('(objectId)', objectId).replace('(relationshipName)', relationshipName);
@@ -1348,6 +1363,46 @@ repository.loadApplication(function(loadedApp, status) {
 	            }
             }
         }]);
+        
+        kirraModule.directive('kaEdit', function(instanceService, kirraNotification, $state) {
+            return {
+                restrict: 'E',
+                scope: {
+                    // these are set at the directive call site
+                    slot: '=',
+                    values: '=',
+                    // these are functions
+                    findCandidates: '&',
+                    formatCandidate: '&'
+                },
+                link: function (scope, element, attributes) {
+                    var slot = scope.slot;
+                    var objectId = scope.objectId;
+                    var isTable = scope.table;
+                    scope.slotTypeName = slot.typeRef.typeName;
+                    scope.slotTypeKind = slot.typeRef.kind;
+                    scope.onCandidateSelected = function(selectedCandidate) {
+                        scope.values[slot.name] = selectedCandidate;
+                    };
+
+                    var slotData = scope.values[slot.name];
+                    if (slot.mnemonic || slot.unique) {
+                        if (!isTable && slot.typeRef.kind == 'Entity') {
+                            scope.targetObjectId = slotData && slotData.objectId ;
+                            scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
+                        } else if (objectId) {
+                            scope.targetObjectId = objectId;
+                            scope.targetStateName = kirraNG.toState(slot.owner.fullName, 'show');
+                        }
+                    } else if (slot.typeRef.kind == 'Entity') {
+                        scope.targetObjectId = slotData && slotData.objectId ;
+                        scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
+                    }
+                    
+                },	
+                templateUrl: 'templates/ka-edit.html'
+            };
+        });
         
         kirraModule.directive('kaData', function(uiUploader, instanceService, kirraNotification, $state, $sce, Lightbox) {
             return {

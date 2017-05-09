@@ -1,18 +1,35 @@
+
+        <form class="form">
+            <div ng-repeat="inputField in inputFields track by $index">
+                <div class="form-group-xs">
+                    <ka-edit slot="inputField" values="parameterValues"
+                        find-candidates="findCandidatesFor(slot, value)"
+                        format-candidate="formatCandidate(inputField)">
+                    </ka-edit>
+                </div>
+            </div>
+        </form>
+
+
+
+<!--
     <form>
         <div ng-repeat="inputField in inputFields track by $index" class="form-group">
                 <div class="form-group-xs" ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
                     <label for="{{inputField.name}}">{{inputField.label}}:</label>
-                    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
+                    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Time' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
                     <textarea ng-if="typeKind == 'Primitive' && typeName == 'Memo'" class="form-control" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]"></textarea>
                     <toggle ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="btn-xs" ng-model="parameterValues[inputField.name]" id="{{inputField.name}}"  on="Yes" off="No"></toggle>                    
                     <div id="{{inputField.name}}" ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
                         <p class="input-group">
-                            <input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
+                            <input type="text" class="form-control" is-open="pickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]">
                             <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="toggleDatePicker($event, inputField.name)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                <button type="button" class="btn btn-default" ng-click="togglePickerStatus($event, inputField.name)"><i class="glyphicon glyphicon-calendar"></i></button>
                             </span>
                         </p>
                     </div>
+                    <timepicker id="{{inputField.name}}" ng-if="typeKind == 'Primitive' && typeName == 'Time'" ng-model="parameterValues[inputField.name]"
+                        show-meridian="false" />
                     <select ng-if="typeKind == 'Enumeration'" id="{{inputField.name}}" ng-model="parameterValues[inputField.name]" class="form-control">
                         <option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
                     </select>
@@ -29,3 +46,4 @@
                 </div>
         </div>
     </form>
+-->

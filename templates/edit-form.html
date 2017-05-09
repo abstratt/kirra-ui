@@ -1,31 +1,11 @@
 		<form class="form">
 			<div ng-repeat="inputField in inputFields track by $index">
-			    <div class="form-group-xs" ng-init="typeName = inputField.typeRef.typeName; typeKind = inputField.typeRef.kind">
-    			    <label for="{{inputField.name}}">{{inputField.label}}:</label>
-    			    <input ng-if="typeKind == 'Primitive' && typeName != 'Memo' && typeName != 'Date' && typeName != 'Boolean'" type="text" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
-                    <textarea ng-if="typeKind == 'Primitive' && typeName == 'Memo'" class="form-control" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]"></textarea>
-                    <toggle ng-if="typeKind == 'Primitive' && typeName == 'Boolean'" class="btn-xs" ng-model="propertyValues[inputField.name]" id="{{inputField.name}}"  on="Yes" off="No"></toggle>					
-					<div id="{{inputField.name}}" ng-if="typeKind == 'Primitive' && typeName == 'Date'" ng-init="inputField.pickerStatus = { opened: true }">
-					    <p class="input-group">
-					    	<input type="text" class="form-control" is-open="datePickerStatus[inputField.name]" datepicker-popup="yyyy/MM/dd" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]">
-					    	<span class="input-group-btn">
-				                <button type="button" class="btn btn-default" ng-click="toggleDatePicker($event, inputField.name)"><i class="glyphicon glyphicon-calendar"></i></button>
-				            </span>
-				    	</p>
-					</div>
-				    <select ng-if="typeKind == 'Enumeration'" id="{{inputField.name}}" ng-model="propertyValues[inputField.name]" class="form-control">
-						<option ng-repeat="literal in inputField.enumerationLiterals" value="{{literal}}">{{inputField.enumerationLiterals[literal]}}</option>
-                    </select>
-				    <input
-				        ng-if="typeKind == 'Entity'"
-				        type="text" class="form-control" 
-				        id="{{inputField.name}}"
-				        ng-model="linkValues[inputField.name].shorthand"
-				        typeahead="shorthand as candidate.shorthand for candidate in findCandidatesFor(inputField, $viewValue)"
-				        typeahead-min-length="0"
-				        typeahead-input-formatter="formatCandidate(inputField)"
-				        typeahead-on-select="onCandidateSelected($item, inputField, $label)"
-				        autocomplete="off">
+			    <div class="form-group-xs">
+			        <ka-edit ng-if="propertyValues[inputField.name] != undefined" slot="inputField" values="propertyValues"></ka-edit>
+			        <ka-edit ng-if="linkValues[inputField.name] != undefined" slot="inputField" values="linkValues" 
+			             find-candidates="findCandidatesFor(slot, value)"
+			             format-candidate="formatCandidate(inputField)">
+		            </ka-edit>
 				</div>
 			</div>
 		</form>

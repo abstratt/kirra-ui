@@ -1,0 +1,33 @@
+<div>
+    <label for="{{slot.name}}">{{slot.label}}:</label>
+    <input ng-if="slotTypeKind == 'Primitive' && slotTypeName != 'Memo' && slotTypeName != 'Date' && slotTypeName != 'Time' && slotTypeName != 'Boolean'" type="text" class="form-control" id="{{slot.name}}" ng-model="values[slot.name]">
+    <textarea ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Memo'" class="form-control" id="{{slot.name}}" ng-model="values[slot.name]"></textarea>
+    <toggle ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Boolean'" class="btn-xs" ng-model="values[slot.name]" id="{{slot.name}}"  on="Yes" off="No"></toggle>                    
+    <div id="{{slot.name}}" ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Date'" ng-init="slot.pickerStatus = { opened: true }">
+        <p class="input-group">
+            <input type="text" class="form-control" is-open="pickerStatus[slot.name]" datepicker-popup="yyyy/MM/dd" id="{{slot.name}}" ng-model="values[slot.name]">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="togglePickerStatus($event, slot.name)"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+        </p>
+    </div>
+    <div uib-timepicker id="{{slot.name}}" ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Time'" ng-model="values[slot.name]"
+        show-meridian="false">
+    </div>
+    <!--
+    <input type="time" id="{{slot.name}}" ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Time'" ng-model="values[slot.name]">
+    -->
+    <select ng-if="slotTypeKind == 'Enumeration'" id="{{slot.name}}" ng-model="values[slot.name]" class="form-control"
+        ng-options="literal for literal in slot.enumerationLiterals">
+    </select>
+    <input
+        ng-if="slotTypeKind == 'Entity'"
+        type="text" class="form-control" 
+        id="{{slot.name}}"
+        ng-model="slotData.shorthand"
+        typeahead="shorthand as candidate.shorthand for candidate in findCandidates({ slot: slot, value: $viewValue })"
+        typeahead-min-length="0"
+        typeahead-input-formatter="formatCandidate(slot)"
+        typeahead-on-select="onCandidateSelected($item)"
+        autocomplete="off">
+</div>
