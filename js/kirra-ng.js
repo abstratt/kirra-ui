@@ -92,10 +92,10 @@ kirraNG.filterCandidates = function(instances, value) {
     return (filtered && filtered.length > 0) ? filtered : instances;
 }; 
 
-kirraNG.buildTableColumns = function(entity) {
+kirraNG.buildTableColumns = function(entity, global) {
     var tableColumns = [];
     angular.forEach(entity.properties, function(property) {
-        if (property.userVisible && property.typeRef.typeName != 'Memo') {
+        if (property.userVisible && (!global || property.typeRef.typeName != 'Memo')) {
             tableColumns.push(property);
         }
     });
@@ -328,7 +328,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.inputFields = finder && finder.parameters;
         $scope.parameterValues = finderArguments || {};
         $scope.entityName = entity.fullName;
-        $scope.tableProperties = kirraNG.buildTableColumns(entity);
+        $scope.tableProperties = kirraNG.buildTableColumns(entity, true);
         $scope.actions = kirraNG.getInstanceActions(entity);
         $scope.anyListCapability = true;
         $scope.instances = undefined;
@@ -745,6 +745,7 @@ kirraNG.buildDashboardController = function() {
                             var key;
                             for (key in row) {
                                 if (Array.isArray(row[key])) {
+                                	// TODO-RC need to implement true metrics endpoints in the server
                                     row[key] = row[key].length;
                                 }
                             }
@@ -756,7 +757,7 @@ kirraNG.buildDashboardController = function() {
                 }).then(loadMetrics);
             }
         };
-        loadMetrics();
+        $scope.loadMetrics = loadMetrics;
     };
     controller.$inject = ['$scope', '$state', '$stateParams', 'instanceService', '$q', '$http'];
     return controller;
