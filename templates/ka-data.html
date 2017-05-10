@@ -8,7 +8,7 @@
 </div>
 
 <div ng-if="!slot.mnemonic && slotData !== undefined" >
-	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Time' && slotTypeName != 'Date' && slotTypeName != 'Geolocation' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
+	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Time' && slotTypeName != 'Date' && slotTypeName != 'DateTime' && slotTypeName != 'Geolocation' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
 	    {{slotData}}
 	</div>
 	<div ng-if="slotTypeKind == 'Entity'">
@@ -28,6 +28,9 @@
     </div>
 	<div ng-if="slotTypeName == 'Time'">
         {{slotData | date:'HH:mm':'UTC'}}
+    </div>
+    <div ng-if="slotTypeName == 'DateTime'" data-toggle="tooltip" title="{{slotData | date:'yyyy/MM/dd HH:mm':'UTC'}}">
+        {{slotData | date:'yyyy/MM/dd':'UTC'}}
     </div>
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
