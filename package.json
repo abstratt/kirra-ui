@@ -1,5 +1,5 @@
 {
-  "name": "kirra-ng",
+  "name": "kirra-angular",
   "version": "1.0.0",
   "keywords": [
   ],
@@ -11,7 +11,7 @@
   "homepage": "http://abstratt.com/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abstratt/kirra"
+    "url": "https://github.com/abstratt/kirra-ui/kirra-angular"
   },
 
   "engines": {
