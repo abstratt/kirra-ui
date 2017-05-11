@@ -723,13 +723,18 @@ kirraNG.buildDashboardController = function() {
                 if (!queryCapabilities || queryCapabilities.indexOf('StaticCall') < 0) {
                     return;
                 }
-                var finderUri = entity.finderUriTemplate.replace('(finderName)', query.name);
+                var multiple = query.multiple;
+                var entityReturning = query.typeRef.kind == 'Entity';
+                var metricUri = (entityReturning && multiple) ?
+                		entity.finderMetricUriTemplate.replace('(finderName)', query.name) : 
+                		entity.finderUriTemplate.replace('(finderName)', query.name);
                 var metric = {
                     query: query,
                     entity: entity,
                     result: "-",
-                    finderUri: finderUri,
-                    multiple: (query.typeRef.kind != 'Entity') && query.multiple
+                    metricUri: metricUri,
+                    // we show actual results for  queries returning tuples
+                    multiple: multiple && !entityReturning
                 };
                 metrics.push(metric);
             });
@@ -739,21 +744,14 @@ kirraNG.buildDashboardController = function() {
         loadMetrics = function () {
             var next = metrics.shift();
             if (next) {
-                $http.post(next.finderUri, {}).then(function(response) {
-                    if (next.query.multiple) {
-                        next.result = next.query.typeRef.kind == 'Entity' ? response.data.length : kirraNG.map(response.data.contents, function(row) {
-                            var key;
-                            for (key in row) {
-                                if (Array.isArray(row[key])) {
-                                	// TODO-RC need to implement true metrics endpoints in the server
-                                    row[key] = row[key].length;
-                                }
-                            }
-                            return row;
-                        });
+                $http.get(next.metricUri, {}).then(function(response) {
+                    if (next.multiple) {
+                        next.result = response.data.contents;
                     } else {
                         next.result = response.data.contents[0].shorthand || response.data.contents[0];  
                     }
+                    console.log("next.result=");
+                    console.log(next.result);
                 }).then(loadMetrics);
             }
         };
