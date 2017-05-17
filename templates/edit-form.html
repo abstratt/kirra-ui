@@ -1,8 +1,9 @@
 		<form class="form">
 			<div ng-repeat="inputField in inputFields track by $index">
 			    <div class="form-group-xs">
-			        <ka-edit ng-if="propertyValues[inputField.name] != undefined" slot="inputField" values="propertyValues"></ka-edit>
-			        <ka-edit ng-if="linkValues[inputField.name] != undefined" slot="inputField" values="linkValues" 
+			        <ka-edit ng-if="inputField.inputKind == 'property'" slot="inputField" values="propertyValues">
+			        </ka-edit>
+			        <ka-edit ng-if="inputField.inputKind == 'relationship'" slot="inputField" values="linkValues" 
 			             find-candidates="findCandidatesFor(slot, value)"
 			             format-candidate="formatCandidate(inputField)">
 		            </ka-edit>

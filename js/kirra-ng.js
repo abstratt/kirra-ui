@@ -121,11 +121,13 @@ kirraNG.buildInputFields = function(entity, createMode) {
     angular.forEach(entity.properties, function(property) {
         if (property.userVisible && ((createMode && property.initializable) || (!createMode && property.editable))) {
             inputFields.push(property);
+            property['inputKind'] = 'property';
         }
     });
     angular.forEach(entity.relationships, function(relationship) {
         if (relationship.userVisible && !relationship.multiple && ((createMode && relationship.initializable) || (!createMode && relationship.editable))) {
             inputFields.push(relationship);
+            relationship['inputKind'] = 'relationship';
         }
     });
     kirraNG.sortFields(entity, inputFields);
@@ -519,6 +521,10 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
             $scope.entity = actualEntity = entity;
         }
 
+        var inputFields = kirraNG.buildInputFields(actualEntity, creation);
+        
+        $scope.inputFields = inputFields;
+        
         $scope.mode = mode;
         $scope.$state = $state;
         $scope.objectId = objectId;
@@ -536,7 +542,6 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
             return instance;
         };
     
-        $scope.inputFields = kirraNG.buildInputFields(actualEntity, creation);
         
         $scope.findCandidatesFor = function(relationship, value) {
             var domain;
