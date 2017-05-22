@@ -1297,8 +1297,19 @@ repository.loadApplication(function(loadedApp, status) {
         	$scope.applicationLogo = application.applicationLogo;
             $scope.applicationName = application.applicationName;
             $scope.applicationLabel = application.applicationLabel || application.applicationName;
-            var querylessUri = window.location.href.split(/[?#]/)[0];
-            $scope.applicationUrl = application.viewUri = querylessUri + '?app-uri=' + application.uri + '#/';
+            var anchorlessUri = window.location.href.split(/[#]/)[0]; 
+            var uriComponents = anchorlessUri.split(/[?]/);
+            var querylessUri = uriComponents[0];
+            var query = uriComponents.length > 1 ? uriComponents[1] : "";
+            var queryParams = kirraNG.map(query.split(/[&]/), function(nameAndValue) { return nameAndValue.split(/[=]/)});
+            var themeParam = kirraNG.find(queryParams, function(nameAndValueAsArray) { return nameAndValueAsArray[0] == 'theme'; });
+            var applicationUrl = querylessUri + "?";
+            if (!(themeParam === undefined)) {
+            	applicationUrl = applicationUrl + "theme=" + themeParam[1];
+            }
+            applicationUrl = applicationUrl + '&app-uri=' + application.uri + "#/";
+            
+            $scope.applicationUrl = application.viewUri = applicationUrl;
             $scope.entities = entities;
             $scope.selfServiceRoleEntities = kirraNG.filter(entities, function(entity) {
             	return entity.role && entityCapabilities[entity.fullName].entity.indexOf('Create') >= 0;
