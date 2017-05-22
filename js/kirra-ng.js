@@ -730,6 +730,10 @@ kirraNG.buildDashboardController = function() {
                 }
                 var multiple = query.multiple;
                 var entityReturning = query.typeRef.kind == 'Entity';
+                if (entityReturning && !multiple) {
+                	// not supporting single instances at this point
+                	return;
+                }
                 var metricUri = (entityReturning && multiple) ?
                 		entity.finderMetricUriTemplate.replace('(finderName)', query.name) : 
                 		entity.finderUriTemplate.replace('(finderName)', query.name);
@@ -738,8 +742,8 @@ kirraNG.buildDashboardController = function() {
                     entity: entity,
                     result: "-",
                     metricUri: metricUri,
-                    // we show actual results for  queries returning tuples
-                    multiple: multiple && !entityReturning
+                    // we show actual results for queries returning tuples
+                    datatable: multiple && !entityReturning
                 };
                 metrics.push(metric);
             });

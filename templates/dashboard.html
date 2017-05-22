@@ -13,8 +13,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-12 col-md-3" ng-repeat="metric in metrics" ng-init="loadMetrics()" ng-if="!metric.multiple">
-                    <div class="panel panel-primary" ng-if="!metric.multiple">
+                <div class="col-xs-12 col-md-3" ng-repeat="metric in metrics" ng-init="loadMetrics()" ng-if="!metric.datatable">
+                    <div class="panel panel-primary">
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-12">
@@ -42,8 +42,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-6" ng-repeat="metric in metrics" ng-if="metric.multiple">
-                    <div class="panel panel-default" ng-if="metric.multiple">
+                <div class="col-lg-6" ng-repeat="metric in metrics" ng-if="metric.datatable">
+                    <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">{{metric.query.label}}</h3>
                         </div>
