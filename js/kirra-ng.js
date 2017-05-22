@@ -11,7 +11,7 @@ if (!applicationUrl.endsWith('/')) applicationUrl = applicationUrl + '/';
 
 var changeTheme = function(theme) {
     var themeElement = document.getElementById('bootstrap_theme');
-    var newThemeURI = 'https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/' + theme + '/bootstrap.min.css';
+    var newThemeURI = 'https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/' + theme + '/bootstrap.min.css';
     document.getElementById('bootstrap_theme').href = newThemeURI;
 };
 
