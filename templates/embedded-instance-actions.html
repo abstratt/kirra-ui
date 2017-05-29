@@ -1,0 +1,41 @@
+  <div class="btn-group" role="group">
+      <button ng-repeat="embeddedAction in embeddedInstanceActions" 
+          ng-if="!embeddedInstanceCapabilities || embeddedInstanceCapabilities.actions[embeddedAction.name].indexOf('Call') >= 0" 
+          ng-disabled="embeddedInstance.disabledActions.hasOwnProperty(embeddedAction.name)"
+          type="button" 
+          class="btn btn-default"
+          ng-click="embeddedPerformAction({action: embeddedAction})" 
+          title="{{embeddedAction.description}}">
+          
+          {{embeddedAction.label}}
+
+      </button>
+  </div>
+
+
+
+
+
+
+<!--
+<div ng-show="child" class="row">
+		<div ng-repeat="(fieldName, fieldData) in childFieldValues" ng-init="field = childFields[fieldName] || childRelationships[fieldName]" ng-show="field.style != 'PARENT'">
+		    <strong class="display-label col-sm-4">{{field.label}}:</strong>
+			<div class="col-sm-8 display-values">
+				<ka-data slot="field" slot-data="fieldData"></ka-data>
+			</div>
+		</div>
+        <div class="col-sm-2">
+            <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
+                <span class="glyphicon glyphicon-remove"></span>
+            </a>
+            <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
+                <span class="glyphicon glyphicon-edit"></span>
+            </a>
+            <a ng-if="edge.relatedEntity.topLevel" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'show')}}({ objectId: '{{child.raw.objectId}}' })">
+                <span class="glyphicon glyphicon-link"></span>
+            </a>
+        </div>
+		
+</div>
+-->
