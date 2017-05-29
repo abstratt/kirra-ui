@@ -252,6 +252,7 @@ kirraNG.buildRowData = function(entity, instance, instanceActions) {
 kirraNG.buildActionEnablement = function(instanceActions) {
     return {
         enabledActions: [],
+        enabledActionNames: [],
         useDropdown: true,
         loaded: false,
         load: function(instance) {
@@ -796,8 +797,10 @@ kirraNG.buildInstanceShowController = function(entity) {
         $scope.editable = kirraNG.isEditable(entity);
 
         $scope.loadInstanceCallback = function(instance) { 
+        	var instanceActions = kirraNG.getInstanceActions(entity);
             $scope.raw = instance;
-            $scope.actionEnablement = kirraNG.buildActionEnablement(kirraNG.getInstanceActions(entity)).load(instance);
+            $scope.actionEnablement = kirraNG.buildActionEnablement(instanceActions).load(instance);
+            $scope.instanceActions = instanceActions;
             $scope.fieldValues = kirraNG.buildViewDataAsArray(entity, instance);
             if (!$scope.relatedData)
             	$scope.relatedData = [];
@@ -886,9 +889,9 @@ kirraNG.buildInstanceShowController = function(entity) {
                 relationshipStyle: relationship.style,
                 relationship: relationship, 
                 relatedEntity: relatedEntity,
-                relatedTableProperties: kirraNG.buildTableColumns(relatedEntity),
+                relatedViewFields: kirraNG.buildViewFields(relatedEntity),
                 relatedInstanceActions: kirraNG.getInstanceActions(relatedEntity),
-                performRelatedInstanceActionOnRow: function(row, action) {
+                performInstanceActionOnRow: function(row, action) {
                     var relatedObjectId = row.raw.objectId;
                     var shorthand = row.raw.shorthand; 
                     
@@ -937,7 +940,12 @@ kirraNG.buildInstanceShowController = function(entity) {
                 
                 var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
                     // the list of related instances may be heterogeneous - need to find the proper edgeData object to inject the results into
-                    var tableData = kirraNG.buildTableData(relatedInstances);
+                    var tableData = kirraNG.map(relatedInstances, function(relatedInstance) { 
+                    	return {
+                    		data: kirraNG.buildViewDataAsArray(relatedEntity, relatedInstance),
+                    		raw: relatedInstance
+                    	};
+                	});
                     kirraNG.mergeEdgeRowDatas(edgeData.rows, tableData);
                 });
                 relationshipTasks.push(next);
@@ -1358,6 +1366,38 @@ repository.loadApplication(function(loadedApp, status) {
                 loginDialog.show();
             }
         });
+        kirraModule.directive('instanceDetails', [function() {
+        	return {
+                templateUrl: "templates/embedded-instance.html",
+                scope: {
+                    // these are set at the directive call site
+                	embeddedInstanceActions: '=',
+                	embeddedInstanceCapabilities: '=',
+                	embeddedInstance: '=',
+                	embeddedFieldValues: '=',                	
+                	embeddedViewFields: '=',
+                	embeddedFieldValues: '=',
+                	embeddedPerformAction: '&',
+                	embeddedObjectId: '='
+                }
+        	};
+        }]);
+        
+        kirraModule.directive('instanceActions', [function() {
+        	return {
+                templateUrl: "templates/embedded-instance-actions.html",
+                scope: {
+                    // these are set at the directive call site
+                	embeddedInstanceActions: '=',
+                	embeddedInstanceCapabilities: '=',
+                	embeddedInstance: '=',
+                	embeddedPerformAction: '&'
+                }
+        	};
+        }]);
+        
+
+        
         
         kirraModule.directive('instanceTable', ['$window', function($window) {
             return {

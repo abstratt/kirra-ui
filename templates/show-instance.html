@@ -1,98 +1,121 @@
 <div ng-include src="'templates/header.html'"></div>
 <div class="container-fluid">
 <div class="row">
+            <h2 class="col-sm-12">
+            {{entity.label}}: {{raw.shorthand}}
+            <span ng-if="parentLink">under
+                <a ui-sref="{{kirraNG.toState(parentRelationship.typeRef.fullName, 'show')}}({ objectId: '{{parentLink.objectId}}' })">
+                    {{parentRelationship.label}} {{parentLink.shorthand}}
+                </a>
+            </span>
+            </h2>
+</div>
+<div class="row">
 <div class="col-sm-8">
 
-<div ng-show="raw">
-		<legend>
-		{{entity.label}}: {{raw.shorthand}}
-		<span ng-if="parentLink">under
-			<a ui-sref="{{kirraNG.toState(parentRelationship.typeRef.fullName, 'show')}}({ objectId: '{{parentLink.objectId}}' })">
-				{{parentRelationship.label}} {{parentLink.shorthand}}
-			</a>
-		</span>
-		</legend>
-		<div ng-repeat="fieldData in fieldValues track by $index" ng-init="field = viewFields[$index]" class="form-horizontal">		
-			<div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind;" class="row">
-				<div class="span4 display-values" class="form-group">
-				    <div class="col-sm-3">
-				        <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
-				    </div>
-				    <div class="col-sm-9">
-				        <ka-data slot="field" slot-data="fieldData" id="{{field.name}}"></ka-data>
-				    </div>
-				</div>
-			</div>
-		</div>
-		
-		<div ng-repeat="edge in edges | filter:{ relationshipStyle: 'CHILD'}">
-			<h4>
-				{{edge.relationshipLabel}}			
-				<span class="badge">{{edge.rows.length}}</span>
-				<a ng-click="createChild(edge.relationship, edge.relatedEntity)" ng-if="edge.relationship.editable">
-			        <span class="glyphicon glyphicon-plus"></span>
-			    </a>
-			</h4>
-<!--
-			<instance-table class="container-fluid"
-    			ng-init="rows = edge.rows; tableProperties = edge.relatedTableProperties; actions = edge.relatedInstanceActions; performInstanceActionOnRow = edge.performRelatedInstanceActionOnRow; inlineActions = true"
-			/>
--->
-		    <div class="list-group">
-				<div ng-repeat="child in edge.rows" class="row list-group-item" ng-init="childFieldValues = child.data; childFields = edge.relatedEntity.properties; childRelationships = edge.relatedEntity.relationships"> 
-				    <div ng-include src="'templates/embedded-instance.html'" class="col-sm-10"></div>
-				    <div class="col-sm-2">
-					    <a ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
-					        <span class="glyphicon glyphicon-remove"></span>
-					    </a>
-					    <a ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
-					        <span class="glyphicon glyphicon-edit"></span>
-					    </a>
-					    <a ng-if="edge.relatedEntity.topLevel" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'show')}}({ objectId: '{{child.raw.objectId}}' })">
-					        <span class="glyphicon glyphicon-link"></span>
-					    </a>
-				    </div>
-				</div>
-			</div>
-			<span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationshipLabel}}</span>
-		</div>
-		
-</div>
-<div ng-show="raw==undefined">Loading...</div>
+    <div ng-show="raw">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                      <div class="btn-group" role="group">
+                          <button type="button" class="btn btn-default" ng-click="edit()" ng-if="editable && instanceCapabilities.instance.indexOf('Update') >= 0">
+                              Edit <span class="glyphicon glyphicon-edit"></span>
+                          </button>
+                          <button type="button" class="btn btn-default" ng-click="delete()" ng-if="instanceCapabilities.instance.indexOf('Delete') >= 0">
+                              Delete <span class="glyphicon glyphicon-remove"></span>
+                          </button>
+                      </div>
+                      <instance-actions class="form-horizontal"
+                          embedded-instance="raw"
+                          embedded-entity="entity"
+                          embedded-instance-actions="instanceActions"
+                          embedded-instance-capabilities="instanceCapabilities"
+                          embedded-action-enablement="actionEnablement"
+                          embedded-perform-action="performAction(action)">
+                      </instance-actions>
+                </div>
+                <div class="panel-body">
+                    <instance-details class="form-horizontal"
+                        embedded-instance="raw"
+                        embedded-field-values="fieldValues"
+                        embedded-view-fields="viewFields"
+                        embedded-entity="entity"
+                        embedded-object-id="objectId">
+                    </instance-details>
+                </div>
+            </div>
+            
+    
+            <div ng-repeat="edge in edges | filter:{ relationshipStyle: 'CHILD'}">
+                <h3>
+                    {{edge.relationshipLabel}}            
+                    <span class="badge">{{edge.rows.length}}</span>
+                    <a ng-click="createChild(edge.relationship, edge.relatedEntity)" ng-if="edge.relationship.editable">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </h3>
+    
+                <div ng-repeat="child in edge.rows" class="panel panel-default">
+                  <div class="panel-body">
+                  
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
+                                Edit <span class="glyphicon glyphicon-edit"></span>
+                            </button>
+                            <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
+                                Delete <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                  
+                        <instance-actions
+                            embedded-instance="child.raw"
+                            embedded-entity="edge.relatedEntity"
+                            embedded-instance-actions="edge.relatedInstanceActions"
+                            embedded-instance-capabilities="child.instanceCapabilities"
+                            embedded-action-enablement="child.actionEnablement"
+                            embedded-perform-action="edge.performInstanceActionOnRow(child, action)">
+                        </instance-actions>
+                        <instance-details
+                            embedded-instance="child.raw"
+                            embedded-field-values="child.data"
+                            embedded-view-fields="edge.relatedViewFields"
+                            embedded-entity="edge.relatedEntity"
+                            embedded-object-id="child.raw.objectId">
+                        </instance-details>    
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <span ng-show="edge.rows.length == 0" class="label label-info span2 text-center">No records for {{edge.relationshipLabel}}</span>
+            </div>
+    
+            <div ng-show="raw==undefined">Loading...</div>
+            </div>
+    </div>
 </div>
 <div class="col-sm-4">
     <div class="row">
-          <div class="btn-group" role="group">
-              <button type="button" class="btn btn-default" ng-click="edit()" ng-if="editable && instanceCapabilities.instance.indexOf('Update') >= 0">
-                  Edit
-              </button>
-              <button type="button" class="btn btn-default" ng-click="delete()" ng-if="instanceCapabilities.instance.indexOf('Delete') >= 0">
-                  Delete
-              </button>
-          </div>
-          <div class="btn-group" role="group">
-              <button ng-repeat="action in actionEnablement.enabledActions" ng-if="instanceCapabilities.actions[action.name].indexOf('Call') >= 0" type="button" class="btn btn-default" ng-click="performAction(action)" title="{{action.description}}">
-                  {{action.label}}
-              </button>
-          </div>
+        <div ng-repeat="edge in edges | filter:{ relationshipStyle: 'LINK'}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>{{edge.relationshipLabel}}
+                        <span class="badge">{{edge.rows.length}}</span>
+                        <a ng-click="link(edge.relationship, edge.relatedEntity)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
+                            <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div ng-repeat="row in edge.rows"> 
+                            <a ui-sref="{{kirraNG.toState(row.raw.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
+                            <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.typeRef.fullName, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
+                                <span class="glyphicon glyphicon-minus" style="color: #D00020"></span>
+                            </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="row">
-		<div ng-repeat="edge in edges | filter:{ relationshipStyle: 'LINK'}">
-			<h4>{{edge.relationshipLabel}}
-			    <span class="badge">{{edge.rows.length}}</span>
-			    <a ng-click="link(edge.relationship, edge.relatedEntity)" ng-if="!edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
-			        <span ng-if="edge.relationship.editable" class="glyphicon glyphicon-plus"></span>
-			    </a>
-		    </h4>
-			<div>
-			<div ng-repeat="row in edge.rows"> 
-			        <a ui-sref="{{kirraNG.toState(row.raw.typeRef.fullName, 'show')}}({ objectId: '{{row.raw.objectId}}' })">{{row.raw.shorthand}}</a>
-				    <a sref="$state.get()" ng-click="unlink(edge.relationship, row.raw.typeRef.fullName, row.raw.objectId)" ng-if="edge.relationship.editable && !edge.relationship.oppositeReadOnly && !edge.relationship.oppositeRequired">
-				        <span class="glyphicon glyphicon-minus" style="color: #D00020"></span>
-				    </a>
-			</div>
-			</div>
-		</div>
-	</div>
+</div>
+
+</div>
 </div>
 </div>
