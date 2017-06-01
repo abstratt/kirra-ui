@@ -1,0 +1,13 @@
+    <div>
+        <div ng-include src="getTemplateUrl('nav-bar')"></div>
+    </div>
+    
+    <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>
+    {{alert.msg}}
+    </alert>
+    
+    
+    <div ui-view>
+    </div>
+    
+        

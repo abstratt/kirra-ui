@@ -1,6 +1,6 @@
 {
   "name": "kirra-angular",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "keywords": [
   ],
   "author": {
@@ -29,6 +29,5 @@
   },
   "devDependencies": {
   },
-  "bundleDependencies": [],
-  "private": true
+  "bundleDependencies": []
 }

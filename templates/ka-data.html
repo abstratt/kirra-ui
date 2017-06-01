@@ -38,18 +38,21 @@
 	<!--
 	<div ng-if="slotTypeName == 'Geolocation'">
     	<iframe
-          width="600"
-          height="450"
+          width="400"
+          height="300"
           frameborder="0" style="border:0"
           src="{{generateMapURL(slot, slotData)}}" allowfullscreen>
         </iframe>
 	</div>
 	-->
-	<div ng-if="slotTypeKind == 'Blob' && table">
-	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+	<div ng-if="slotTypeKind == 'Blob' && (table || (grid && slotTypeName != 'Picture'))">
+    	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+    	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
     </div>
-    <div ng-if="slotTypeKind == 'Blob' && !table">
+    <div ng-if="slotTypeName == 'Picture' && grid">
+        <img style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+    </div>
+    <div ng-if="slotTypeKind == 'Blob' && !table && !grid">
         <div  class="col-sm-12">
             <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs img-thumbnail">
         </div>
@@ -61,7 +64,7 @@
     </div>
 </div>
 <div ng-if="slotData == undefined && slotTypeKind != 'Blob' && slotTypeName != 'Geolocation'"">-</div>
-<div ng-if="slotData == undefined && slotTypeKind == 'Blob' && !table">
+<div ng-if="slotData == undefined && slotTypeKind == 'Blob' && !table && !grid">
     <input class="btn btn-default btn-sm" type="file" id="{{slot.name}}FileInput"/>
     <button class="btn btn-default" ng-if="files" ng-click="attachmentUpload(slot, files)">Upload</button>
     <button class="btn btn-default" ng-if="files" ng-click="attachmentCancel(slot, slotData, files)">Cancel</button>
@@ -69,15 +72,35 @@
 <div ng-if="slotData == undefined && slotTypeKind == 'Blob' && table">
     <div ng-if="!slotData">-</div>
 </div>
-<div ng-if="slotTypeName == 'Geolocation' && !table">
+
+<div ng-if="slotData == undefined && slotTypeKind == 'Blob' && grid && slotTypeName == 'Picture'">
+    <img src="https://placeholdit.imgix.net/~text?txtsize=32&txt=Missing%20picture" height="150">
+</div>
+
+
+
+
+<div ng-if="slotTypeName == 'Geolocation' && !table" id="{{slot.name}}" class="panel panel-default">
+  <div class="panel-body">
+    <!--
     <img 
+        id="{{slot.name}}StaticMap"
         class="img-thumbnail"
         ng-if="slotData"
         ng-src="{{getMapAsImageURL(slot,slotData)}}" 
         width="300"
         height="300">
-    <button class="btn btn-default" ng-click="setToMyLocation(slot, slotData)">My location</button>
-    <button class="btn btn-default" ng-click="chooseALocation(slot, slotData)">Choose location</button>
+    -->    
+    <input id="{{slot.name}}MapInput" class="form-control" type="text" placeholder="Search Box">
+    <div id="{{slot.name}}LiveMap" style="height: 400px; width: 100%;"></div>
+    <div id="{{slot.name}}MapInfoPane">
+      <img src="" width="16" height="16" id="place-icon">
+      <span id="place-name"  class="title"></span><br>
+      <span id="place-address"></span>
+    </div>
+    <button class="btn btn-default" ng-click="setToMyLocation(slot)">My location</button>
+    <button class="btn btn-default" ng-click="clearLocation(slot)">Clear</button>
+  </div>
 </div>
 <div ng-if="slotTypeName == 'Geolocation' && table">
     <span ng-if="slotData" class="glyphicon glyphicon-ok" aria-hidden="true"></span>

@@ -1,5 +1,5 @@
 <div class="container-fluid" ng-if="instances != undefined">
-    <div ng-include src="'templates/header.html'"></div>
+    <div ng-include src="getTemplateUrl('header', [ entity.name ])"></div>
     <div class="row">
         <div class="col-sm-10">
             <legend>{{entity.label}}: {{finder ? finder.label : 'All'}}</legend>
@@ -7,8 +7,8 @@
 	</div>
     <div class="row">
     	<div class="col-sm-5">
-    		<div class="row">    	
-	            <div class="btn-group" role="group" ng-if="queries.length">
+    		<div class="row"  ng-if="queries.length">    	
+	            <div class="btn-group" role="group">
 	                <button ng-if="entityCapabilities.entity.indexOf('List') >= 0" type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
 	                All
 	                </button>
@@ -20,7 +20,7 @@
 		    <div class="row">
 		    	<p></p>
 		    </div>
-    		<div class="row">    	
+    		<div class="row" ng-if="entityActions.length">    	
 	            <div class="btn-group" role="group">
 	                <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</button>
 	                <button ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" type="button" class="btn btn-default" ng-click="performEntityAction(action)">
@@ -38,7 +38,7 @@
 	            </div>
 			</div>	            
 			<div class="row" ng-if="finder && finder.parameters.length">        
-	    	    <div ng-include src="'templates/operation-form.html'"></div>
+	    	    <div ng-include src="getTemplateUrl('operation-form', [ entity.name, finder.name ])"></div>
 	    	    <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
 			</div>    	    
     	</div>        

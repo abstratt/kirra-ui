@@ -1,0 +1,28 @@
+    <div class="row">
+        <div class="col-md-4" ng-repeat="row in rows track by $index">
+            <span class="thumbnail">
+                <ka-data grid=true slot="entity.properties[customSlots.productImage]" slot-data="row.data[customSlots.productImage]" object-id="row.raw.objectId">
+                </ka-data>
+                <h3>
+                    <ka-data slot="entity.properties[customSlots.productName]" grid=true slot-data="row.data[customSlots.productName]" object-id="row.raw.objectId">
+                    </ka-data>
+                </h3>                        
+                <hr class="line">
+                <p>
+                    <label class="control-label" for="{{entity.relationships[customSlots.productCategory].name}}">{{entity.relationships[customSlots.productCategory].label}}:</label>
+                    <ka-data grid=true slot="entity.relationships[customSlots.productCategory]" slot-data="row.data[customSlots.productCategory]" object-id="row.raw.objectId">
+                    </ka-data>
+                </p>
+                <p>
+                    <label class="control-label" for="{{entity.properties[customSlots.productPrice].name}}">{{entity.properties[customSlots.productPrice].label}}:</label>
+                    <ka-data grid=true slot="entity.properties[customSlots.productPrice]" slot-data="row.data[customSlots.productPrice]" object-id="row.raw.objectId">
+                    </ka-data>
+                </p>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <button class="btn btn-success right" ng-click="performInstanceActionOnRow(row, entity.operations[customInstanceActions.addToCart])">{{entity.operations[customInstanceActions.addToCart].label}}</button>
+                    </div>
+                </div>
+            </span>
+        </div>
+    </div>

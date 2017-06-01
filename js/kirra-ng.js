@@ -1,12 +1,25 @@
+var kirraApplicationUri;
+var kirraApplicationPath;
+var kirraTemplateMappings;
+kirraTemplateMappings = kirraTemplateMappings || {};
+var kirraCustomInstanceActions;
+kirraCustomInstanceActions = kirraCustomInstanceActions || {};
+var kirraCustomSlots;
+kirraCustomSlots = kirraCustomSlots || {};
+
 var uriMatches = window.location.search.match("[?&]?app-uri\=([^&]+)");
 var pathMatches = window.location.search.match("[?&]?app-path\=([^&]+)");
 var themeMatches = window.location.search.match("[?&]?theme\=([^&]*)")
 
-
-if (!uriMatches && !pathMatches) {
+if (!uriMatches && !pathMatches && !kirraApplicationUri && !kirraApplicationPath) {
      throw Error("You must specify an application URI or path (same server) using the app-uri or app-path query parameters, like '...?app-uri=http://myserver.com/myapp/rest/' or '...?app-path=/myapp/rest/'.");
 }
-var applicationUrl = uriMatches ? uriMatches[1] : (window.location.origin + pathMatches[1]);
+
+var applicationUrl = kirraApplicationUri || (
+        uriMatches ? uriMatches[1] : (
+            window.location.origin + (kirraApplicationPath || pathMatches[1])
+        )
+    );
 if (!applicationUrl.endsWith('/')) applicationUrl = applicationUrl + '/';
 
 var changeTheme = function(theme) {
@@ -33,6 +46,23 @@ var entityCapabilitiesByName;
 var entityNames;
 var kirraModule;
 var encodedCredentials = undefined;
+
+var kirraGetTemplateUrl = function(templateName, hierarchy) {
+    hierarchy = hierarchy || [];
+    var hierarchySuffix = hierarchy.join('/');
+    var found = kirraTemplateMappings[templateName + "/" + hierarchySuffix] || kirraTemplateMappings[templateName];
+    return found || 'templates/' + templateName + '.html';
+};
+
+var kirraGetCustomSlots = function(entityName) {
+    var found = kirraCustomSlots[entityName];
+    return found || {};
+};
+
+var kirraGetCustomInstanceActions = function(entityName) {
+    var found = kirraCustomInstanceActions[entityName];
+    return found || {};
+};
 
 kirraNG.capitalize = function(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -93,19 +123,28 @@ kirraNG.filterCandidates = function(instances, value) {
 }; 
 
 kirraNG.buildTableColumns = function(entity, global) {
-    var tableColumns = [];
+    return kirraNG.findProperties(entity, function(property) {
+        return (property.userVisible && (!global || property.typeRef.typeName != 'Memo'));
+    }, function(relationship) {
+        return relationship.userVisible && !relationship.multiple;
+    });
+};
+
+kirraNG.findProperties = function(entity, propertyPredicate, relationshipPredicate) {
+    var selectedColumns = [];
+    relationshipPredicate = relationshipPredicate || propertyPredicate;
     angular.forEach(entity.properties, function(property) {
-        if (property.userVisible && (!global || property.typeRef.typeName != 'Memo')) {
-            tableColumns.push(property);
+        if (propertyPredicate(property)) {
+            selectedColumns.push(property);
         }
     });
     angular.forEach(entity.relationships, function(relationship) {
-        if (relationship.userVisible && !relationship.multiple) {
-            tableColumns.push(relationship);
+        if (relationshipPredicate(relationship)) {
+            selectedColumns.push(relationship);
         }
     });
-    kirraNG.sortFields(entity, tableColumns);
-    return tableColumns;
+    kirraNG.sortFields(entity, selectedColumns);
+    return selectedColumns;
 };
 
 kirraNG.togglePickerStatus = function ($event, $scope, propertyName) { 
@@ -163,7 +202,8 @@ kirraNG.getEnabledActions = function(instance, instanceActions) {
     });
 };
 
-// this version is required to workaround a weird issue were using an object (as the basic buildViewData does) would cause all sorts of problems
+// this version is required to workaround a weird issue were using an object (as
+// the basic buildViewData does) would cause all sorts of problems
 kirraNG.buildViewDataAsArray = function(entity, instance) {
     // need to preserve order to allow retrieval by index
     var fieldValuesByName = {};
@@ -274,7 +314,8 @@ kirraNG.buildTableData = function(instances, fixedEntity) {
     var rows = [];
     var fixedInstanceActions = fixedEntity && kirraNG.getInstanceActions(fixedEntity);
     angular.forEach(instances, function(instance){
-        // we compute the entity every time to allow for heterogeneous collections
+        // we compute the entity every time to allow for heterogeneous
+        // collections
         var entity = fixedEntity || entitiesByName[instance.typeRef.fullName];
         var instanceActions = fixedInstanceActions || kirraNG.getInstanceActions(entity);
         rows.push(kirraNG.buildRowData(entity, instance, instanceActions));
@@ -292,14 +333,14 @@ kirraNG.getEntityActions = function(entity) {
 
 kirraNG.getMultiChildRelationships = function(entity) {
     return kirraNG.filter(entity.relationships, function(rel) { 
-    	return rel.style == 'CHILD' && rel.multiple && rel.userVisible; 
-	});
+            return rel.style == 'CHILD' && rel.multiple && rel.userVisible; 
+        });
 };
 
 kirraNG.getMultiRegularRelationships = function(entity) {
     return kirraNG.filter(entity.relationships, function(rel) { 
-    	return rel.style != 'CHILD' && rel.multiple && rel.userVisible; 
-	});
+            return rel.style != 'CHILD' && rel.multiple && rel.userVisible; 
+        });
 };
 
 kirraNG.getQueries = function(entity) {
@@ -332,6 +373,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.parameterValues = finderArguments || {};
         $scope.entityName = entity.fullName;
         $scope.tableProperties = kirraNG.buildTableColumns(entity, true);
+        $scope.pictureProperties = kirraNG.findProperties(entity, function (property) { return property.typeRef.typeName == 'Picture'; }, function (property) { return false; });
         $scope.actions = kirraNG.getInstanceActions(entity);
         $scope.anyListCapability = true;
         $scope.instances = undefined;
@@ -353,6 +395,8 @@ kirraNG.buildInstanceListController = function(entity) {
         };
         $scope.maxSize = 5;
         $scope.totalItems = 34;
+        $scope.customSlots = kirraGetCustomSlots(entity.fullName);
+        $scope.customInstanceActions = kirraGetCustomInstanceActions(entity.fullName);
         angular.forEach(finderArguments, function (arg, name) {
             if (typeof(arg) == 'object' && arg instanceof Date) {
                 finderArguments[name] = moment(arg).format("YYYY/MM/DD");
@@ -407,13 +451,15 @@ kirraNG.buildInstanceListController = function(entity) {
                 $scope.entityCapabilities = entityCapabilitiesByName[entity.fullName] = entityCapabilities;
                 if (finderName) {
                     if (!entityCapabilities.queries[finderName] || entityCapabilities.queries[finderName].length == 0) {
-                        // we don't actually have permission for the requested query 
+                        // we don't actually have permission for the requested
+                        // query
                         $scope.finder = finder = undefined;
                     }
                     populate();
                 } else {
                     if (entityCapabilities.entity.indexOf('List') == -1) {
-                        // no permission to list all instances, fallback to first query that we can execute  
+                        // no permission to list all instances, fallback to
+                        // first query that we can execute
                         var firstQuery = kirraNG.find($scope.queries, function(q) { 
                             return entityCapabilities.queries[q.name] && entityCapabilities.queries[q.name].length > 0; 
                         });
@@ -490,7 +536,7 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.performQuery = function(finder) {
             $state.go(kirraNG.toState(entity.fullName, 'performQuery'), { 
                 finderName: finder.name, 
-                /* reset when switching*/ arguments: {} 
+                /* reset when switching */ arguments: {} 
             });
         };
         
@@ -510,7 +556,8 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
     var controller = function($scope, $state, $stateParams, instanceService, $q) {
         var objectId = $stateParams.objectId;
      
-        // in this controller, because it is used both for editing parents and children, the  actual entity will depend on the mode   
+        // in this controller, because it is used both for editing parents and
+        // children, the actual entity will depend on the mode
         var actualEntity;
         if (childCreation || childEditing) {
             var relationship = entity.relationships[$stateParams.relationshipName];
@@ -666,16 +713,16 @@ kirraNG.buildActionController = function(entity) {
 };
 
 kirraNG.handleActionResponse = function ($state, entity, actionName) {
-	return function(response) {
-		var action = actionName && entity.operations[actionName];
-		if (action.typeRef && action.typeRef.kind == 'Entity') {
-			var resultInstance = response.data[0];
-			var resultEntity = entitiesByName[action.typeRef.fullName];
-			$state.go(kirraNG.toState(resultEntity.fullName, 'show'), { objectId: resultInstance.objectId } );
-		} else {
-			window.history.back();
-		}
-	};
+        return function(response) {
+                var action = actionName && entity.operations[actionName];
+                if (action.typeRef && action.typeRef.kind == 'Entity') {
+                        var resultInstance = response.data[0];
+                        var resultEntity = entitiesByName[action.typeRef.fullName];
+                        $state.go(kirraNG.toState(resultEntity.fullName, 'show'), { objectId: resultInstance.objectId } );
+                } else {
+                        window.history.back();
+                }
+        };
 };
 
 kirraNG.buildInstanceLinkController = function(entity) {
@@ -732,12 +779,12 @@ kirraNG.buildDashboardController = function() {
                 var multiple = query.multiple;
                 var entityReturning = query.typeRef.kind == 'Entity';
                 if (entityReturning && !multiple) {
-                	// not supporting single instances at this point
-                	return;
+                        // not supporting single instances at this point
+                        return;
                 }
                 var metricUri = (entityReturning && multiple) ?
-                		entity.finderMetricUriTemplate.replace('(finderName)', query.name) : 
-                		entity.finderUriTemplate.replace('(finderName)', query.name);
+                                entity.finderMetricUriTemplate.replace('(finderName)', query.name) : 
+                                entity.finderUriTemplate.replace('(finderName)', query.name);
                 var metric = {
                     query: query,
                     entity: entity,
@@ -772,10 +819,10 @@ kirraNG.buildDashboardController = function() {
 };
 
 kirraNG.mergeEdgeRowDatas = function(rows, newRows) {
-	rows.length = 0;
-	newRows.forEach(function(value, index) {
-	    rows.push(value);	
-	});
+        rows.length = 0;
+        newRows.forEach(function(value, index) {
+            rows.push(value);        
+        });
 };
 
 kirraNG.buildInstanceShowController = function(entity) {
@@ -797,15 +844,15 @@ kirraNG.buildInstanceShowController = function(entity) {
         $scope.editable = kirraNG.isEditable(entity);
 
         $scope.loadInstanceCallback = function(instance) { 
-        	var instanceActions = kirraNG.getInstanceActions(entity);
+                var instanceActions = kirraNG.getInstanceActions(entity);
             $scope.raw = instance;
             $scope.actionEnablement = kirraNG.buildActionEnablement(instanceActions).load(instance);
             $scope.instanceActions = instanceActions;
             $scope.fieldValues = kirraNG.buildViewDataAsArray(entity, instance);
             if (!$scope.relatedData)
-            	$scope.relatedData = [];
+                    $scope.relatedData = [];
             if (!$scope.childrenData)
-            	$scope.childrenData = [];
+                    $scope.childrenData = [];
             if (!entity.topLevel) {
                 $scope.parentLink = instance.links[$scope.parentRelationship.name];
             }
@@ -839,7 +886,7 @@ kirraNG.buildInstanceShowController = function(entity) {
             var objectId = this.objectId;
             var modal = $modal.open({
               animation: true,
-              templateUrl: 'templates/link-instance.html',
+              templateUrl: kirraGetTemplateUrl('link-instance'),
               size: 'lg',
               controller: entity.fullName + 'InstanceLinkCtrl', 
               resolve: {
@@ -869,18 +916,19 @@ kirraNG.buildInstanceShowController = function(entity) {
         };
 
         /*
-        Data for multivalued relationships is kept in the form of edgeDatas.
-        An edgeData is meant to be bound to a scope, and is the basis for dynamic UI rendering.
-        The edgeData includes both metadata about the relationship,
-        and the data for that relationship (rows). 
-        */
+         * Data for multivalued relationships is kept in the form of edgeDatas.
+         * An edgeData is meant to be bound to a scope, and is the basis for
+         * dynamic UI rendering. The edgeData includes both metadata about the
+         * relationship, and the data for that relationship (rows).
+         */
         var buildEdgeData = function(relationship) {
             var relatedEntity = entitiesByName[relationship.typeRef.fullName];
             /*
-             Data for multivalued relationships is kept in the form of edgeDatas.
-             An edgeData is meant to be bound to a scope, and is the basis for dynamic UI rendering.
-             The edgeData includes both metadata about the relationship,
-             and the data for that relationship (rows). 
+             * Data for multivalued relationships is kept in the form of
+             * edgeDatas. An edgeData is meant to be bound to a scope, and is
+             * the basis for dynamic UI rendering. The edgeData includes both
+             * metadata about the relationship, and the data for that
+             * relationship (rows).
              */
             var newArrayWithTimestamp = [];
             newArrayWithTimestamp.timestamp = new Date();
@@ -922,12 +970,14 @@ kirraNG.buildInstanceShowController = function(entity) {
             angular.forEach(multipleRelationships, function(relationship) {
                 var relatedEntity = entitiesByName[relationship.typeRef.fullName];
                 var edgeData = kirraNG.find(edgeDatas, function (edgeData) { return edgeData.relationship == relationship });
-                // take subtyping into account (every concrete subtype gets its own edgeData
+                // take subtyping into account (every concrete subtype gets its
+                // own edgeData
                 if (edgeData.relatedEntity.subTypes && edgeData.relatedEntity.subTypes.length > 0) {
                     angular.forEach(edgeData.relatedEntity.subTypes, function (subType) {
                         var subEntity = entitiesByName[subType.fullName];
                         if (subEntity.concrete) {
-                            //TODO-RC this is inconsistent - use a single function to build edgeData 
+                            // TODO-RC this is inconsistent - use a single
+                            // function to build edgeData
                             edgeDatas.push({
                                 relationshipLabel: relationship.label + " (" + subType.typeName + ")",
                                 relationship: relationship, 
@@ -939,13 +989,15 @@ kirraNG.buildInstanceShowController = function(entity) {
                 }
                 
                 var next = instanceService.getRelated(entity, objectId, relationship.name).then(function(relatedInstances) {
-                    // the list of related instances may be heterogeneous - need to find the proper edgeData object to inject the results into
+                    // the list of related instances may be heterogeneous - need
+                    // to find the proper edgeData object to inject the results
+                    // into
                     var tableData = kirraNG.map(relatedInstances, function(relatedInstance) { 
-                    	return {
-                    		data: kirraNG.buildViewDataAsArray(relatedEntity, relatedInstance),
-                    		raw: relatedInstance
-                    	};
-                	});
+                            return {
+                                    data: kirraNG.buildViewDataAsArray(relatedEntity, relatedInstance),
+                                    raw: relatedInstance
+                            };
+                        });
                     kirraNG.mergeEdgeRowDatas(edgeData.rows, tableData);
                 });
                 relationshipTasks.push(next);
@@ -965,10 +1017,10 @@ kirraNG.buildInstanceService = function() {
             angular.extend(this, data);
         };
         var buildInstanceFromData = function(instanceData) {
-        	var entity = entitiesByName[instanceData.typeRef.fullName];
-        	angular.forEach(entity.properties, function(property) {
-        		if (property.typeRef.typeName == 'Time')
-        			instanceData.values[property.name] = new Date("1970-01-01T" + instanceData.values[property.name] + "+00:00");
+                var entity = entitiesByName[instanceData.typeRef.fullName];
+                angular.forEach(entity.properties, function(property) {
+                        if (property.typeRef.typeName == 'Time')
+                                instanceData.values[property.name] = new Date("1970-01-01T" + instanceData.values[property.name] + "+00:00");
             });
             return new Instance(instanceData);
         };
@@ -995,13 +1047,13 @@ kirraNG.buildInstanceService = function() {
                 return {};
             }
             removeNulls(instance.values);
-        	angular.forEach(entity.properties, function(property) {
-        		if (property.typeRef.typeName == 'Time') {
-        			if (instance.values[property.name]) {
-        				var asTimeString = moment(instance.values[property.name]).format("HH:mm:ss")
-        				instance.values[property.name] = asTimeString;
-        			}
-        		}
+                angular.forEach(entity.properties, function(property) {
+                        if (property.typeRef.typeName == 'Time') {
+                                if (instance.values[property.name]) {
+                                        var asTimeString = moment(instance.values[property.name]).format("HH:mm:ss")
+                                        instance.values[property.name] = asTimeString;
+                                }
+                        }
             });
             
             return instance;
@@ -1041,6 +1093,16 @@ kirraNG.buildInstanceService = function() {
         };
         Instance.put = function (entity, instance) {
             return $http.put(entity.instanceUriTemplate.replace('(objectId)', instance.objectId), beforeInstanceUpload(entity, instance)).then(loadOne);
+        };
+        Instance.getAndUpdate = function (entity, objectId, updater) {
+            return Instance.get(entity, objectId)
+                .then(function(loaded) {
+                    var updated = updater(loaded);
+                    if (updated) {
+                        return Instance.put(entity, updated);
+                    }
+                });
+
         };
         Instance.delete = function (entity, objectId) {
             return $http.delete(entity.instanceUriTemplate.replace('(objectId)', objectId));
@@ -1085,9 +1147,9 @@ kirraNG.loginController = function($scope, $http, $modalInstance) {
 
 
 kirraNG.registrationController = function($scope, $http, $modalInstance, $controller, registrationEntity) {
-	var entityName = registrationEntity.fullName
-	$scope.credentials = { username: "", password: "" };
-	$controller(entityName + 'InstanceCreateCtrl', {$scope: $scope});
+        var entityName = registrationEntity.fullName
+        $scope.credentials = { username: "", password: "" };
+        $controller(entityName + 'InstanceCreateCtrl', {$scope: $scope});
     $scope.ok = function() {
         console.log("Save pressed");
         var newValues = angular.copy($scope.propertyValues);
@@ -1099,7 +1161,7 @@ kirraNG.registrationController = function($scope, $http, $modalInstance, $contro
         $modalInstance.close({ instance: newRepresentation, credentials: $scope.credentials });
     };
     $scope.cancel = function() {
-    	$modalInstance.dismiss();
+            $modalInstance.dismiss();
     };
 };
 
@@ -1141,7 +1203,7 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state, k
         this.showing = true;
         this.modal = $modal.open({
           animation: true,
-          templateUrl: 'templates/login.html',
+          templateUrl: kirraGetTemplateUrl('login'),
           size: 'sm',
           controller: 'LoginCtrl'
         });
@@ -1152,22 +1214,23 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state, k
                 return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
             }
         }, function() {
-        	// dismissed? reload in case we were here because the user tried to access a protected resource
+                // dismissed? reload in case we were here because the user tried
+                // to access a protected resource
             window.location.href = application.viewUri;
             window.location.reload();
         }).then(function(loginResponse) {
             if (loginResponse) {
-            	if (loginResponse.status >= 200 && loginResponse.status < 300) {
-	                // before reloading, send the user to the dashboard.
-	                window.location.href = application.viewUri;
-	                window.location.reload();
-            	} else {
-                	console.log("Error 1!");
-                	console.log(errorResponse);
-            	}
+                    if (loginResponse.status >= 200 && loginResponse.status < 300) {
+                        // before reloading, send the user to the dashboard.
+                        window.location.href = application.viewUri;
+                        window.location.reload();
+                    } else {
+                        console.log("Error 1!");
+                        console.log(errorResponse);
+                    }
             }
         }, function(errorResponse) {
-    		kirraNotification.logError(errorResponse);	
+                    kirraNotification.logError(errorResponse);        
         });
     };
     LoginDialog.close = function() {
@@ -1193,7 +1256,7 @@ kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $s
         this.showing = true;
         this.modal = $modal.open({
           animation: true,
-          templateUrl: 'templates/registration.html',
+          templateUrl: kirraGetTemplateUrl('registration'),
           size: 'sm',
           controller: 'RegistrationCtrl',
           resolve: {
@@ -1203,13 +1266,14 @@ kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $s
             }
         });
         this.modal.result.then(function(modalResult) {
-        	var instance = modalResult.instance;
-        	var credentials = modalResult.credentials;
+                var instance = modalResult.instance;
+                var credentials = modalResult.credentials;
             dialog.showing = false;
             encodedCredentials = btoa(credentials.username+":"+credentials.password);
             return $http.post(application.uri + 'signup/' + registrationEntity.fullName, instance, { headers: { "X-Kirra-Credentials": encodedCredentials }});
         }, function() {
-        	// dismissed? reload in case we were here because the user tried to access a protected resource
+                // dismissed? reload in case we were here because the user tried
+                // to access a protected resource
             window.location.href = application.viewUri;
             window.location.reload();
         }).then(function(loginResponse) {
@@ -1248,6 +1312,7 @@ kirraModule.config(function($httpProvider) {
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
     $httpProvider.defaults.headers.common["Cache-control"] = 'no-cache';
 });
+
 
 kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
     $scope.kirraNG = kirraNG;
@@ -1302,7 +1367,7 @@ repository.loadApplication(function(loadedApp, status) {
     var buildUI = function(entities, entityCapabilities, status) {
         
         kirraModule.controller('KirraRepositoryCtrl', function($http, $scope, kirraNotification, instanceService, loginDialog, registrationDialog) {
-        	$scope.applicationLogo = application.applicationLogo;
+            $scope.applicationLogo = application.applicationLogo;
             $scope.applicationName = application.applicationName;
             $scope.applicationLabel = application.applicationLabel || application.applicationName;
             var anchorlessUri = window.location.href.split(/[#]/)[0]; 
@@ -1313,14 +1378,14 @@ repository.loadApplication(function(loadedApp, status) {
             var themeParam = kirraNG.find(queryParams, function(nameAndValueAsArray) { return nameAndValueAsArray[0] == 'theme'; });
             var applicationUrl = querylessUri + "?";
             if (!(themeParam === undefined)) {
-            	applicationUrl = applicationUrl + "theme=" + themeParam[1];
+                    applicationUrl = applicationUrl + "theme=" + themeParam[1];
             }
             applicationUrl = applicationUrl + '&app-uri=' + application.uri + "#/";
             
             $scope.applicationUrl = application.viewUri = applicationUrl;
             $scope.entities = entities;
             $scope.selfServiceRoleEntities = kirraNG.filter(entities, function(entity) {
-            	return entity.role && entityCapabilities[entity.fullName].entity.indexOf('Create') >= 0;
+                    return entity.role && entityCapabilities[entity.fullName].entity.indexOf('Create') >= 0;
             });
             $scope.applicationOptions = application.options;            
             $scope.kirraNG = kirraNG;
@@ -1343,10 +1408,13 @@ repository.loadApplication(function(loadedApp, status) {
                registrationDialog.show(entity);
             };
             
+            $scope.getTemplateUrl = function(templateName, hierarchy) {
+                return kirraGetTemplateUrl(templateName, hierarchy);    
+            };
+            
             $scope.canChangeTheme = canChangeTheme;
             
             $scope.changeTheme = function(theme) {
-                
                 changeTheme(theme);
             };            
             
@@ -1367,33 +1435,41 @@ repository.loadApplication(function(loadedApp, status) {
             }
         });
         kirraModule.directive('instanceDetails', [function() {
-        	return {
-                templateUrl: "templates/embedded-instance.html",
+            return {
                 scope: {
                     // these are set at the directive call site
-                	embeddedInstanceActions: '=',
-                	embeddedInstanceCapabilities: '=',
-                	embeddedInstance: '=',
-                	embeddedFieldValues: '=',                	
-                	embeddedViewFields: '=',
-                	embeddedFieldValues: '=',
-                	embeddedPerformAction: '&',
-                	embeddedObjectId: '='
+                        embeddedInstanceActions: '=',
+                        embeddedInstanceCapabilities: '=',
+                        embeddedInstance: '=',
+                        embeddedFieldValues: '=',                        
+                        embeddedViewFields: '=',
+                        embeddedFieldValues: '=',
+                        embeddedPerformAction: '&',
+                        embeddedObjectId: '=',
+                        embeddedEntity: '=',
+                },
+                template: '<div ng-include="templateUrl"></div>',
+                link: function (scope) {
+                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance", [scope.embeddedEntity.name]);                    
                 }
-        	};
+            };
         }]);
         
         kirraModule.directive('instanceActions', [function() {
-        	return {
-                templateUrl: "templates/embedded-instance-actions.html",
+            return {
                 scope: {
                     // these are set at the directive call site
-                	embeddedInstanceActions: '=',
-                	embeddedInstanceCapabilities: '=',
-                	embeddedInstance: '=',
-                	embeddedPerformAction: '&'
+                        embeddedInstanceActions: '=',
+                        embeddedInstanceCapabilities: '=',
+                        embeddedInstance: '=',
+                        embeddedPerformAction: '&',
+                        embeddedEntity: '='
+                },
+                template: '<div ng-include="templateUrl"></div>',
+                link: function (scope) {
+                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance-actions", [scope.embeddedEntity.name]);                    
                 }
-        	};
+            };
         }]);
         
 
@@ -1401,25 +1477,25 @@ repository.loadApplication(function(loadedApp, status) {
         
         kirraModule.directive('instanceTable', ['$window', function($window) {
             return {
-            	restrict: 'E',
-	            template: '<div ng-include="templateUrl"></div>',
-	            link: function(scope) {
-	
-	                $window.onresize = function() {
-	                    changeTemplate();
-	                    scope.$apply();
-	                };
-	                changeTemplate();
-	
-	                function changeTemplate() {
-	                    var screenWidth = $window.innerWidth;
-	                    if (screenWidth < 768) {
-	                        scope.templateUrl = 'templates/instance-table-mobile.html';
-	                    } else {
-	                        scope.templateUrl = 'templates/instance-table-desktop.html';
-	                    }
-	                }
-	            }
+                    restrict: 'E',
+                    template: '<div ng-include="templateUrl"></div>',
+                    link: function(scope) {
+        
+                        $window.onresize = function() {
+                            changeTemplate();
+                            scope.$apply();
+                        };
+                        changeTemplate();
+                        
+                        function changeTemplate() {
+                            var screenWidth = $window.innerWidth;
+                            if (screenWidth < 768) {
+                                scope.templateUrl = kirraGetTemplateUrl('instance-table-mobile', [scope.entity.fullName]);
+                            } else {
+                                scope.templateUrl = kirraGetTemplateUrl('instance-table-desktop', [scope.entity.fullName]);
+                            }
+                        }
+                    }
             }
         }]);
         
@@ -1458,7 +1534,7 @@ repository.loadApplication(function(loadedApp, status) {
                         scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
                     }
                     
-                },	
+                },        
                 templateUrl: 'templates/ka-edit.html'
             };
         });
@@ -1472,7 +1548,7 @@ repository.loadApplication(function(loadedApp, status) {
                     slotData: '=',
                     objectId: '=',
                     table: '=',
-                    
+                    grid: '='
                 },
                 link: function (scope, element) {
                     var slot = scope.slot;
@@ -1535,6 +1611,128 @@ repository.loadApplication(function(loadedApp, status) {
                             }], 0);
                         };
                     } else if (slot.typeRef.typeName == 'Geolocation') {
+                        var marker, map, geocoder, infoWindow, infoWindowContent;
+
+                        
+                        var showPlaceDetails = function (place) {
+                            var infoWindowZIndex = infoWindow.getZIndex();
+                            if (infoWindowZIndex === undefined) {
+                                infoWindowContent.children['place-icon'].src = place.icon ? place.icon : "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png";
+                                infoWindowContent.children['place-name'].textContent = place.name;
+                                infoWindowContent.children['place-address'].textContent = place.formatted_address;
+                                infoWindow.open(map, marker);
+                            } else {
+                                console.log("Skipping");
+                            }
+                        };
+                        /* Show the given location in the map, if set. */
+                        var showLocation = function (slot, center, markedLocation, place) {
+                            if (center) {
+                                map.setCenter(center);
+                            }
+                            
+                            if (marker) {
+                                marker.setMap(null);
+                            }
+                            if (markedLocation) {
+                                marker = new google.maps.Marker({
+                                    position: markedLocation,
+                                    map: map,
+                                    title: 'Your location'
+                                });
+                                
+                                if (!place) {
+                                    geocoder.geocode({'location': markedLocation}, function(results, status) {
+                                        if (status === 'OK') {
+                                            if (results[0]) {
+                                                showPlaceDetails(results[0]);
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    if (place.name) {
+                                        showPlaceDetails(place);
+                                    }
+                                }
+                                
+                            }
+                        };
+
+                        angular.element(document).ready(function () {
+                            var domElement = document.getElementById(slot.name + 'LiveMap');
+                            map = new google.maps.Map(domElement, {
+                                center:  { lat: 0, lng: 0 },
+                                zoom: 17,
+                                disableDefaultUI: true,
+                                zoomControl: true,
+                                scaleControl: true,
+                                clickableLabels:false
+                            });
+                            var trafficLayer = new google.maps.TrafficLayer();
+                            trafficLayer.setMap(map);
+                            google.maps.event.addListener(map, 'click', function(event) {
+                                setPositionTo(slot, { 
+                                    latitude: event.latLng.lat(), 
+                                    longitude: event.latLng.lng() 
+                                }, false, event.placeId);    
+                            });
+                            
+                            var searchInput = document.getElementById(slot.name + 'MapInput');
+                            map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchInput);
+
+                            var autocomplete = new google.maps.places.Autocomplete(searchInput);
+
+                            // Bind the map's bounds (viewport) property to the
+                            // autocomplete object,
+                            // so that the autocomplete requests use the current
+                            // map bounds for the
+                            // bounds option in the request.
+                            autocomplete.bindTo('bounds', map);
+                            
+                            geocoder = new google.maps.Geocoder;
+
+                            infoWindow = new google.maps.InfoWindow();
+                            infoWindowContent = document.getElementById(slot.name + 'MapInfoPane');
+                            infoWindow.setContent(infoWindowContent);
+
+                            autocomplete.addListener('place_changed', function() {
+                              infoWindow.close();
+                              var place = autocomplete.getPlace();
+                              if (!place.geometry) {
+                                // User entered the name of a Place that was not
+                                // suggested and
+                                // pressed the Enter key, or the Place Details
+                                // request failed.
+                                window.alert("No details available for input: '" + place.name + "'");
+                                return;
+                              }
+
+                              if (place.geometry.viewport) {
+                                map.fitBounds(place.geometry.viewport);
+                              }
+                              var chosenLocation = place.geometry.location;
+                              showLocation(slot, chosenLocation, chosenLocation, place);
+                            });
+                            
+                            var parsedExistingCoords = slotData && slotData.split(/[,]/);
+                            if (parsedExistingCoords) {
+                                var existingCoords = {
+                                    lat: parseFloat(parsedExistingCoords[0]), 
+                                    lng: parseFloat(parsedExistingCoords[1])
+                                };
+                                showLocation(slot, existingCoords, existingCoords);
+                            } else {
+                                if (navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition(function(position) {
+                                        var myCoords = { 
+                                            lat: position.coords.latitude, 
+                                            lng: position.coords.longitude
+                                        };
+                                        showLocation(slot, myCoords);
+                                    });
+                                }
+                            }
+                        });
                         scope.generateMapURL = function (slot, slotData) {                            
                             var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
                             var urlTemplate = "https://www.google.com/maps/embed/v1/place?key={apiKey}&q={geolocation}&zoom=19&maptype=satellite";
@@ -1545,34 +1743,56 @@ repository.loadApplication(function(loadedApp, status) {
                             var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
                             var urlTemplate = "https://maps.googleapis.com/maps/api/staticmap?zoom=15&size=300x300&maptype=roadmap&markers={geolocation}&key=AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0";
                             var url = urlTemplate.replace('{geolocation}', slotData).replace('{apiKey}', apiKey);
-                            return url; //$sce.trustAsResourceUrl(url);
+                            return url; // $sce.trustAsResourceUrl(url);
                         };
+                        /*
+                         * Update the instance with the given location
+                         * (reloading if required)
+                         */
+                        var setPositionTo = scope.setPositionTo = function(slot, newPosition, reload, placeId) {
+                            instanceService.getAndUpdate(entitiesByName[slot.owner.fullName], objectId,
+                                function(loaded) {
+                                    var newPositionAsString = newPosition && (newPosition.latitude + "," + newPosition.longitude);
+                                    loaded.values[slot.name] = newPositionAsString;
+                                    return loaded;
+                                }
+                            ).then(function() {
+                                if (reload) {
+                                    $state.go($state.current.name, $state.params, { reload: true });
+                                } else {
+                                    var coords = newPosition ? {
+                                        lat: newPosition.latitude, 
+                                        lng: newPosition.longitude
+                                    } : undefined;
+
+                                    showLocation(slot, undefined, coords, placeId ? {} : undefined);
+                                }
+                            }).catch(function(error) {
+                                console.log("Unexpected error!");
+                                kirraNotification.logError(error);
+                            });
+                        };
+                        /*
+                         * Clear the current location, removing any location
+                         * information.
+                         */
+                        scope.clearLocation = function (slot) {
+                            setPositionTo(slot, null);
+                        };
+                        /*
+                         * Set or replace the current location to be the users'
+                         * current location.
+                         */
                         scope.setToMyLocation = function (slot, slotData) {
                             if (!navigator.geolocation) {
                                 alert("Geolocation is not supported by this browser.");
                                 return;
                             }
-                            var objectId = scope.$parent.objectId;
                             navigator.geolocation.getCurrentPosition(function(position) {
-                                instanceService.get(
-                                    entitiesByName[slot.owner.fullName],
-                                    objectId
-                                ).then(function(loaded) {
-                                    loaded.values[slot.name] = position.coords.latitude + "," + position.coords.longitude;
-                                    return instanceService.put(
-                                        entitiesByName[slot.owner.fullName], 
-                                        loaded);
-                                }).then(function() {
-                                    $state.go($state.current.name, $state.params, { reload: true });
-                                }).catch(function(error) {
-                                    kirraNotification.logError(error);
-                                });
-                            }, function(positionError) {
-                                alert("Error obtaining geolocation: " + positionError.message);
+                                setPositionTo(slot, position.coords, false);
                             });
                         };
                     };
-                    
                 },
                 templateUrl: 'templates/ka-data.html'
             };
@@ -1604,7 +1824,9 @@ repository.loadApplication(function(loadedApp, status) {
             $stateProvider.state('dashboard', {
                 url: "/dashboard/",
                 controller: 'DashboardCtrl',
-                templateUrl: 'templates/dashboard.html'
+                templateUrl: function(context) {
+                    return kirraGetTemplateUrl('dashboard');
+                }
             });
             
             angular.forEach(entityNames, function(entityName) {
@@ -1612,53 +1834,71 @@ repository.loadApplication(function(loadedApp, status) {
                 $stateProvider.state(kirraNG.toState(entityName, 'list'), {
                     url: "/" + entityName + "/",
                     controller: entityName + 'InstanceListCtrl',
-                    templateUrl: 'templates/instance-list.html'
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('instance-list', [entityName]);
+                    }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'show'), {
                     url: "/" + entityName + "/:objectId/show",
                     controller: entityName + 'InstanceShowCtrl',
-                    templateUrl: 'templates/show-instance.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('show-instance', [entityName]);
+                    },
                     params: { objectId: { value: undefined } }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'edit'), {
                     url: "/" + entityName + "/:objectId/edit",
                     controller: entityName + 'InstanceEditCtrl',
-                    templateUrl: 'templates/edit-instance.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('edit-instance', [entityName]);
+                    },
                     params: { objectId: { value: undefined } }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'create'), {
                     url: "/" + entityName + "/create",
                     controller: entityName + 'InstanceCreateCtrl',
-                    templateUrl: 'templates/edit-instance.html'
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('edit-instance', [entityName]);
+                    }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'editChild'), {
                     url: "/" + entityName + "/:objectId/editChild/:relationshipName/:childObjectId",
                     controller: entityName + 'InstanceEditChildCtrl',
-                    templateUrl: 'templates/edit-instance.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName]);
+                    },                    
                     params: { childObjectId: { value: undefined }, objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'createChild'), {
                     url: "/" + entityName + "/:objectId/createChild/:relationshipName/as/:relatedEntity",
                     controller: entityName + 'InstanceCreateChildCtrl',
-                    templateUrl: 'templates/edit-instance.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName, context.relatedEntity]);
+                    },                    
                     params: { objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });                
                 $stateProvider.state(kirraNG.toState(entityName, 'performInstanceAction'), {
                     url: "/" + entityName + "/:objectId/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
-                    templateUrl: 'templates/execute-action.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
+                    },                    
                     params: { objectId: { value: undefined }, actionName: { value: undefined } }
                 });                
                 $stateProvider.state(kirraNG.toState(entityName, 'performEntityAction'), {
                     url: "/" + entityName + "/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
-                    templateUrl: 'templates/execute-action.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
+                    },
                     params: { actionName: { value: undefined } }
                 });                
                 $stateProvider.state(kirraNG.toState(entityName, 'performQuery'), {
                     url: "/" + entityName + "/finder/:finderName",
                     controller: entityName + 'InstanceListCtrl',
-                    templateUrl: 'templates/instance-list.html',
+                    templateUrl: function(context) {
+                        return kirraGetTemplateUrl('instance-list', [entityName, context.finderName]);
+                    },                    
                     params: { finderName: { value: undefined }, arguments: { value: undefined }, forceFetch: { value: false } }
                 });
             }); 
