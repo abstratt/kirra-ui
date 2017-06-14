@@ -31,14 +31,14 @@
                             <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
                             </button>
                             <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">
-                                <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</a></li>
+                                <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</a></li>
                             </ul>
                         </div>
                     </td>
                 </tr>
                 <tr ng-if="actions.length > 0 && actions.length <= 3">
                     <td ng-repeat="action in actions">
-                        <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</button>
+                        <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</button>
                     </td>
                 </tr>
                 

@@ -1,15 +1,15 @@
-<div class="container" ng-controller="KirraRepositoryCtrl">
-    <div class="row"><div class="col-sm-3"><p></p></div></div>
+<div class="container-fluid" ng-controller="KirraRepositoryCtrl">
+    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
 	<div class="row">
-	   <div class="col-sm-3" align="center">
+	   <div class="col-sm-8 col-sm-offset-2" align="center">
             <h2 ng-if="!applicationLogo">{{applicationLabel}}</h2>
             <img ng-if="applicationLogo" data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35"/>
        </div>
     </div>
-    <div class="row"><div class="col-sm-3"><p></p></div></div>
+    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
     <div class="row">
 	
-		<div class="col-sm-3">
+		<div class="col-sm-8 col-sm-offset-2">
 		
         <legend>Please sign in</legend>
         
@@ -25,14 +25,14 @@
 		</div>
 	</div>
     
-    <div class="row"><div class="col-sm-3"><p></p></div></div>
+    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
     
     <div class="row" ng-repeat="entity in selfServiceRoleEntities">
-        <div class="col-sm-3">
+        <div class="col-sm-8 col-sm-offset-2">
             <p>Register as <a ng-click="registerAs(entity)">{{entity.label}}    </a></p>
         </div>
     </div>
     
-	<div class="row"><div class="col-sm-3"><p></p></div></div>
+	<div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
         
 </div>      

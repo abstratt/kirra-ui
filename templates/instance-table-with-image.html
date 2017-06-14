@@ -15,7 +15,7 @@
                 </p>
                 <div class="row">
                     <div class="col-md-6 col-sm-6" ng-repeat="action in actions">
-                        <button class="btn btn-success right" ng-click="performInstanceActionOnRow(row, action)">{{action.label}}</button>
+                        <button class="btn btn-success right" ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</button>
                     </div>
                 </div>
             </span>

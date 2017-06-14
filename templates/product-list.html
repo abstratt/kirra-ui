@@ -1,28 +1,69 @@
-    <div class="row">
-        <div class="col-md-4" ng-repeat="row in rows track by $index">
-            <span class="thumbnail">
-                <ka-data grid=true slot="entity.properties[customSlots.productImage]" slot-data="row.data[customSlots.productImage]" object-id="row.raw.objectId">
-                </ka-data>
-                <h3>
-                    <ka-data slot="entity.properties[customSlots.productName]" grid=true slot-data="row.data[customSlots.productName]" object-id="row.raw.objectId">
-                    </ka-data>
-                </h3>                        
-                <hr class="line">
-                <p>
-                    <label class="control-label" for="{{entity.relationships[customSlots.productCategory].name}}">{{entity.relationships[customSlots.productCategory].label}}:</label>
-                    <ka-data grid=true slot="entity.relationships[customSlots.productCategory]" slot-data="row.data[customSlots.productCategory]" object-id="row.raw.objectId">
-                    </ka-data>
-                </p>
-                <p>
-                    <label class="control-label" for="{{entity.properties[customSlots.productPrice].name}}">{{entity.properties[customSlots.productPrice].label}}:</label>
-                    <ka-data grid=true slot="entity.properties[customSlots.productPrice]" slot-data="row.data[customSlots.productPrice]" object-id="row.raw.objectId">
-                    </ka-data>
-                </p>
-                <div class="row">
-                    <div class="col-md-6 col-sm-6">
-                        <button class="btn btn-success right" ng-click="performInstanceActionOnRow(row, entity.operations[customInstanceActions.addToCart])">{{entity.operations[customInstanceActions.addToCart].label}}</button>
-                    </div>
+    <ul class="filters filters-product style2">
+        <li><a href="#" class="filter-label active">All</a></li>
+        <li><a href="#" class="filter-label"">New<span class="count">4</span></a></li>
+        <li><a href="#" class="filter-label">Sale<span class="count">4</span></a></li>
+    </ul>
+    
+    <div class="products-grid-wrapper isotope-wrapper" ng-init="metadata = custom.metadata">
+        <div class="products-grid isotope four-in-row product-variant-5">
+            <div class="deal-carousel products-grid product-variant-1">
+                <div 
+                    ng-repeat="mapped in custom.data track by mapped.objectId"
+                    class="product-item large colorvariants category2">
+                        <!-- Product Item -->
+                        <div class="product-item-inside">
+                            <div class="product-item-info">
+                                <!-- Product Photo -->
+                                <div class="product-item-photo">
+                                    <!-- /Product Label -->
+                                    <div class="product-item-gallery">
+                                        <!-- product main photo -->
+                                        <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="mapped.productImage" object-id="mapped.objectId">
+                                            <!-- Avoiding img element so we don't break the theme's assumptions -->
+                                            <img  
+                                                ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"
+                                                style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;">
+                                        </ka-wrapper>
+                                        <!-- /product main photo  -->
+                                    </div>
+                                    <!-- /Product Actions -->
+                                </div>
+                                <!-- /Product Photo -->
+                                <!-- Product Details -->
+                                <div class="product-item-details">
+                                    <div class="product-item-name"> 
+                                        <a title="{{mapped.productName}}" href="" class="product-item-link">
+                                            <ka-wrapper slot="metadata.slots.productName" slot-data="mapped.productName" object-id="mapped.objectId">
+                                                <p>{{slotData}}</p>
+                                            </ka-wrapper>
+                                        </a> 
+                                    </div>
+                                    <div class="product-item-description">
+                                        <ka-data slot="metadata.slots.productDescription" grid=true slot-data="mapped.productDescription" object-id="mapped.objectId">
+                                        </ka-data>
+                                    </div>
+                                    <div class="price-box">
+                                        <span class="price-container">
+                                            <span class="price-wrapper">
+                                                <span class="price">
+                                                    <ka-data grid=true slot="metadata.slots.productPrice" slot-data="mapped.productPrice" object-id="mapped.objectId">
+                                                    </ka-data>
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0"> 
+                                        <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
+                                    </button>
+                                    <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0"> 
+                                        <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /Product Details -->
+                    
                 </div>
-            </span>
+            </div>
         </div>
     </div>

@@ -17,16 +17,13 @@
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <div class="row">
-                                <div class="col-xs-12">
-                                    <i class="fa fa-comments fa-5x">{{metric.query.description}}</i>
-                                </div>
                                 <div class="col-xs-12 text-right">
                                     <div class="huge" ng-if="metric.query.typeRef.fullName=='mdd_types.Boolean'">
                                         <span ng-if="metric.result" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 	                                    <div ng-if="!metric.result">-</div>
                                     </div>
                                     <div class="huge" ng-if="!(metric.query.typeRef.fullName=='mdd_types.Boolean')">{{metric.result}}</div>
-                                    <div>{{metric.query.label}}</div>
+                                    <div title="{{metric.query.description}}">{{metric.query.label}}</div>
                                 </div>
                             </div>
                         </div>

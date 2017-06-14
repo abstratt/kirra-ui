@@ -1,0 +1,13 @@
+<div class="nav navbar-nav navbar-right">
+    <p class="navbar-btn">
+        <a ng-if="currentUser" ui-sref="{{kirraNG.toState(currentUser.typeRef.fullName, 'show')}}({ objectId: '{{currentUser.objectId}}' })">User: {{currentUser.values.username}}</a>
+        <a class="btn btn-default btn-sm" ng-click="login()" ng-if="!currentUser">
+            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+            Login
+        </a>
+        <a class="btn btn-default btn-sm" ng-click="logout()" ng-if="currentUser">
+            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+            Logout
+        </a>
+    </p>
+</div>

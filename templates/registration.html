@@ -1,11 +1,11 @@
 
-<div class="container" ng-controller="KirraRepositoryCtrl">
+<div class="container-fluid" ng-controller="KirraRepositoryCtrl">
 	<div class="row">
-        <div class="col-sm-3" ng-include="'templates/edit-form.html'">
+        <div class="col-sm-8 col-sm-offset-2" ng-include="'templates/edit-form.html'">
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-8 col-sm-offset-2">
         <form class="form">
                 <div class="form-group-xs">
                     <label for="username">User name:</label>
@@ -21,7 +21,7 @@
         </div>        
     </div>
     <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-8 col-sm-offset-2">
             <p>Already a user? Click <a ng-click="login()">here</a> to sign in.</p>
         </div>
     </div>

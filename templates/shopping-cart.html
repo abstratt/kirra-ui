@@ -1,0 +1,93 @@
+<div class="container" ng-init="metadata = custom.metadata" ng-repeat="cart in custom.data" ng-if="custom.data[0].itemCount">
+    <div class="cart-table">
+        <div class="table-header">
+            <div class="photo">
+                {{metadata.edges.cartItems.slots.productImage.label}}
+            </div>
+            <div class="name">
+                {{metadata.edges.cartItems.slots.productName.label}}
+            </div>
+            <div class="price">
+                {{metadata.edges.cartItems.slots.unitPrice.label}}
+            </div>
+            <div class="qty">
+                {{metadata.edges.cartItems.slots.quantity.label}}
+            </div>
+            <div class="subtotal" ng-if="metadata.edges.cartItems.slots.subtotal">
+                {{metadata.edges.cartItems.slots.subtotal.label}}
+            </div>
+            <div class="remove">
+                <span class="hidden-sm hidden-xs">Remove</span>
+            </div>
+        </div>
+        <div class="table-row" ng-repeat="cartItem in custom.edgeData.cartItems track by $index">
+            <div class="photo">
+                <ka-data grid=true size="'tiny'" slot="metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
+                </ka-data>
+            </div>
+            <div class="name">
+                <ka-data grid=true slot="metadata.edges.cartItems.slots.productName" slot-data="cartItem.productName" object-id="cartItem.objectId">
+                </ka-data>
+            </div>
+            <div class="price">
+                <ka-data grid=true slot="metadata.edges.cartItems.slots.unitPrice" slot-data="cartItem.unitPrice" object-id="cartItem.objectId">
+                </ka-data>
+            </div>
+            <div class="qty qty-changer">
+                <fieldset>
+                    <input type="button" value="&#8210;" class="decrease" ng-click="cartItem.less(this)">
+                    <input type="text" readonly class="qty-input" ng-model="cartItem.quantity" data-min="0">
+                    <input type="button" value="+" class="increase" ng-click="cartItem.more(this)">
+                </fieldset>
+            </div>
+            <div class="subtotal" ng-if="metadata.edges.cartItems.slots.subTotal">
+                <ka-data grid=true slot="metadata.edges.cartItems.slots.subtotal" slot-data="cartItem.subtotal" object-id="cartItem.objectId">
+                </ka-data>
+            </div>
+            <div class="remove">
+                <a href="#" class="icon icon-close-2"></a>
+            </div>
+        </div>
+        <div class="table-footer">
+            <a class="btn btn-alt" ui-sref="feira_organicos:Produto:list">CONTINUE SHOPPING</a>
+            <button class="btn btn-alt pull-right" ng-click="cart.emptyCart(this)"><i class="icon icon-bin"></i><span>{{metadata.instanceActions.emptyCart.label}}</span></button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 total-wrapper">
+            <table class="total-price">
+                <tr>
+                    <td>{{metadata.slots.subtotal.label}}</td>
+                    <td>{{cart.subtotal}}</td>
+                </tr>
+                <tr ng-if="metadata.slots.extra">
+                    <td>{{metadata.slots.extra.label}}</td>
+                    <td>{{cart.extra}}</td>
+                </tr>
+                <tr class="total">
+                    <td>{{metadata.slots.total.label}}</td>
+                    <td>{{cart.total}}</td>
+                </tr>
+            </table>
+            <div class="cart-action">
+                <div>
+                    <button ng-click="cart.beginOrder(this)" class="btn">{{metadata.instanceActions.beginOrder.label}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<main class="page-main" ng-if="custom.data[0].itemCount == 0">
+    <div class="block fullheight empty-cart">
+        <div class="container">
+            <div class="image-empty-cart">
+                <img src="images/empty-basket.png" alt="">
+                <div class="text-empty-cart-1">SHOPPING CART IS</div>
+                <div class="text-empty-cart-2">EMPTY</div>
+            </div>
+            <div><a href="#" class="btn">back to previous page</a></div>
+        </div>
+   </div>
+</main>

@@ -20,12 +20,14 @@
         off="No">
     </toggle>                    
     <div id="{{slot.name}}" 
-        ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Date'" 
+        ng-if="slotTypeKind == 'Primitive' && (slotTypeName == 'Date' || slotTypeName == 'DateTime')" 
         ng-init="slot.pickerStatus = { opened: true }">
         <p class="input-group">
             <input type="text" class="form-control" is-open="pickerStatus[slot.name]" datepicker-popup="yyyy/MM/dd" id="{{slot.name}}" ng-model="values[slot.name]">
             <span class="input-group-btn">
-                <button type="button" class="btn btn-default" ng-click="togglePickerStatus($event, slot.name)"><i class="glyphicon glyphicon-calendar"></i></button>
+                <button type="button" class="btn btn-default" ng-click="togglePickerStatus($event)">
+                    <i class="glyphicon glyphicon-calendar"></i>
+                </button>
             </span>
         </p>
     </div>

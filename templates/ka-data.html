@@ -7,7 +7,7 @@
 	</div>
 </div>
 
-<div ng-if="!slot.mnemonic && slotData !== undefined" >
+<div ng-if="!slot.mnemonic && slotData !== undefined && slotTypeName">
 	<div ng-if="slotTypeName != 'Double' && slotTypeName != 'Boolean' && slotTypeName != 'Time' && slotTypeName != 'Date' && slotTypeName != 'DateTime' && slotTypeName != 'Geolocation' && slotTypeKind != 'Entity'  && slotTypeKind != 'Blob' && slotTypeKind != 'Enumeration'">
 	    {{slotData}}
 	</div>
@@ -35,22 +35,20 @@
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData]}}
 	</div>
-	<!--
-	<div ng-if="slotTypeName == 'Geolocation'">
-    	<iframe
-          width="400"
-          height="300"
-          frameborder="0" style="border:0"
-          src="{{generateMapURL(slot, slotData)}}" allowfullscreen>
-        </iframe>
-	</div>
-	-->
 	<div ng-if="slotTypeKind == 'Blob' && (table || (grid && slotTypeName != 'Picture'))">
     	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
     	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
     </div>
     <div ng-if="slotTypeName == 'Picture' && grid">
-        <img style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+        <img ng-if="!size|| size == 'default'" 
+            style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;" 
+            ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+        <img ng-if="size == 'small'" 
+            style="max-width: 160px; min-width: 160px; max-height: 140px; min-height: 140px;" 
+            ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+        <img ng-if="size == 'tiny'" 
+            style="max-width: 80px; min-width: 80px; max-height: 70px; min-height: 70px;" 
+            ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
     </div>
     <div ng-if="slotTypeKind == 'Blob' && !table && !grid">
         <div  class="col-sm-12">
@@ -77,20 +75,8 @@
     <img src="https://placeholdit.imgix.net/~text?txtsize=32&txt=Missing%20picture" height="150">
 </div>
 
-
-
-
 <div ng-if="slotTypeName == 'Geolocation' && !table" id="{{slot.name}}" class="panel panel-default">
   <div class="panel-body">
-    <!--
-    <img 
-        id="{{slot.name}}StaticMap"
-        class="img-thumbnail"
-        ng-if="slotData"
-        ng-src="{{getMapAsImageURL(slot,slotData)}}" 
-        width="300"
-        height="300">
-    -->    
     <input id="{{slot.name}}MapInput" class="form-control" type="text" placeholder="Search Box">
     <div id="{{slot.name}}LiveMap" style="height: 400px; width: 100%;"></div>
     <div id="{{slot.name}}MapInfoPane">
