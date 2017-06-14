@@ -593,7 +593,6 @@ kirraNG.buildInstanceListController = function(entity) {
                         $scope.instances = instances;
                         $scope.rows = kirraNG.buildTableData(instances, entity);
                         setCustomData($scope, instances);
-                        $scope.resultMessage = instances.length > 0 ? "" : "No data found";
                     }).catch(function(error) {
                         $scope.resultMessage = error.data.message;
                         $scope.clearAlerts();
@@ -606,7 +605,7 @@ kirraNG.buildInstanceListController = function(entity) {
                 $scope.instances = [];
                 $scope.rows = [];
                 kirraSetCustomData($scope, []);
-                $scope.resultMessage = "Before you can apply this filter, you must fill in: " + parameterLabels;
+                $scope.resultMessage = "Before you can apply this filter, you must fill in: " + parameterLabels.join(", ");
             }
         };
         
