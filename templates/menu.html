@@ -1,3 +1,4 @@
+<!-- Default menu -->
 <ul class="nav navbar-nav">
     <li ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel" class="divider-vertical">
         <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>

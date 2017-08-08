@@ -1,0 +1,45 @@
+    <!-- ProductStack -->
+    <div class="productStack hide_on_scroll">
+        <a class="toggleStack">
+            <i class="icon icon-cart"></i> ({{singletons.cart.custom.data[0].itemCount}}) items
+        </a>
+        <div class="productstack-content">
+            <div class="products-list-wrapper">
+                <ul class="products-list">
+                    <li ng-repeat="cartItem in singletons.cart.custom.edgeData.cartItems track by cartItem.objectId">
+                        <a title="{{cartItem.productName}} (x {{cartItem.unitPrice | currency:'R$':2}})" ui-sref="feira_organicos:Produto:show({ objectId: '{{ cartItem.productObjectId }}' })">
+                            <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
+                                <img 
+                                    class="product-image-photo" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}"
+                                    style="max-width: 80px; min-width: 80px; max-height: 80px; min-height: 80px;">
+                            </ka-wrapper>
+                        </a>
+                        <span class="item-qty">{{cartItem.quantity}}</span>
+                        <div class="actions"> 
+                            <a href="#" class="action edit" title="Edit item"><i class="icon icon-pencil"></i></a>
+                            <a class="action delete" ng-click="cartItem.removeItem()" title="{{singletons.cart.custom.metadata.edges.cartItems.edgeActions.removeItem.label}}"><i class="icon icon-trash-alt"></i></a>
+                            <div class="edit-qty">
+                                <input type="number" ng-model="cartItem.quantity">
+                                <button type="button" class="btn" ng-click="cartItem.changeQuantity([cartItem.quantity])">Apply</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="action-cart">
+                <button type="button" ng-click="singletons.cart.custom.data[0].beginOrder()" class="btn" title="{{singletons.cart.custom.metadata.instanceActions.beginOrder.label}}">{{singletons.cart.custom.metadata.instanceActions.beginOrder.label}}</button>
+                <button type="button" ng-click="singletons.cart.custom.data[0].emptyCart()" class="btn" title="{{singletons.cart.custom.metadata.instanceActions.emptyCart.label}}">{{singletons.cart.custom.metadata.instanceActions.emptyCart.label}}</button>
+            </div>
+            <div class="total-cart">
+                <div class="items-total">{{singletons.cart.custom.metadata.slots.itemCount.label}}: <span class="count">{{singletons.cart.custom.data[0].itemCount}}</span></div>
+                <div class="subtotal">{{singletons.cart.custom.metadata.slots.total.label}}: <span class="price">{{singletons.cart.custom.data[0].total | currency:"R$":2}}</span></div>
+            </div>
+        </div>
+    </div>
+    <!-- /ProductStack -->
+    <script>
+        $(function () {
+            var productStack = $('.productStack');
+            productStack && productStack.ProductStack && productStack.ProductStack();
+        }) 
+    </script>

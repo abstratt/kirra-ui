@@ -1,0 +1,34 @@
+<ul class="nav">
+    <li class="simple-dropdown" ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel && entityCapabilitiesByName[entity.fullName]"
+        ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]; entityActions = kirraNG.getEntityActions(entity); queries = kirraNG.getQueries(entity)">
+        <a ng-click="unfiltered(entity)" ng-if="entityCapabilities.entity.indexOf('List') >= 0">{{entity.label}}</a>
+        <a ng-if="entityCapabilities.entity.indexOf('List') < 0">{{entity.label}}</a>
+        <div class="sub-menu">
+            <ul class="category-links">
+                <li ng-if="entity.instantiable && entityCapabilities.indexOf('Create') >= 0" >
+                    <a ng-click="create()" title="Create">Create</a>
+                </li>
+                <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" >
+                    <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
+                </li>
+                <li ng-if="entityCapabilities.entity.indexOf('List') >= 0"> 
+                    <a ng-click="unfiltered(entity)" title="All">All</a> 
+                </li>
+                <li ng-repeat="query in queries"> 
+                    <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>
+<!-- DEBUG EMBEDDED-->
+<div style="display: none">
+    <div ng-repeat="entity in entities">
+        <p>Entity: {{entity.fullName}}</p>
+        <div ng-init="queries = kirraNG.getQueries(entity)">
+            <div ng-repeat="query in queries" ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]">
+                <p>{{query.label}} = {{entityCapabilities.queries[query.name]}}</p>
+            </div>
+        </div>
+    </div>
+</div>

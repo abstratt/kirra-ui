@@ -26,31 +26,30 @@
                 </ka-data>
             </div>
             <div class="name">
-                <ka-data grid=true slot="metadata.edges.cartItems.slots.productName" slot-data="cartItem.productName" object-id="cartItem.objectId">
-                </ka-data>
+                <a ui-sref="feira_organicos:Produto:show({ objectId: '{{cartItem.productObjectId}}' })">
+                {{cartItem.productName}}
+                </a>
             </div>
             <div class="price">
-                <ka-data grid=true slot="metadata.edges.cartItems.slots.unitPrice" slot-data="cartItem.unitPrice" object-id="cartItem.objectId">
-                </ka-data>
+                {{cartItem.unitPrice | currency:"R$":2}}
             </div>
             <div class="qty qty-changer">
                 <fieldset>
-                    <input type="button" value="&#8210;" class="decrease" ng-click="cartItem.less(this)">
+                    <input type="button" value="&#8210;" class="decrease" ng-click="cartItem.less()">
                     <input type="text" readonly class="qty-input" ng-model="cartItem.quantity" data-min="0">
-                    <input type="button" value="+" class="increase" ng-click="cartItem.more(this)">
+                    <input type="button" value="+" class="increase" ng-click="cartItem.more()">
                 </fieldset>
             </div>
-            <div class="subtotal" ng-if="metadata.edges.cartItems.slots.subTotal">
-                <ka-data grid=true slot="metadata.edges.cartItems.slots.subtotal" slot-data="cartItem.subtotal" object-id="cartItem.objectId">
-                </ka-data>
+            <div class="subtotal" ng-if="metadata.edges.cartItems.slots.subtotal">
+                {{cartItem.subtotal | currency:"R$":2}}
             </div>
             <div class="remove">
-                <a href="#" class="icon icon-close-2"></a>
+                <a ng-click="cartItem.removeItem()" class="icon icon-close-2"></a>
             </div>
         </div>
         <div class="table-footer">
             <a class="btn btn-alt" ui-sref="feira_organicos:Produto:list">CONTINUE SHOPPING</a>
-            <button class="btn btn-alt pull-right" ng-click="cart.emptyCart(this)"><i class="icon icon-bin"></i><span>{{metadata.instanceActions.emptyCart.label}}</span></button>
+            <button class="btn btn-alt pull-right" ng-click="cart.emptyCart()"><i class="icon icon-bin"></i><span>{{metadata.instanceActions.emptyCart.label}}</span></button>
         </div>
     </div>
     <div class="row">
@@ -58,20 +57,20 @@
             <table class="total-price">
                 <tr>
                     <td>{{metadata.slots.subtotal.label}}</td>
-                    <td>{{cart.subtotal}}</td>
+                    <td>{{cart.subtotal | currency:"R$":2}}</td>
                 </tr>
                 <tr ng-if="metadata.slots.extra">
                     <td>{{metadata.slots.extra.label}}</td>
-                    <td>{{cart.extra}}</td>
+                    <td>{{cart.extra | currency:"R$":2}}</td>
                 </tr>
                 <tr class="total">
                     <td>{{metadata.slots.total.label}}</td>
-                    <td>{{cart.total}}</td>
+                    <td>{{cart.total | currency:"R$":2}}</td>
                 </tr>
             </table>
             <div class="cart-action">
                 <div>
-                    <button ng-click="cart.beginOrder(this)" class="btn">{{metadata.instanceActions.beginOrder.label}}</button>
+                    <button ng-click="cart.beginOrder()" class="btn">{{metadata.instanceActions.beginOrder.label}}</button>
                 </div>
             </div>
         </div>
@@ -87,7 +86,9 @@
                 <div class="text-empty-cart-1">SHOPPING CART IS</div>
                 <div class="text-empty-cart-2">EMPTY</div>
             </div>
-            <div><a href="#" class="btn">back to previous page</a></div>
+            <div>
+                <a class="btn" ui-sref="feira_organicos:Produto:list">CONTINUE SHOPPING</a>
+            </div>
         </div>
    </div>
 </main>

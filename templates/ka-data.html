@@ -12,7 +12,7 @@
 	    {{slotData}}
 	</div>
 	<div ng-if="slotTypeKind == 'Entity'">
-	    <a ui-sref="{{targetStateName}}({ objectId: '{{ targetObjectId }}' })">
+	    <a href="{{getLinkHref()}}">
 	    	{{slotData.shorthand}}
 		</a>
 	</div>

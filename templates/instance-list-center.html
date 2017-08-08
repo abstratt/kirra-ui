@@ -1,0 +1,30 @@
+    <div class="row"> 
+        <div ng-show="instances.length > 0" class="col-sm-10">
+            <instance-table class="container-fluid"/>
+        </div>
+        <div align="center"  class="col-sm-10">
+        </div>
+    </div>
+    <div class="row" ng-if="!resultMessage && instances == undefined">
+        <div class="col-sm-10"> 
+            <div class="text-center">Loading data for {{entity.label}}...</div>
+            <div class="text-info text-center"><img src="images/loading22.gif"></div>
+        </div>
+    </div>
+    <div class="row" ng-if="!resultMessage && instances.length == 0" >
+        <div class="col-sm-10"> 
+            <div class="text-info text-center">No data found</div>
+        </div>
+    </div>
+
+    <div class="row" ng-if="resultMessage">
+        <div class="col-sm-10"> 
+            <div class="text-info text-center">{{resultMessage}}</div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-sm-10">
+            <pagination ng-change="pageChanged(pageNumber)" ng-model="pageNumber" total-items="totalItems" items-per-page="pageSize"></pagination>
+        </div>
+    </div>

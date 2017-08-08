@@ -1,15 +1,10 @@
-    <ul class="filters filters-product style2">
-        <li><a href="#" class="filter-label active">All</a></li>
-        <li><a href="#" class="filter-label"">New<span class="count">4</span></a></li>
-        <li><a href="#" class="filter-label">Sale<span class="count">4</span></a></li>
-    </ul>
-    
     <div class="products-grid-wrapper isotope-wrapper" ng-init="metadata = custom.metadata">
         <div class="products-grid isotope four-in-row product-variant-5">
             <div class="deal-carousel products-grid product-variant-1">
                 <div 
                     ng-repeat="mapped in custom.data track by mapped.objectId"
                     class="product-item large colorvariants category2">
+
                         <!-- Product Item -->
                         <div class="product-item-inside">
                             <div class="product-item-info">
@@ -19,7 +14,7 @@
                                     <div class="product-item-gallery">
                                         <!-- product main photo -->
                                         <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="mapped.productImage" object-id="mapped.objectId">
-                                            <!-- Avoiding img element so we don't break the theme's assumptions -->
+                                            <!-- Using an img element directly so we can apply the style the theme expects -->
                                             <img  
                                                 ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"
                                                 style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;">
@@ -32,10 +27,10 @@
                                 <!-- Product Details -->
                                 <div class="product-item-details">
                                     <div class="product-item-name"> 
-                                        <a title="{{mapped.productName}}" href="" class="product-item-link">
-                                            <ka-wrapper slot="metadata.slots.productName" slot-data="mapped.productName" object-id="mapped.objectId">
-                                                <p>{{slotData}}</p>
-                                            </ka-wrapper>
+                                        <a title="{{mapped.productName}}" 
+                                            ui-sref="{{kirraNG.toState(entity.fullName, 'show')}}({ objectId: '{{mapped.objectId}}' })" 
+                                            class="product-item-link">
+                                            <p>{{mapped.productName}}</p>
                                         </a> 
                                     </div>
                                     <div class="product-item-description">
@@ -46,8 +41,7 @@
                                         <span class="price-container">
                                             <span class="price-wrapper">
                                                 <span class="price">
-                                                    <ka-data grid=true slot="metadata.slots.productPrice" slot-data="mapped.productPrice" object-id="mapped.objectId">
-                                                    </ka-data>
+                                                    {{mapped.productPrice | currency:"R$":2}}
                                                 </span>
                                             </span>
                                         </span>
@@ -59,10 +53,10 @@
                                         <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
                                     </button>
                                 </div>
+                                <!-- /Product Details -->
                             </div>
                         </div>
-                        <!-- /Product Details -->
-                    
+                        <!-- /Product Item -->
                 </div>
             </div>
         </div>
