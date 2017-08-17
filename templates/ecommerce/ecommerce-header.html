@@ -9,7 +9,7 @@
             
             <!-- Header Cart -->
             <div class="header-link dropdown-link header-cart variant-1">
-                <a ui-sref="feira_organicos:Cesta:show(singletons.cart.instance)">
+                <a ui-sref="cart:Cart:show(singletons.cart.instance)">
                     <i class="icon icon-cart"></i> <span class="badge">{{singletons.cart.custom.data[0].itemCount}}</span> 
                 </a>
                 <!-- minicart wrapper -->
@@ -26,7 +26,7 @@
                                     <ol class="minicart-items">
                                         <li class="item product product-item" ng-repeat="cartItem in singletons.cart.custom.edgeData.cartItems | limitTo: 5 track by cartItem.objectId">
                                             <div class="product">
-                                                <a class="product-item-photo" ui-sref="feira_organicos:Produto:show({ objectId: '{{cartItem.productObjectId}}' })" title="{{cartItem.productName}}">
+                                                <a class="product-item-photo" ui-sref="cart:Product:show({ objectId: '{{cartItem.productObjectId}}' })" title="{{cartItem.productName}}">
                                                     <span class="product-image-container">
                                                     <span class="product-image-wrapper">
                                                     <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
@@ -38,7 +38,7 @@
                                                 </a>
                                                 <div class="product-item-details">
                                                     <div class="product-item-name">
-                                                        <a ui-sref="feira_organicos:Produto:show({ objectId: '{{cartItem.productObjectId}}' })">
+                                                        <a ui-sref="cart:Product:show({ objectId: '{{cartItem.productObjectId}}' })">
                                                             {{cartItem.productName}}
                                                         </a>
                                                     </div>
@@ -81,7 +81,7 @@
                                 </div>
                                 <div class="actions">
                                     <div class="secondary">
-                                        <a ui-sref="feira_organicos:Cesta:show(singletons.cart.instance)" class="btn btn-alt">
+                                        <a ui-sref="cart:Cart:show(singletons.cart.instance)" class="btn btn-alt">
                                             <i class="icon icon-cart"></i><span>View and edit cart</span>
                                         </a>
                                     </div>

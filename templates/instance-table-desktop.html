@@ -42,16 +42,6 @@
                         <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</button>
                     </div>
                 </td>
-                
-            </tr>
-            <tr>
-                <!-- 
-                    Additional empty row, workaround so action dropdown for last row has some room
-                    (if it doesn't have many actions).
-                -->
-                <td ng-if="actions.length"></td>
-                <td ng-repeat="property in tableProperties | filter: !{ essential: false }"></td>
-                <td ng-repeat="property in tableProperties | filter: { essential: false }" class="visible-lg"></td>
             </tr>
         </table>
     <div>

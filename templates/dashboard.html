@@ -57,7 +57,7 @@
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="row in metric.result">
-                                                <td ng-repeat="(key,item) in row">
+                                                <td ng-repeat="(key,item) in row track by $index">
                                                     <span ng-if="!item.scopeName">{{item}}</span>
                                                     <span ng-if="item.scopeName">{{item.shorthand}}</span>
                                             	</td>

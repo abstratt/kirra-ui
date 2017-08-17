@@ -1,0 +1,20 @@
+<div id="wrapper">
+    <div class="page-wrapper">
+        <div>
+            <div ng-include src="getTemplateUrl('header')"></div>
+        </div>
+    
+        <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>
+        {{alert.msg}}
+        </alert>
+        
+        <main class="page-main">
+            <div ui-view>
+            </div>
+        </main>
+            
+        <div>
+            <div ng-include src="getTemplateUrl('footer')"></div>
+        </div>
+    </div>
+</div>

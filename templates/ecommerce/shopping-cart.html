@@ -26,7 +26,7 @@
                 </ka-data>
             </div>
             <div class="name">
-                <a ui-sref="feira_organicos:Produto:show({ objectId: '{{cartItem.productObjectId}}' })">
+                <a ui-sref="cart:Product:show({ objectId: '{{cartItem.productObjectId}}' })">
                 {{cartItem.productName}}
                 </a>
             </div>
@@ -48,7 +48,7 @@
             </div>
         </div>
         <div class="table-footer">
-            <a class="btn btn-alt" ui-sref="feira_organicos:Produto:list">CONTINUE SHOPPING</a>
+            <a class="btn btn-alt" ui-sref="cart:Product:list">CONTINUE SHOPPING</a>
             <button class="btn btn-alt pull-right" ng-click="cart.emptyCart()"><i class="icon icon-bin"></i><span>{{metadata.instanceActions.emptyCart.label}}</span></button>
         </div>
     </div>
@@ -87,7 +87,7 @@
                 <div class="text-empty-cart-2">EMPTY</div>
             </div>
             <div>
-                <a class="btn" ui-sref="feira_organicos:Produto:list">CONTINUE SHOPPING</a>
+                <a class="btn" ui-sref="cart:Product:list">CONTINUE SHOPPING</a>
             </div>
         </div>
    </div>

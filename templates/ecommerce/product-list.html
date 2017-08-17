@@ -1,63 +1,67 @@
+<div class="row">
     <div class="products-grid-wrapper isotope-wrapper" ng-init="metadata = custom.metadata">
-        <div class="products-grid isotope four-in-row product-variant-5">
-            <div class="deal-carousel products-grid product-variant-1">
-                <div 
-                    ng-repeat="mapped in custom.data track by mapped.objectId"
-                    class="product-item large colorvariants category2">
-
-                        <!-- Product Item -->
-                        <div class="product-item-inside">
-                            <div class="product-item-info">
-                                <!-- Product Photo -->
-                                <div class="product-item-photo">
-                                    <!-- /Product Label -->
-                                    <div class="product-item-gallery">
-                                        <!-- product main photo -->
-                                        <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="mapped.productImage" object-id="mapped.objectId">
-                                            <!-- Using an img element directly so we can apply the style the theme expects -->
-                                            <img  
-                                                ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"
-                                                style="max-width: 320px; min-width: 320px; max-height: 280px; min-height: 280px;">
-                                        </ka-wrapper>
-                                        <!-- /product main photo  -->
-                                    </div>
-                                    <!-- /Product Actions -->
-                                </div>
-                                <!-- /Product Photo -->
-                                <!-- Product Details -->
-                                <div class="product-item-details">
-                                    <div class="product-item-name"> 
-                                        <a title="{{mapped.productName}}" 
-                                            ui-sref="{{kirraNG.toState(entity.fullName, 'show')}}({ objectId: '{{mapped.objectId}}' })" 
-                                            class="product-item-link">
-                                            <p>{{mapped.productName}}</p>
-                                        </a> 
-                                    </div>
-                                    <div class="product-item-description">
-                                        <ka-data slot="metadata.slots.productDescription" grid=true slot-data="mapped.productDescription" object-id="mapped.objectId">
-                                        </ka-data>
-                                    </div>
-                                    <div class="price-box">
-                                        <span class="price-container">
-                                            <span class="price-wrapper">
-                                                <span class="price">
-                                                    {{mapped.productPrice | currency:"R$":2}}
-                                                </span>
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0"> 
-                                        <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
-                                    </button>
-                                    <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0"> 
-                                        <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
-                                    </button>
-                                </div>
-                                <!-- /Product Details -->
+        <div class="products-grid four-in-row product-variant-5">
+            <div 
+                ng-repeat="mapped in custom.data track by mapped.objectId"
+                class="product-item large colorvariants category2">
+                <!-- Product Item -->
+                <div class="product-item-inside">
+                    <div class="product-item-info">
+                        <!-- Product Photo -->
+                        <div class="product-item-photo">
+                            <!-- /Product Label -->
+                            <div class="product-item-gallery">
+                                <!-- product main photo -->
+                                <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="mapped.productImage" object-id="mapped.objectId">
+                                    <!-- Using an img element directly so we can apply the style the theme expects -->
+                                    <img  
+                                        ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"
+                                        style="max-width: 280px; min-width: 280px; max-height: 245px; min-height: 245px; margin: auto; display: block">
+                                </ka-wrapper>
+                                <!-- /product main photo  -->
                             </div>
+                            <!-- /Product Actions -->
                         </div>
-                        <!-- /Product Item -->
+                        <!-- /Product Photo -->
+                        <!-- Product Details -->
+                        <div class="product-item-details">
+                            <div class="product-item-name"> 
+                                <a title="{{mapped.productName}}" 
+                                    ui-sref="{{kirraNG.toState(entity.fullName, 'show')}}({ objectId: '{{mapped.objectId}}' })" 
+                                    class="product-item-link">
+                                    <p>{{mapped.productName}}</p>
+                                </a> 
+                            </div>
+                            <div class="product-item-description">
+                                <ka-data slot="metadata.slots.productDescription" grid=true slot-data="mapped.productDescription" object-id="mapped.objectId">
+                                </ka-data>
+                            </div>
+                            <div class="price-box">
+                                <span class="price-container">
+                                    <span class="price-wrapper">
+                                        <span class="price">
+                                            {{mapped.productPrice | currency:"R$":2}}
+                                        </span>
+                                    </span>
+                                </span>
+                            </div>
+                            <div ng-if="!mapped.productUnavailable">
+                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0"> 
+                                    <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
+                                </button>
+                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0"> 
+                                    <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
+                                </button>
+                            </div>
+                            <button ng-if="mapped.productUnvailable" class="btn add-to-cart" disabled> 
+                                <span>{{metadata.slots.productUnavailable.label}}</span>
+                            </button>
+                            
+                        </div>
+                        <!-- /Product Details -->
+                    </div>
                 </div>
-            </div>
+                <!-- /Product Item -->
         </div>
     </div>
+</div>
