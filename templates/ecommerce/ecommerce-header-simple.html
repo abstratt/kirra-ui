@@ -3,10 +3,6 @@
     <div class="navbar">
         <div class="container">
             
-            <!-- Menu Toggle -->
-            <div class="menu-toggle"><a href="#" class="mobilemenu-toggle"><i class="icon icon-menu"></i></a></div>
-            <!-- /Menu Toggle -->
-            
             <!-- Header Cart -->
             <div class="header-link dropdown-link header-cart variant-1" ng-if="singletons.cart.custom.data.length">
                 <a ui-sref="cart:Cart:show(singletons.cart.instance)">
@@ -102,7 +98,7 @@
             
             <div ng-include src="getTemplateUrl('account-menu')">
             </div>
-            
+
             <!-- Logo -->
             <div class="header-logo">
                 <a ng-if="!applicationLogo" class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
@@ -111,75 +107,8 @@
                 </a>
             </div>
             <!-- /Logo -->
-            
-            <!-- Mobile Menu -->
-            <div class="mobilemenu dblclick">
-                <div class="mobilemenu-header">
-                    <div class="title">MENU</div>
-                    <a href="#" class="mobilemenu-toggle"></a>
-                </div>
-                <div class="mobilemenu-content">
-                    <ul class="nav">
-                        <li ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel"
-                            ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]; entityActions = kirraNG.getEntityActions(entity); queries = kirraNG.getQueries(entity); entityMenus = entityMenusByName[entity.fullName]">
-                            <a ng-click="unfiltered(entity)" ng-if="entityCapabilities.entity.indexOf('List') >= 0">{{entity.label}}</a>
-                            <a ng-if="entityCapabilities.entity.indexOf('List') < 0">{{entity.label}}</a>
-                            <span class="arrow"
-                                ng-if="entityMenus">
-                            </span>
-                            <ul class="category-links" ng-if="entityMenus">
-                                <li ng-if="entityMenus.creation" >
-                                    <a ng-click="create()" title="Create">Create</a>
-                                </li>
-                                <li ng-repeat="action in entityActions" ng-if="entityMenus.actions" >
-                                    <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
-                                </li>
-                                <li ng-repeat="query in queries" ng-if="entityMenus.queries"> 
-                                    <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <!-- Mega Menu -->
-            <div class="megamenu">
-                <ul class="nav">
-                    <li class="simple-dropdown" ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel && entityCapabilitiesByName[entity.fullName]"
-                        ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]; entityActions = kirraNG.getEntityActions(entity); queries = kirraNG.getQueries(entity)">
-                        <a ng-click="unfiltered(entity)" ng-if="entityCapabilities.entity.indexOf('List') >= 0">{{entity.label}}</a>
-                        <a ng-if="entityCapabilities.entity.indexOf('List') < 0">{{entity.label}}</a>
-                        <div class="sub-menu">
-                            <ul class="category-links">
-                                <li ng-if="entity.instantiable && entityCapabilities.indexOf('Create') >= 0" >
-                                    <a ng-click="create()" title="Create">Create</a>
-                                </li>
-                                <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" >
-                                    <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
-                                </li>
-                                <li ng-if="entityCapabilities.entity.indexOf('List') >= 0"> 
-                                    <a ng-click="unfiltered(entity)" title="All">All</a> 
-                                </li>
-                                <li ng-repeat="query in queries" ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0"> 
-                                    <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
-                <!-- DEBUG EMBEDDED-->
-                <div style="display: none">
-                    <div ng-repeat="entity in entities">
-                        <p>Entity: {{entity.fullName}}</p>
-                        <div ng-init="queries = kirraNG.getQueries(entity)">
-                            <div ng-repeat="query in queries" ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]">
-                                <p>{{query.label}} = {{entityCapabilities.queries[query.name]}}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Mega Menu -->            
+
+
         </div>
     </div>
 </header>
