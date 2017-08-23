@@ -1,7 +1,7 @@
 var kirraApplicationUri;
 var kirraApplicationPath;
 var kirraUIMappings;
-kirraUIMappings = kirraUIMappings || {};
+kirraUIMappings = kirraUIMappings || [];
 
 var uriMatches = window.location.search.match("[?&]?app-uri\=([^&]+)");
 var pathMatches = window.location.search.match("[?&]?app-path\=([^&]+)");
@@ -45,9 +45,6 @@ var encodedCredentials = undefined;
 var kirraDefaultPageSize;
 kirraDefaultPageSize = kirraDefaultPageSize || 10;
 
-var kirraUIMappings;
-kirraUIMappings = kirraUIMappings || {}; 
-
 var kirraLoadLazyScripts = function() {
     console.log("Loading lazy scripts");
     var x = document.getElementsByTagName('script')[0];
@@ -62,14 +59,21 @@ var kirraLoadLazyScripts = function() {
 }
 
 var kirraCheckRoles = function(object, roles) {
-    if (object.roles && roles) {
-        return kirraNG.intersect(roles, object.roles).length > 0;       
+    if (object['_roles'] && roles) {
+        var match = kirraNG.intersect(roles, object['_roles']).length > 0;
+        return match;       
     }
     return true;
 };
 
 var kirraGetCustomSettings = function(viewName, hierarchy, itemName, roles) {
-    var mappingsForEntity = [hierarchy && kirraUIMappings[hierarchy[0]], kirraUIMappings['_global']];
+    var mappingsForRole = kirraNG.find(kirraUIMappings, function(it) {
+        return kirraCheckRoles(it, roles);        
+    });
+    if (!mappingsForRole) {
+        return undefined;
+    }
+    var mappingsForEntity = [hierarchy && mappingsForRole[hierarchy[0]], mappingsForRole['_global']];
     var searchFn = function (it) {
         var match = it && kirraCheckRoles(it, roles) && (
             (it.views && it.views[viewName] && it.views[viewName][itemName]) || 
@@ -1388,11 +1392,11 @@ kirraNG.buildApplicationService = function() {
     var serviceFactory = function($http, $rootScope) {
         var Application = function() { };
         Application.application = {};
-        Application.application.currentUserRoles = undefined;
+        Application.application.currentUserRoles = ['_NO_ROLES'];
         Application.application.currentUser = undefined;
         Application.loadApplication = function(applicationData) {
-            Application.application.currentUserRoles = applicationData.currentUserRoles;
             if (applicationData.currentUser) {
+                Application.application.currentUserRoles = applicationData.currentUserRoles;
                 $http.get(applicationData.currentUser).then(function(loaded) {
                     Application.application.currentUser = loaded.data;
                     $rootScope.$broadcast('applicationUserChanged', Application.application);
@@ -1869,7 +1873,8 @@ repository.loadApplication(function(loadedApp, status) {
         return;
     }
     application = loadedApp;
-    application.currentUserRoles = application.currentUserRoles == undefined ? undefined : kirraNG.map(application.currentUserRoles, function (uri, role) {
+    // convert map role name => URI to array of role names
+    application.currentUserRoles = angular.equals(application.currentUserRoles, {}) ? ['_NO_ROLES'] : kirraNG.map(application.currentUserRoles, function (uri, role) {
         return role;    
     });
     
@@ -1964,7 +1969,7 @@ repository.loadApplication(function(loadedApp, status) {
             $scope.applicationOptions = application.options;            
             $scope.kirraNG = kirraNG;
             $scope.currentUser = undefined;
-            $scope.currentUserRoles = undefined;
+            $scope.currentUserRoles = ['_NO_ROLES'];
 //            console.log(entityCapabilities);
             $scope.logout = function() {
                 console.log("Logging out");
