@@ -1,6 +1,33 @@
-<!-- Default menu -->
 <ul class="nav navbar-nav">
-    <li ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel" class="divider-vertical">
-        <a ui-sref="{{kirraNG.toState(entity.fullName, 'list')}}">{{entity.label}}</a>
+    <li class="dropdown" ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel && entityCapabilitiesByName[entity.fullName]"
+        ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]; entityActions = kirraNG.getEntityActions(entity); queries = kirraNG.getQueries(entity)">
+        <a class="dropdown-toggle" data-toggle="dropdown">
+            {{entity.label}} <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li ng-if="entity.instantiable && entityCapabilities.indexOf('Create') >= 0" >
+                <a ng-click="create()" title="Create">Create</a>
+            </li>
+            <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" >
+                <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
+            </li>
+            <li ng-if="entityCapabilities.entity.indexOf('List') >= 0"> 
+                <a ng-click="unfiltered(entity)" title="All">All</a> 
+            </li>
+            <li ng-repeat="query in queries" ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0"> 
+                <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
+            </li>
+        </ul>
     </li>
 </ul>
+<!-- DEBUG EMBEDDED-->
+<div style="display: none">
+    <div ng-repeat="entity in entities">
+        <p>Entity: {{entity.fullName}}</p>
+        <div ng-init="queries = kirraNG.getQueries(entity)">
+            <div ng-repeat="query in queries" ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]">
+                <p>{{query.label}} = {{entityCapabilities.queries[query.name]}}</p>
+            </div>
+        </div>
+    </div>
+</div>

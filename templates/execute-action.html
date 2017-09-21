@@ -1,12 +1,11 @@
 <div class="container-fluid">
 <div class="row">
-<div class="col-sm-8">
-
+<div class="col-sm-8" ng-init="selectedParameterSet = ''">
     <legend>{{action.label}} <span ng-if="shorthand">- {{shorthand}}</span></legend>
-    <div ng-include src="'templates/operation-form.html'"></div>
+    <div ng-include src="getTemplateUrl('operation-form', [ entity.fullName, action.name ])"></div>
     <div>
           <div class="btn-group" role="group">
-              <button type="button" class="btn btn-default" ng-click="performAction()">
+              <button type="button" class="btn btn-default" ng-click="performAction(selectedParameterSet)">
                   {{action.label}}!
               </button>
           </div>

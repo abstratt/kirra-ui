@@ -69,16 +69,16 @@
                                 </div>
                                 <div class="subtotal">
                                     <span class="label">
-                                        <span>{{singletons.cart.custom.metadata.slots.total.label}}</span>
+                                        <span>{{singletons.cart.custom.metadata.slots.subtotal.label}}</span>
                                     </span>
                                     <div class="amount price-container">
-                                        <span class="price-wrapper"><span class="price">{{singletons.cart.custom.data[0].total | currency:"R$":2}}</span></span>
+                                        <span class="price-wrapper"><span class="price">{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</span></span>
                                     </div>
                                 </div>
                                 <div class="actions">
                                     <div class="secondary">
                                         <a ui-sref="cart:Cart:show(singletons.cart.instance)" class="btn btn-alt">
-                                            <i class="icon icon-cart"></i><span>View and edit cart</span>
+                                            <i class="icon icon-cart"></i><span>{{singletons.cart.custom.metadata.queries.current.label}}</span>
                                         </a>
                                     </div>
                                     <div class="primary">
@@ -101,8 +101,8 @@
 
             <!-- Logo -->
             <div class="header-logo">
-                <a ng-if="!applicationLogo" class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
-                <a ng-if="applicationLogo" class="navbar-brand" href="{{applicationUrl}}">
+                <a ng-if="!applicationLogo" class="navbar-brand" ng-click="goHome()">{{applicationLabel}}</a>
+                <a ng-if="applicationLogo" class="navbar-brand" ng-click="goHome()">
                     <img data-ng-src="data:image/png;base64,{{applicationLogo}}" style="min-height: 50px"/>
                 </a>
             </div>

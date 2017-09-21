@@ -6,6 +6,7 @@
             </div>
             <div class="name">
                 {{metadata.edges.cartItems.slots.productName.label}}
+                ({{metadata.edges.cartItems.slots.productDescription.label}})
             </div>
             <div class="price">
                 {{metadata.edges.cartItems.slots.unitPrice.label}}
@@ -28,7 +29,7 @@
             <div class="name">
                 <a ui-sref="cart:Product:show({ objectId: '{{cartItem.productObjectId}}' })">
                 {{cartItem.productName}}
-                </a>
+                </a> ({{cartItem.productDescription}})
             </div>
             <div class="price">
                 {{cartItem.unitPrice | currency:"R$":2}}
@@ -48,7 +49,6 @@
             </div>
         </div>
         <div class="table-footer">
-            <a class="btn btn-alt" ui-sref="cart:Product:list">CONTINUE SHOPPING</a>
             <button class="btn btn-alt pull-right" ng-click="cart.emptyCart()"><i class="icon icon-bin"></i><span>{{metadata.instanceActions.emptyCart.label}}</span></button>
         </div>
     </div>
@@ -70,7 +70,8 @@
             </table>
             <div class="cart-action">
                 <div>
-                    <button ng-click="cart.beginOrder()" class="btn">{{metadata.instanceActions.beginOrder.label}}</button>
+                    <button class="btn btn-alt" ui-sref="cart:Product:list">{{kirraNG.getElementLabel("cart.Product.queries.list")}}</button>
+                    <button class="btn btn-primary" ng-click="cart.beginOrder()">{{metadata.instanceActions.beginOrder.label}}</button>
                 </div>
             </div>
         </div>
@@ -82,12 +83,12 @@
     <div class="block fullheight empty-cart">
         <div class="container">
             <div class="image-empty-cart">
-                <img src="images/empty-basket.png" alt="">
+                <img ng-src="{{kirraNG.getImageUrl('images/empty-basket.png')}}" alt="">
                 <div class="text-empty-cart-1">SHOPPING CART IS</div>
                 <div class="text-empty-cart-2">EMPTY</div>
             </div>
             <div>
-                <a class="btn" ui-sref="cart:Product:list">CONTINUE SHOPPING</a>
+                <a class="btn" ui-sref="cart:Product:list">{{kirraNG.getElementLabel("cart.Product.queries.list")}}</a>
             </div>
         </div>
    </div>

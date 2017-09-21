@@ -1,14 +1,67 @@
+<div class="panel panel-info" ng-if="action.description">
+     <div class="panel-heading">
+        <h4 class="panel-title">{{action.description}}</h4>
+     </div>
+</div>
 
-        <form class="form">
-            <div ng-repeat="inputField in inputFields track by $index">
-                <div class="form-group-xs">
-                    <ka-edit slot="inputField" values="parameterValues"
-                        find-candidates="findCandidatesFor(slot, value)"
-                        format-candidate="formatCandidate(inputField)">
-                    </ka-edit>
+<form class="form">
+    <div class="panel-group" id="{{action.name}}-accordion" ng-if="inputFieldGroups.length">
+        <div class="panel panel-default" ng-repeat="inputFieldGroup in inputFieldGroups track by $index">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#{{action.name}}-accordion" href="#{{inputFieldGroup.name}}-collapse"
+                        ng-click="selectInputGroup(inputFieldGroup)">
+                        {{inputFieldGroup.description || inputFieldGroup.label }}
+                    </a>
+                </h4>
+            </div>
+            <div id="{{inputFieldGroup.name}}-collapse" class="panel-collapse collapse" ng-class="$index == 0 ? 'in' : ''">
+                <div class="panel-body">
+                    <div ng-repeat="inputField in inputFields track by $index">
+                        <div class="form-group-xs" ng-if="!inputField.inAllSets && inputField.parameterSets.indexOf(inputFieldGroup.name) >= 0">
+                            <ka-edit slot="inputField" values="parameterValues"
+                                find-candidates="findCandidatesFor(slot, value)"
+                                format-candidate="formatCandidate(inputField)">
+                            </ka-edit>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </form>
+        </div>
+    </div>
+    
+    <div ng-repeat="inputField in inputFields track by $index" >
+        <div class="form-group-xs" ng-if="inputField.inAllSets">
+            <ka-edit slot="inputField" values="parameterValues"
+                find-candidates="findCandidatesFor(slot, value)"
+                format-candidate="formatCandidate(inputField)">
+            </ka-edit>
+        </div>
+    </div>
+    
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

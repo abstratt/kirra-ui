@@ -1,12 +1,12 @@
-		<form class="form">
-			<div ng-repeat="inputField in inputFields track by $index">
-			    <div class="form-group-xs">
-			        <ka-edit ng-if="inputField.inputKind == 'property'" slot="inputField" values="propertyValues">
-			        </ka-edit>
-			        <ka-edit ng-if="inputField.inputKind == 'relationship'" slot="inputField" values="linkValues" 
-			             find-candidates="findCandidatesFor(slot, value)"
-			             format-candidate="formatCandidate(inputField)">
-		            </ka-edit>
-				</div>
-			</div>
-		</form>
+<form class="form">
+	<div ng-repeat="inputField in inputFields track by $index">
+	    <div class="form-group-xs">
+	        <ka-edit ng-if="inputField.inputKind == 'property'" slot="inputField" values="propertyValues">
+	        </ka-edit>
+	        <ka-edit ng-if="inputField.inputKind == 'relationship'" slot="inputField" values="linkValues" 
+	             find-candidates="findCandidatesFor(slot, value)"
+	             format-candidate="formatCandidate(inputField)">
+            </ka-edit>
+		</div>
+	</div>
+</form>

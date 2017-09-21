@@ -32,9 +32,8 @@
                                     <p>{{mapped.productName}}</p>
                                 </a> 
                             </div>
-                            <div class="product-item-description">
-                                <ka-data slot="metadata.slots.productDescription" grid=true slot-data="mapped.productDescription" object-id="mapped.objectId">
-                                </ka-data>
+                            <div ng-if="mapped.productDescription">
+                                <p>{{mapped.productDescription}}</p>
                             </div>
                             <div class="price-box">
                                 <span class="price-container">
@@ -46,10 +45,14 @@
                                 </span>
                             </div>
                             <div ng-if="!mapped.productUnavailable">
-                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0"> 
+                                <button class="btn" ng-click="login()" ng-if="!currentUser">
+                                    <!-- Omit icon-cart class to avoid animation when adding to cart is not possible --> 
                                     <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
                                 </button>
-                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0"> 
+                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0 && currentUser"> 
+                                    <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
+                                </button>
+                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0 && currentUser"> 
                                     <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
                                 </button>
                             </div>

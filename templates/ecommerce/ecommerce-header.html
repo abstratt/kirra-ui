@@ -18,7 +18,7 @@
                     <div class="block block-minicart">
                         <div class="minicart-content-wrapper">
                             <div class="block-title">
-                                <span>Recently added item(s)</span>
+                                <span>{{kirraNG.getAppLabel("recently_added_items")}}</span>
                             </div>
                             <a class="btn-minicart-close" title="Close">&#10060;</a>
                             <div class="block-content">
@@ -73,16 +73,16 @@
                                 </div>
                                 <div class="subtotal">
                                     <span class="label">
-                                        <span>{{singletons.cart.custom.metadata.slots.total.label}}</span>
+                                        <span>{{singletons.cart.custom.metadata.slots.subtotal.label}}</span>
                                     </span>
                                     <div class="amount price-container">
-                                        <span class="price-wrapper"><span class="price">{{singletons.cart.custom.data[0].total | currency:"R$":2}}</span></span>
+                                        <span class="price-wrapper"><span class="price">{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</span></span>
                                     </div>
                                 </div>
                                 <div class="actions">
                                     <div class="secondary">
                                         <a ui-sref="cart:Cart:show(singletons.cart.instance)" class="btn btn-alt">
-                                            <i class="icon icon-cart"></i><span>View and edit cart</span>
+                                            <i class="icon icon-cart"></i><span>{{singletons.cart.custom.metadata.queries.current.label}}</span>
                                         </a>
                                     </div>
                                     <div class="primary">
@@ -102,11 +102,11 @@
             
             <div ng-include src="getTemplateUrl('account-menu')">
             </div>
-            
+
             <!-- Logo -->
             <div class="header-logo">
-                <a ng-if="!applicationLogo" class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
-                <a ng-if="applicationLogo" class="navbar-brand" href="{{applicationUrl}}">
+                <a ng-if="!applicationLogo" class="navbar-brand" ng-click="goHome()">{{applicationLabel}}</a>
+                <a ng-if="applicationLogo" class="navbar-brand" ng-click="goHome()">
                     <img data-ng-src="data:image/png;base64,{{applicationLogo}}" style="min-height: 50px"/>
                 </a>
             </div>
@@ -135,7 +135,9 @@
                                     <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
                                 </li>
                                 <li ng-repeat="query in queries" ng-if="entityMenus.queries"> 
-                                    <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
+                                    <a 
+                                        ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0"
+                                        ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
                                 </li>
                             </ul>
                         </li>

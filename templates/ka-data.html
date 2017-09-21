@@ -36,8 +36,11 @@
 		{{slot.enumerationLiterals[slotData]}}
 	</div>
 	<div ng-if="slotTypeKind == 'Blob' && (table || (grid && slotTypeName != 'Picture'))">
-    	<span ng-if="slotTypeName != 'Picture' || !slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-    	<img ng-if="slot.required && slotTypeName == 'Picture'" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+	    <a ng-if="slotTypeName == 'Picture'" ng-click="attachmentShow(slot, slotData)">
+        	<img ng-if="slot.required" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="img-thumbnail">
+        	<span ng-if="!slot.required" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+	    </a> 
+    	<span ng-if="slotTypeName != 'Picture'" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
     </div>
     <div ng-if="slotTypeName == 'Picture' && grid">
         <img ng-if="!size|| size == 'default'" 

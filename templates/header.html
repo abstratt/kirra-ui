@@ -18,8 +18,8 @@
                 </ul>
             </div>
             
-            <a ng-if="!applicationLogo" class="navbar-brand" href="{{applicationUrl}}">{{applicationLabel}}</a>
-            <a ng-if="applicationLogo" class="navbar-brand" href="{{applicationUrl}}">
+            <a ng-if="!applicationLogo" class="navbar-brand" ng-click="goHome()">{{applicationLabel}}</a>
+            <a ng-if="applicationLogo" class="navbar-brand" ng-click="goHome()">
                 <img data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35"/>
             </a>
         </div>

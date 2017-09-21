@@ -48,7 +48,7 @@
         placeholder="{{slot.description || slot.label}} (Start typing)">
     </select>
     <input id="{{slot.name}}"
-        ng-if="slotTypeKind == 'Entity'"
+        ng-if="slotTypeKind == 'Entity' && slot.effect != 'Creation'"
         type="text" class="form-control" 
         ng-model="slotData.shorthand"
         typeahead="shorthand as candidate.shorthand for candidate in findCandidates({ slot: slot, value: $viewValue })"
@@ -57,4 +57,26 @@
         typeahead-on-select="onCandidateSelected($item)"
         placeholder="{{slot.description || slot.label}} (start typing)"
         autocomplete="off">
+
+
+    <div class="panel panel-default" ng-if="slotTypeKind == 'Entity' && slot.effect == 'Creation'">
+<!--
+    <div class="panel-heading" ng-init="slot.open = false">
+        <div>
+            <div data-toggle="collapse" data-target="#{{slot.name}}-section" ng-click="slot.open = !slot.open">
+                <span ng-class="slot.open ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus'"></span>
+            </div>
+        </div>
+    </div>
+-->    
+    <div class="panel-body"
+         id="{{slot.name}}-section"
+        ng-init="inputFields = kirraNG.buildInputFields(slot.typeRef.fullName, true); propertyValues = values[slot.name].propertyValues ; linkValues = values[slot.name].linkValues">
+        <div class="col-sm-12">
+            <div class="card card-body">
+                <div ng-include="kirraNG.getTemplateUrl('edit-form')"></div>
+            </div>
+        </div>
+    </div>
+    </div>
 </div>
