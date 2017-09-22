@@ -4,15 +4,17 @@
         <div class="header-link dropdown-link header-account" ng-if="currentUser">
             <a ui-sref="{{kirraNG.toState(currentUser.typeRef.fullName, 'show')}}({ objectId: '{{currentUser.objectId}}' })">
             <i class="icon icon-user"></i>
-            User: {{currentUser.values.username}}
+            {{kirraNG.getAppLabel("user.user")}}: {{currentUser.values.username}}
             </a>
-            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-            <a ng-click="logout()"> Logout</a>
+            <a ng-click="logout()">
+                <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                {{kirraNG.getAppLabel('user.log_out')}}
+            </a>
         </div>
         <div class="header-link dropdown-link header-account" ng-if="!currentUser">
             <a ng-click="login()">
                 <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-                Login
+                {{kirraNG.getAppLabel('user.log_in')}}
             </a>
         </div>
         <!-- /Header Account -->

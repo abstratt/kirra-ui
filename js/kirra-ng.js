@@ -4,7 +4,27 @@ var kirraUIMappings;
 var kirraAppLabels;
 var kirraBasePath;
 
-kirraAppLabels = kirraAppLabels || {};
+var kirraDefaultAppLabels = {
+        
+    'dashboard': {
+        'view_details': 'View details'
+    },
+    'user': {
+        'log_in': "Log in",
+        'log_out': "Log out",
+        'sign_up': "Sign up",
+        'already_a_user': "Already a user?",
+        'click_to_log_in': "Click here to log in",
+        'please_sign_in': "Please sign in",
+        'register_as': "Register as {entityName}",
+        'user': "User"
+    },
+    'load_more_data': "More...",
+    'loading_data_for': "Loading data for {entityName}...",
+    'no_data_found': "No data found",
+}
+
+kirraAppLabels = kirraAppLabels || kirraDefaultAppLabels;
 kirraUIMappings = kirraUIMappings || [];
 kirraBasePath = kirraBasePath || "";
 
@@ -366,6 +386,25 @@ kirraNG.getElementLabel = function(elementSpec) {
         element = customQuery;
     }
     return element ? element.label : elementSpec;
+};
+
+kirraNG.getAppLabel = function(token, substitutions) {
+    var tokenSegments = token.split('.');
+    var defaultLabels = kirraDefaultAppLabels;
+    var customLabels = kirraAppLabels;
+    for (var i = 0; i < tokenSegments.length - 1; i++) {
+        defaultLabels = defaultLabels && defaultLabels[tokenSegments[i]];
+        customLabels = customLabels && customLabels[tokenSegments[i]];
+    }
+    var lastSegment = tokenSegments[tokenSegments.length - 1];
+    var labelTemplate = (customLabels && customLabels[lastSegment]) || (defaultLabels && defaultLabels[lastSegment]) || token;
+    var resolvedLabel = labelTemplate;
+    if (substitutions) {
+        for (var key in substitutions) {
+            resolvedLabel = resolvedLabel.replace('{' + key + '}', substitutions[key]);
+        }
+    }
+    return resolvedLabel;
 };
 
 
@@ -814,7 +853,7 @@ kirraNG.buildInstanceListController = function(entity) {
             angular.merge($scope, pagedInstances);
                 $scope.rows = kirraNG.buildTableData(pagedInstances.instances, entity);
                 $scope.custom.loadData($scope, pagedInstances.instances);
-                $scope.resultMessage = pagedInstances.instances.length > 0 ? "" : "No data found";
+                $scope.resultMessage = pagedInstances.instances.length > 0 ? "" : kirraNG.getAppLabel("no_data_found");
                 $scope.moreData = pagedInstances.pageCount > pagedInstances.pageNumber;
                 $scope.loadingData = false;
             };

@@ -11,7 +11,7 @@
 	
 		<div class="col-sm-8 col-sm-offset-2">
 		
-        <legend>Please sign in</legend>
+        <legend>{{kirraNG.getAppLabel('user.please_sign_in')}}</legend>
         
       <form class="form-signin">
         <label for="inputEmail" class="sr-only">Email address</label>
@@ -19,7 +19,7 @@
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" class="form-control" placeholder="Password" required ng-model="credentials.password">
         <p></p>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">{{kirraNG.getAppLabel('user.log_in')}}</button>
       </form>
       
 		</div>
@@ -29,7 +29,7 @@
     
     <div class="row" ng-repeat="entity in selfServiceRoleEntities">
         <div class="col-sm-8 col-sm-offset-2">
-            <p>Register as <a ng-click="registerAs(entity)">{{entity.label}}    </a></p>
+            <p><a ng-click="registerAs(entity)">{{kirraNG.getAppLabel("user.register_as", { entityName: entity.label} )}}</a></p>
         </div>
     </div>
     

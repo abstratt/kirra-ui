@@ -6,7 +6,7 @@
     <div class="row" ng-if="loadingData">
         <div class="col-sm-10"> 
             <div class="well well-lg">
-                <div class="text-center">Loading data for {{entity.label}}...</div>
+                <div class="text-center">{{kirraNG.getAppLabel('loading_data_for', { entityName: entity.label} )}}</div>
                 <div class="text-info text-center"><img ng-src="{{kirraNG.getImageUrl('images/loading22.gif')}}"></div>
             </div>
         </div>
@@ -14,7 +14,7 @@
 
     <div class="row" ng-if="!resultMessage && instances.length == 0" >
         <div class="col-sm-10"> 
-            <div class="text-info text-center">No data found</div>
+            <div class="text-info text-center">{{kirraNG.getAppLabel("no_data_found")}}</div>
         </div>
     </div>
 

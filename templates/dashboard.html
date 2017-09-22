@@ -30,7 +30,7 @@
                         <a ui-sref="{{kirraNG.toState(metric.query.owner.fullName, 'performQuery')}}({ finderName: metric.query.name })"
                             ng-if="metric.query.typeRef.kind == 'Entity'">
                             <div class="panel-footer">
-                                <span class="pull-left">View Details</span>
+                                <span class="pull-left">{{kirraNG.getAppLabel('dashboard.view_details')}}</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                                 <div class="clearfix"></div>
                             </div>

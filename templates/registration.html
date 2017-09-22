@@ -16,13 +16,13 @@
                     <input type="password" class="form-control" id="password" ng-model="credentials.password">
                 </div>
                 <p></p>
-                <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">Sign up</button>        
+                <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">{{kirraNG.getAppLabel('user.sign_up')}}</button>        
         </form>
         </div>        
     </div>
     <div class="row">
         <div class="col-sm-8 col-sm-offset-2">
-            <p>Already a user? Click <a ng-click="login()">here</a> to sign in.</p>
+            <p>{{kirraNG.getAppLabel("user.already_a_user")}} <a ng-click="login()">{{kirraNG.getAppLabel("user.click_to_log_in")}}</a></p>
         </div>
     </div>
 </div>      

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-sm-10" ng-if="moreData && !loadingData">
         <div class="well well-lg">
-            <div class="btn btn-primary btn-block" ng-click="loadMore()">More...</div>
+            <div class="btn btn-primary btn-block" ng-click="loadMore()">kirra.getAppLabel("load_more_data")</div>
         </div>
     </div>
 </div>
@@ -11,7 +11,7 @@
         <!-- ProductStack -->
         <div class="productStack hide_on_scroll">
             <a class="toggleStack">
-                <i class="icon icon-cart"></i> ({{singletons.cart.custom.data[0].itemCount}}) items
+                <i class="icon icon-cart"></i> ({{singletons.cart.custom.data[0].itemCount}}) {{kirraNG.getAppLabel('cart.' + (singletons.cart.custom.data[0].itemCount == 1 ? 'item' : 'items'))}}
             </a>
             <div class="productstack-content" ng-if="singletons.cart.custom.data.length">
                 <div class="products-list-wrapper">
@@ -42,7 +42,7 @@
                 </div>
                 <div class="total-cart">
                     <div class="items-total">{{singletons.cart.custom.metadata.slots.itemCount.label}}: <span class="count">{{singletons.cart.custom.data[0].itemCount}}</span></div>
-                    <div class="subtotal">{{singletons.cart.custom.metadata.slots.total.label}}: <span class="price">{{singletons.cart.custom.data[0].total | currency:"R$":2}}</span></div>
+                    <div class="subtotal">{{singletons.cart.custom.metadata.slots.subtotal.label}}: <span class="price">{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</span></div>
                 </div>
             </div>
         </div>
