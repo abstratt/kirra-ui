@@ -22,6 +22,17 @@ var kirraDefaultAppLabels = {
     'load_more_data': "More...",
     'loading_data_for': "Loading data for {entityName}...",
     'no_data_found': "No data found",
+    'start_typing': "Start typing...",
+    'edit': "Edit",
+    'delete': "Delete",
+    'cancel': "Cancel",
+    'save': "Save",
+    'downloadAttachment': "Download",
+    'deleteAttachment': "Delete",
+    'showAttachment': "Show",
+    'uploadAttachment': "Upload",
+    'cancelAttachment': "Cancel",
+    
 }
 
 kirraAppLabels = kirraAppLabels || kirraDefaultAppLabels;

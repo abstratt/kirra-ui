@@ -58,17 +58,17 @@
             <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="col-sm-12 visible-md visible-sm visible-xs img-thumbnail">
         </div>
         <div  class="col-sm-12 btn-group">
-            <a class="btn btn-default btn-md" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">Download</a>
-            <button class="btn btn-default btn-md visible-lg" ng-click="attachmentShow(slot, slotData)">View</button>
-            <button class="btn btn-default btn-md" ng-click="attachmentRemove(slot, slotData)">Remove</button>
+            <a class="btn btn-default btn-md" target="_self" download="{{slotData.originalName}}" ng-href="{{getAttachmentDownloadUri(slot, slotData)}}">{{kirraNG.getAppLabel('downloadAttachment')}}</a>
+            <button class="btn btn-default btn-md visible-lg" ng-click="attachmentShow(slot, slotData)">{{kirraNG.getAppLabel('showAttachment')}}</button>
+            <button class="btn btn-default btn-md" ng-click="attachmentRemove(slot, slotData)">{{kirraNG.getAppLabel('deleteAttachment')}}</button>
         </div>
     </div>
 </div>
 <div ng-if="slotData == undefined && slotTypeKind != 'Blob' && slotTypeName != 'Geolocation'"">-</div>
 <div ng-if="slotData == undefined && slotTypeKind == 'Blob' && !table && !grid">
     <input class="btn btn-default btn-sm" type="file" id="{{slot.name}}FileInput"/>
-    <button class="btn btn-default" ng-if="files" ng-click="attachmentUpload(slot, files)">Upload</button>
-    <button class="btn btn-default" ng-if="files" ng-click="attachmentCancel(slot, slotData, files)">Cancel</button>
+    <button class="btn btn-default" ng-if="files" ng-click="attachmentUpload(slot, files)">{{kirraNG.getAppLabel('uploadAttachment')}}</button>
+    <button class="btn btn-default" ng-if="files" ng-click="attachmentCancel(slot, slotData, files)">{{kirraNG.getAppLabel('cancelAttachment')}}</button>
 </div>
 <div ng-if="slotData == undefined && slotTypeKind == 'Blob' && table">
     <div ng-if="!slotData">-</div>

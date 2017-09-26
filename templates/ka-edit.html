@@ -45,7 +45,7 @@
         ng-if="slotTypeKind == 'Enumeration'" 
         ng-model="values[slot.name]" class="form-control"
         ng-options="literal for literal in slot.enumerationLiterals"
-        placeholder="{{slot.description || slot.label}} (Start typing)">
+        placeholder="{{slot.description || slot.label}} ({{kirraNG.getAppLabel('start_typing')}})">
     </select>
     <input id="{{slot.name}}"
         ng-if="slotTypeKind == 'Entity' && slot.effect != 'Creation'"
