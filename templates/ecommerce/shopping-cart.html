@@ -68,9 +68,13 @@
                     <td>{{cart.total | currency:"R$":2}}</td>
                 </tr>
             </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
             <div class="cart-action">
                 <div>
-                    <button class="btn btn-alt" ui-sref="cart:Product:list">{{kirraNG.getElementLabel("cart.Product.queries.list")}}</button>
+                    <button class="btn btn-alt" ui-sref="cart:Product:list" ka-label element="cart.Product.list">{{elementLabel}}</button>
                     <button class="btn btn-primary" ng-click="cart.checkOut()">{{metadata.instanceActions.checkOut.label}}</button>
                 </div>
             </div>
@@ -88,7 +92,7 @@
                 <div class="text-empty-cart-2">EMPTY</div>
             </div>
             <div>
-                <a class="btn" ui-sref="cart:Product:list">{{kirraNG.getElementLabel("cart.Product.queries.list")}}</a>
+                <a class="btn" ui-sref="cart:Product:list"><ka-label element="cart.Product.list"/></a>
             </div>
         </div>
    </div>

@@ -112,7 +112,7 @@ var kirraCheckRoles = function(object, roles) {
     return true;
 };
 
-var kirraGetCustomSettings = function(viewName, hierarchy, itemName, roles) {
+var kirraGetCustomSettings = function(viewName, hierarchy, itemName, roles, extractorFn) {
     var mappingsForRole = kirraNG.find(kirraUIMappings, function(it) {
         return kirraCheckRoles(it, roles);        
     });
@@ -121,20 +121,15 @@ var kirraGetCustomSettings = function(viewName, hierarchy, itemName, roles) {
     }
     var mappingsForEntity = [hierarchy && mappingsForRole[hierarchy[0]], mappingsForRole['_global']];
     var searchFn = function (it) {
-        var match = it && kirraCheckRoles(it, roles) && (
-            (it.views && it.views[viewName] && it.views[viewName][itemName]) || 
-            (it.defaults && it.defaults[itemName])
-        ); 
+        var match = it && kirraCheckRoles(it, roles) && it[itemName]; 
         return match;
     };
     
     var found = kirraNG.find(mappingsForEntity, searchFn);
-    return (found && 
-        (
-            (found.views && found.views[viewName] && found.views[viewName][itemName]) || 
-            found.defaults[itemName]
-        )
-    ) || undefined;
+    if (found && found[itemName]) {
+        return extractorFn ? extractorFn(found[itemName]) : found[itemName];
+    }
+    return undefined;
 };
 
 var kirraGetDefaultTemplateUrl = function(viewName) {
@@ -142,9 +137,10 @@ var kirraGetDefaultTemplateUrl = function(viewName) {
 };
 
 var kirraGetTemplateUrl = function(viewName, hierarchy, roles) {
-    var found = kirraGetCustomSettings(viewName, hierarchy, 'template', roles);
+    var found = kirraGetCustomSettings('', hierarchy, 'views', roles, function(views) {
+        return views[viewName] && views[viewName].template;
+    });
     var actual = found ? found : kirraGetDefaultTemplateUrl(viewName);
-    //console.debug(new Date() + " - viewName: " + viewName + " - hierarchy: " + JSON.stringify(hierarchy) + " - Actual: " + actual);
     return kirraBasePath + actual;
 };
 
@@ -389,7 +385,7 @@ kirraNG.getImageUrl = function(imageUrl) {
     return kirraBasePath + imageUrl;
 };
 
-kirraNG.getElementLabel = function(elementSpec) {
+kirraNG.getElementLabel = function(elementSpec, stateName) {
     var segments = elementSpec.split(".");
     var entityMappings = kirraGetCustomSettings('', [], 'entityMapping', application.currentUserRoles);
     var canonicalEntityName = segments[0] + "." + segments[1];
@@ -404,8 +400,16 @@ kirraNG.getElementLabel = function(elementSpec) {
         var customQueries = kirraGetCustomQueries('', entity);
         var customQuery = customQueries[canonicalQueryName];
         element = customQuery;
+    } else if (kind == 'list') {
+        var canonicalQueryName = 'extent';
+        element = entity;
     }
-    return element ? element.label : elementSpec;
+    var stateSuffix = stateName.split(":")[2];
+    var currentEntityName = kirraNG.fromStateToEntityName(stateName);
+    var customLabel = kirraGetCustomSettings('', [currentEntityName], 'labels', application.currentUserRoles, function(labels) {
+        return labels[stateSuffix] && labels[stateSuffix][elementSpec];    
+    });
+    return customLabel ? customLabel : (element ? element.label : elementSpec);
 };
 
 kirraNG.getAppLabel = function(token, substitutions) {
@@ -489,6 +493,11 @@ kirraNG.generateEntityServiceName = function(entity) {
 
 kirraNG.toState = function(entityFullName, kind) {
     return entityFullName.replace('.', ':') + ":" + kind;
+};
+
+kirraNG.fromStateToEntityName = function(stateName) {
+    var components = stateName.split(":");
+    return components[0] + "." + components[1];
 };
 
 kirraNG.generateEntitySingleStateName = function(entity) {
@@ -2299,6 +2308,20 @@ repository.loadApplication(function(loadedApp, status) {
 //                  elem.remove();              }
 //            };
 //          });
+
+        kirraModule.directive('kaLabel', function($state) {
+            return {
+                scope: {
+                    element: '@',
+                    label: '&'
+                },                
+                link: function (scope, element, attrs) {
+                    scope.label = kirraNG.getElementLabel(scope.element, $state.$current.self.name);
+                },
+                template: '<span>{{label}}</span>'
+            };
+        });
+        
         
         kirraModule.directive('kaSingleton', function(instanceService, instanceViewService, $state, $timeout) {
             return {
@@ -2818,7 +2841,9 @@ repository.loadApplication(function(loadedApp, status) {
                     return rewrittenUrl;
                 }
 */                
-                var found = kirraGetCustomSettings('dashboard', undefined, 'stateUrl', application.currentUserRoles);
+                var found = kirraGetCustomSettings('', undefined, 'views', application.currentUserRoles, function(views) {
+                    return views['dashboard'] && views['dashboard'].stateUrl;
+                });
                 console.log("Current user roles: ");
                 console.log(application.currentUserRoles);
                 console.log("Custom state URL: " + found);
