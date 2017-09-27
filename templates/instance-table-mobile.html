@@ -27,7 +27,7 @@
                     <td>
                         <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
                             <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
-                            Actions
+                            {{kirraNG.getAppLabel('actions')}}
                             <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
                             </button>
                             <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">

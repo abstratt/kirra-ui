@@ -3,9 +3,7 @@
         <ul class="filters filters-product style2">
             <li 
                 ng-if="queries.length && entityCapabilities.entity.indexOf('List') >= 0">
-                <a class="filter-label {{!finder ? 'active' : ''}}" ng-click="unfiltered()">
-                    All
-                </a>
+                <a class="filter-label {{!finder ? 'active' : ''}}" ng-click="unfiltered()" title="{{kirraNG.getAppLabel('all')}}">{{kirraNG.getAppLabel('all')}}</a>
             </li>
             <li 
                 ng-repeat="query in queries" 
@@ -23,7 +21,7 @@
                 type="button" 
                 class="btn btn-default" 
                 ng-click="create()">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> {{kirraNG.getAppLabel('create')}}
             </button>
         </div>
     </div>
@@ -32,7 +30,7 @@
 <div class="row">
     <div class="col-sm-12 col-md-4" ng-if="finder && finder.parameters.length">
         <div ng-include src="getTemplateUrl('operation-form', [ entity.fullName, finder.name ])"></div>
-        <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
+        <button type="button" class="btn btn-default" ng-click="applyFilter()">{{kirraNG.getAppLabel('apply')}}</button>
     </div>        
 </div>
         

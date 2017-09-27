@@ -19,19 +19,28 @@ var kirraDefaultAppLabels = {
         'register_as': "Register as {entityName}",
         'user': "User"
     },
+    'all': "All",
     'load_more_data': "More...",
     'loading_data_for': "Loading data for {entityName}...",
     'no_data_found': "No data found",
     'start_typing': "Start typing...",
+    'actions': "Actions",
+    'adding': "Adding",
+    'apply': "Apply",
     'edit': "Edit",
+    'editing': "Editing",
     'delete': "Delete",
+    'child_edit': "Edit {relationshipName}",
+    'child_delete': "Delete {relationshipName}",
     'cancel': "Cancel",
+    'create': "Create",
+    'craeting': "Creating",
     'save': "Save",
-    'downloadAttachment': "Download",
-    'deleteAttachment': "Delete",
-    'showAttachment': "Show",
-    'uploadAttachment': "Upload",
-    'cancelAttachment': "Cancel",
+    'download_attachment': "Download",
+    'delete_attachment': "Delete",
+    'show_attachment': "Show",
+    'upload_attachment': "Upload",
+    'cancel_attachment': "Cancel",
     
 }
 
@@ -400,6 +409,7 @@ kirraNG.getElementLabel = function(elementSpec) {
 };
 
 kirraNG.getAppLabel = function(token, substitutions) {
+    var token = token.toLowerCase();
     var tokenSegments = token.split('.');
     var defaultLabels = kirraDefaultAppLabels;
     var customLabels = kirraAppLabels;
@@ -1049,7 +1059,7 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
         $scope.linkValues = {};
         $scope.custom = kirraBuildCustomInfo('edit-instance', entity);
         $scope.loadInstanceCallback = function(instance) { 
-            $scope.formLabel = creation ? ('Creating ' + actualEntity.label) : (childCreation ? ('Adding ' + actualEntity.label) : ('Editing ' + actualEntity.label + ': ' + instance.shorthand)); 
+            $scope.formLabel = creation ? (kirraNG.getAppLabel('creating') + ' ' + actualEntity.label) : (childCreation ? (kirraNG.getAppLabel('adding') + ' ' + actualEntity.label) : (kirraNG.getAppLabel('editing') + ' ' + actualEntity.label + ': ' + instance.shorthand)); 
             $scope.raw = instance;
             $scope.custom.loadData($scope, instance);
             $scope.actionEnablement.load(instance);
@@ -2834,7 +2844,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/dashboard/",
                     controller: 'DashboardCtrl',
                     templateUrl: function(context) {
-                        var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard', undefined);
+                        var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard', undefined, application.currentUserRoles);
                         console.log("Hitting dashboard state: " + dashboardTemplateUrl);
                         return dashboardTemplateUrl;
                     }                
@@ -2849,14 +2859,14 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/",
                     controller: entityName + 'InstanceListCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('instance-list', [entityName]);
+                        return kirraGetTemplateUrl('instance-list', [entityName], application.currentUserRoles);
                     }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'show'), {
                     url: "/" + entityName + "/:objectId/show",
                     controller: entityName + 'InstanceShowCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('show-instance', [entityName]);
+                        return kirraGetTemplateUrl('show-instance', [entityName], application.currentUserRoles);
                     },
                     params: { objectId: { value: undefined } }
                 });
@@ -2864,7 +2874,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/edit",
                     controller: entityName + 'InstanceEditCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName]);
+                        return kirraGetTemplateUrl('edit-instance', [entityName], application.currentUserRoles);
                     },
                     params: { objectId: { value: undefined } }
                 });
@@ -2872,14 +2882,14 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/create",
                     controller: entityName + 'InstanceCreateCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName]);
+                        return kirraGetTemplateUrl('edit-instance', [entityName], application.currentUserRoles);
                     }
                 });
                 $stateProvider.state(kirraNG.toState(entityName, 'editChild'), {
                     url: "/" + entityName + "/:objectId/editChild/:relationshipName/:childObjectId",
                     controller: entityName + 'InstanceEditChildCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName]);
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName], application.currentUserRoles);
                     },                    
                     params: { childObjectId: { value: undefined }, objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });
@@ -2887,7 +2897,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/createChild/:relationshipName/as/:relatedEntity",
                     controller: entityName + 'InstanceCreateChildCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName, context.relatedEntity]);
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName, context.relatedEntity], application.currentUserRoles);
                     },                    
                     params: { objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });                
@@ -2895,7 +2905,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName], application.currentUserRoles);
                     },                    
                     params: { objectId: { value: undefined }, actionName: { value: undefined } }
                 });                
@@ -2903,7 +2913,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName], application.currentUserRoles);
                     },
                     params: { actionName: { value: undefined } }
                 });                
@@ -2911,7 +2921,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/finder/:finderName",
                     controller: entityName + 'InstanceListCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('instance-list', [entityName, context.finderName]);
+                        return kirraGetTemplateUrl('instance-list', [entityName, context.finderName], application.currentUserRoles);
                     },                    
                     params: { finderName: { value: undefined }, arguments: { value: undefined }, forceFetch: { value: false } }
                 });

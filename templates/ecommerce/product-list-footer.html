@@ -30,7 +30,7 @@
                                 <a class="action delete" ng-click="cartItem.removeItem()" title="{{singletons.cart.custom.metadata.edges.cartItems.edgeActions.removeItem.label}}"><i class="icon icon-trash-alt"></i></a>
                                 <div class="edit-qty">
                                     <input type="number" ng-model="cartItem.quantity">
-                                    <button type="button" class="btn" ng-click="cartItem.changeQuantity([cartItem.quantity])">Apply</button>
+                                    <button type="button" class="btn" ng-click="cartItem.changeQuantity([cartItem.quantity])">{{kirraNG.getAppLabel('apply')}}</button>
                                 </div>
                             </div>
                         </li>

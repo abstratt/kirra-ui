@@ -58,10 +58,10 @@
                   
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
-                                Edit <span class="glyphicon glyphicon-edit"></span>
+                                {{kirraNG.getAppLabel('child_edit', { relationshipName: edge.relationship.label })}} <span class="glyphicon glyphicon-edit"></span>
                             </button>
                             <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
-                                Delete <span class="glyphicon glyphicon-remove"></span>
+                                {{kirraNG.getAppLabel('child_delete', { relationshipName: edge.relationship.label })}} <span class="glyphicon glyphicon-remove"></span>
                             </button>
                         </div>
                   

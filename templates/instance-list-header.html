@@ -1,13 +1,13 @@
     <div class="row">
         <div class="col-sm-10">
-            <legend>{{entity.label}}: {{finder ? finder.label : 'All'}}</legend>
+            <legend>{{entity.label}}: {{finder ? finder.label : kirraNG.getAppLabel('all')}}</legend>
         </div>
     </div>
     <div class="row">
         <div class="col-sm-10">
             <div class="row" >      
                 <div class="btn-group" role="group">
-                    <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</button>
+                    <button ng-if="entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0" type="button" class="btn btn-default" ng-click="create()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> {{kirraNG.getAppLabel('Create')}}</button>
                 </div>
                 <div class="btn-group" role="group">
                     <button ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" type="button" class="btn btn-default" ng-click="performEntityAction(entity, action)">
@@ -16,7 +16,7 @@
                 </div>
                 <div class="btn-group" role="group">
                     <button ng-if="entityCapabilities.entity.indexOf('List') >= 0" type="button" class="btn {{finder ? 'btn-default' : 'btn-primary'}}" ng-click="unfiltered()">
-                    All
+                    {{kirraNG.getAppLabel('all')}}
                     </button>
                     <button ng-repeat="query in queries" ng-if="query.parameters.length == 0 && entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0" type="button" class="btn {{finder == query ? 'btn-primary' : 'btn-default'}}" ng-click="performQuery(query)">
                     {{query.label}}
@@ -32,7 +32,7 @@
         <div class="col-sm-12 col-md-4" ng-if="finder && finder.parameters.length">
             <div class="row">        
                 <div ng-include src="getTemplateUrl('operation-form', [ entity.fullName, finder.name ])"></div>
-                <button type="button" class="btn btn-default" ng-click="applyFilter()">Apply</button>
+                <button type="button" class="btn btn-default" ng-click="applyFilter()">{{kirraNG.getAppLabel('apply')}}</button>
             </div>          
         </div>        
     </div>

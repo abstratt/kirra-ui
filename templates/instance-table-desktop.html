@@ -7,7 +7,7 @@
                 <th ng-repeat="property in tableProperties | filter: { essential: false }" class="visible-lg">
                 <em>{{::property.label}}</em>
                 </th>
-                <th ng-if="actions.length">Actions</th>
+                <th ng-if="actions.length">{{kirraNG.getAppLabel('actions')}}</th>
             </tr>
             <tr ng-repeat="row in rows track by $index">
                 <td ng-repeat="property in tableProperties | filter: !{ essential: false }">
@@ -21,7 +21,7 @@
                 <td ng-if="!inlineActions && actions.length > 2">
                     <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
                         <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
-                        Actions
+                        {{kirraNG.getAppLabel('actions')}}
                         <span ng-if="row.actionEnablement.useDropdown" class="caret"></span>
                         </button>
                         <ul ng-if="row.actionEnablement.useDropdown" class="dropdown-menu" role="menu">
@@ -30,7 +30,7 @@
                     </div>
                     <!--
                     <div class="visible-md visible-sm visible-xs">
-                        <a ng-if="!row.actionEnablement.enabledActions.length" ng-click="updateActionEnablement(row)">Actions</a>
+                        <a ng-if="!row.actionEnablement.enabledActions.length" ng-click="updateActionEnablement(row)">{{kirraNG.getAppLabel('actions')}}</a>
                         <div ng-repeat="action in row.actionEnablement.enabledActions" >
                             <a ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</a>
                         </div>
