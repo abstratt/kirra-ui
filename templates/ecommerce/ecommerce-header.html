@@ -18,10 +18,11 @@
                     <div class="block block-minicart">
                         <div class="minicart-content-wrapper">
                             <div class="block-title">
-                                <span>{{kirraNG.getAppLabel("cart.recently_added_items")}}</span>
+                                <span ng-if="singletons.cart.custom.data[0].itemCount">{{kirraNG.getAppLabel("cart.recently_added_items")}}</span>
+                                <span ng-if="!singletons.cart.custom.data[0].itemCount">{{kirraNG.getAppLabel("cart.cart_empty_1")}} {{kirraNG.getAppLabel("cart.cart_empty_2")}}</span>
                             </div>
                             <a class="btn-minicart-close" title="Close">&#10060;</a>
-                            <div class="block-content">
+                            <div class="block-content" ng-if="singletons.cart.custom.data[0].itemCount">
                                 <div class="minicart-items-wrapper overflowed">
                                     <ol class="minicart-items">
                                         <li class="item product product-item" ng-repeat="cartItem in singletons.cart.custom.edgeData.cartItems | limitTo: 5 track by cartItem.objectId">
