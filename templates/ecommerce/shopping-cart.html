@@ -86,14 +86,17 @@
 <main class="page-main" ng-if="custom.data[0].itemCount == 0">
     <div class="block fullheight empty-cart">
         <div class="container">
-            <div class="image-empty-cart">
-                <img ng-src="{{kirraNG.getImageUrl('images/empty-basket.png')}}" alt="">
-                <div class="text-empty-cart-1">SHOPPING CART IS</div>
-                <div class="text-empty-cart-2">EMPTY</div>
-            </div>
-            <div>
-                <a class="btn" ui-sref="cart:Product:list"><ka-label element="cart.Product.list"/></a>
-            </div>
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">        
+                    <div class="image-empty-cart">
+                        <img ng-src="{{kirraNG.getImageUrl('images/empty-basket.png')}}" alt="">
+                        <div class="text-empty-cart-1">{{kirraNG.getAppLabel('cart.cart_empty_1')}}</div>
+                        <div class="text-empty-cart-2">{{kirraNG.getAppLabel('cart.cart_empty_2')}}</div>
+                    </div>
+                    <div>
+                        <a class="btn" ui-sref="cart:Product:list"><ka-label element="cart.Product.list"/></a>
+                    </div>
+                </div>
         </div>
    </div>
 </main>
