@@ -2395,9 +2395,32 @@ repository.loadApplication(function(loadedApp, status) {
                         embeddedPerformAction: '&',
                         embeddedObjectId: '=',
                         embeddedEntity: '=',
+                        embeddedFieldSelection: '=',
+                        embeddedFilterNullValues: '=',
                 },
                 template: '<div ng-include="templateUrl"></div>',
                 link: function (scope) {
+                    if (scope.embeddedFieldSelection != undefined) {
+                        var selectedViewFields = [];
+                        var selectedFieldValues = [];
+                        for (var i = scope.embeddedViewFields.length - 1; i >= 0; i--) {
+                            var candidate = scope.embeddedViewFields[i];
+                            if (!kirraNG.find(scope.embeddedFieldSelection, function(selection) {
+                                return selection.name == candidate.name;
+                            })) {
+                                scope.embeddedViewFields.splice(i, 1);
+                                scope.embeddedFieldValues.splice(i, 1);
+                            }
+                        }
+                    }
+                    if (scope.embeddedFilterNullValues) {
+                        for (var i = scope.embeddedViewFields.length - 1; i >= 0; i--) {
+                            if (scope.embeddedFieldValues[i] == null) {
+                                scope.embeddedViewFields.splice(i, 1);
+                                scope.embeddedFieldValues.splice(i, 1);
+                            }
+                        }
+                    }
                     scope.kirraNG = kirraNG;
                     scope.templateUrl = kirraGetTemplateUrl("embedded-instance", [scope.embeddedEntity.fullName], scope.currentUserRoles);                    
                 }
