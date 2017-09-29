@@ -33,7 +33,7 @@
         {{slotData | date:'yyyy/MM/dd':'UTC'}}
     </div>
 	<div ng-if="slotTypeKind == 'Enumeration'">
-		{{slot.enumerationLiterals[slotData]}}
+		{{slot.enumerationLiterals[slotData].label}}
 	</div>
 	<div ng-if="slotTypeKind == 'Blob' && (table || (grid && slotTypeName != 'Picture'))">
 	    <a ng-if="slotTypeName == 'Picture'" ng-click="attachmentShow(slot, slotData)">
