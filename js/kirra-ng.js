@@ -41,7 +41,8 @@ var kirraDefaultAppLabels = {
     'show_attachment': "Show",
     'upload_attachment': "Upload",
     'cancel_attachment': "Cancel",
-    'login_failed': 'Incorrect credentials, try again'
+    'login_failed': 'Incorrect credentials, try again',
+    'no_authorization': 'User does not have authorization'
     
 }
 
