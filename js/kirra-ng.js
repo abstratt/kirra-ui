@@ -41,6 +41,7 @@ var kirraDefaultAppLabels = {
     'show_attachment': "Show",
     'upload_attachment': "Upload",
     'cancel_attachment': "Cancel",
+    'login_failed': 'Incorrect credentials, try again'
     
 }
 
@@ -412,8 +413,19 @@ kirraNG.getElementLabel = function(elementSpec, stateName) {
     return customLabel ? customLabel : (element ? element.label : elementSpec);
 };
 
-kirraNG.getAppLabel = function(token, substitutions) {
-    var token = token.toLowerCase();
+kirraNG.getMessageFromErrorResponse = function(error) {
+    var message;
+    if (error.data && (error.data.message || error.data.messageToken)) {
+        var data = error.data;
+        message = kirraNG.getAppLabel(data.message);
+    }
+    return message || error.statusText || (typeof error === 'string' && error) || (error && JSON.stringify(error)) || "No reason found";
+};
+
+
+kirraNG.getAppLabel = function(token, substitutions, fallback) {
+    fallback = fallback || token;
+    token = token.toLowerCase();
     var tokenSegments = token.split('.');
     var defaultLabels = kirraDefaultAppLabels;
     var customLabels = kirraAppLabels;
@@ -429,7 +441,7 @@ kirraNG.getAppLabel = function(token, substitutions) {
             resolvedLabel = resolvedLabel.replace('{' + key + '}', substitutions[key]);
         }
     }
-    return resolvedLabel;
+    return resolvedLabel == token ? fallback : resolvedLabel;
 };
 
 
@@ -1871,19 +1883,23 @@ kirraNG.buildInstanceService = function() {
     return serviceFactory;
 };
 
-kirraNG.loginController = function($scope, $http, $modalInstance) {
+kirraNG.loginController = function($scope, $http, $modalInstance, loginDialog) {
     $scope.ok = function() {
-        console.log("Ok pressed");
-        $modalInstance.close($scope.credentials);
+        $scope.accessErrorMessage = "";
+        loginDialog.doLogin($scope.credentials, function(errorResponse) {
+            $scope.accessErrorMessage = kirraNG.getMessageFromErrorResponse(errorResponse);
+        });
     };
     $scope.credentials = {};
 };
 
 
-kirraNG.registrationController = function($scope, $http, $modalInstance, $controller, registrationEntity) {
-        var entityName = registrationEntity.fullName
-        $scope.credentials = { username: "", password: "" };
-        $controller(entityName + 'InstanceCreateCtrl', {$scope: $scope});
+kirraNG.registrationController = function($scope, $http, $modalInstance, $controller, registrationEntity, registrationDialog) {
+    var entityName = registrationEntity.fullName;
+    $scope.registrationEntity = registrationEntity;
+    $scope.credentials = { username: "", password: "" };
+    $scope.localErrorMessage = "";
+    $controller(entityName + 'InstanceCreateCtrl', {$scope: $scope});
     $scope.ok = function() {
         console.log("Save pressed");
         var newValues = angular.copy($scope.propertyValues);
@@ -1892,10 +1908,13 @@ kirraNG.registrationController = function($scope, $http, $modalInstance, $contro
         var newRepresentation = { values: newValues, links: newLinks };
         console.log("newRepresentation");
         console.log(newRepresentation);
-        $modalInstance.close({ instance: newRepresentation, credentials: $scope.credentials });
+        $scope.accessErrorMessage = "";
+        registrationDialog.doSignup($scope.credentials, newRepresentation, registrationEntity, function(errorResponse) {
+            $scope.accessErrorMessage = kirraNG.getMessageFromErrorResponse(errorResponse);
+        });
     };
     $scope.cancel = function() {
-            $modalInstance.dismiss();
+        $modalInstance.dismiss();
     };
 };
 
@@ -1928,46 +1947,40 @@ kirraModule.service('loginDialog', function($rootScope, $modal, $http, $state, k
     var LoginDialog = function () {
         angular.extend(this);
     };
-    LoginDialog.showing = false;
     LoginDialog.show = function() {
         var dialog = this;
-        if (this.showing) {
-            return;
-        }
-        this.showing = true;
         this.modal = $modal.open({
           animation: true,
           templateUrl: kirraGetTemplateUrl('login'),
-          controller: 'LoginCtrl'
+          controller: 'LoginCtrl',
+          backdrop  : 'static'
         });
-        this.modal.result.then(function(credentials) {
-            dialog.showing = false;
-            if (credentials) {
-                encodedCredentials = btoa(credentials.username+":"+credentials.password);
-                return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }});
-            }
-        }, function() {
-            // dismissed? reload in case we were here because the user tried
-            // to access a protected resource
-            kirraReload();
+    };
+    LoginDialog.doLogin = function(credentials, errorHandlerFn) {
+        if (!credentials) {
+            return;
+        }
+        encodedCredentials = btoa(credentials.username+":"+credentials.password);
+        $http.post(application.uri + 'session/login', {}, {
+            ignoreErrors: [ 400, 401, 403 ],
+            headers: { Authorization: "Custom " + encodedCredentials }
         }).then(function(loginResponse) {
             if (loginResponse) {
                 if (loginResponse.status >= 200 && loginResponse.status < 300) {
                     kirraReload();
                 } else {
-                    console.log("Error 1!");
-                    console.log(errorResponse);
+                    errorHandlerFn && errorHandlerFn(errorResponse);
                 }
             }
         }, function(errorResponse) {
-            kirraNotification.logError(errorResponse);        
+            errorHandlerFn && errorHandlerFn(errorResponse);
         });
+
     };
     LoginDialog.close = function() {
-        if (this.showing && this.modal) {
+        if (this.modal) {
             this.modal.close();
         }
-        this.showing = false;
         delete this.modal;
     };
     return LoginDialog;
@@ -1977,12 +1990,9 @@ kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $s
     var RegistrationDialog = function () {
         angular.extend(this);
     };
-    RegistrationDialog.showing = false;
     RegistrationDialog.show = function(registrationEntity) {
         var dialog = this;
-        if (dialog.showing) {
-            return;
-        }
+        dialog.registrationEntity = registrationEntity;
         var modalConfig = {
             animation: true,
             templateUrl: kirraGetTemplateUrl('registration'),
@@ -1991,44 +2001,36 @@ kirraModule.service('registrationDialog', function($rootScope, $modal, $http, $s
                 registrationEntity: function () {
                   return registrationEntity;
                 }
-              }
+            },
+            backdrop  : 'static'
         };
-        var showModal;
-        showModal = function() {
-            dialog.showing = true;
-            dialog.modal = $modal.open(modalConfig);
-            dialog.modal.result.then(function(modalResult) {
-                var instance = modalResult.instance;
-                var credentials = modalResult.credentials;
-                dialog.showing = false;
-                encodedCredentials = btoa(credentials.username+":"+credentials.password);
-                return $http.post(application.uri + 'signup/' + registrationEntity.fullName, instance, { headers: { "X-Kirra-Credentials": encodedCredentials }});
-            }, function() {
-                // dismissed? reload in case we were here because the user tried
-                // to access a protected resource
-                kirraReload();
-            }).then(function(signupResponse) {
-                if (signupResponse && signupResponse.status >= 200 && signupResponse.status < 300) {
-                    return $http.post(application.uri + 'session/login', {}, { headers: { Authorization: "Custom " + encodedCredentials }})
-                        .then(function() {
-                            kirraReload(); 
-                        }, function() {
-                            showModal();
-                        });
-                } else {
-                    showModal();
-                }
-            }, function() {
-                dialog.showing = false;
-            });
-        };
-        showModal();
+        dialog.modal = $modal.open(modalConfig);
+    };
+    RegistrationDialog.doSignup = function(credentials, instance, registrationEntity, errorHandlerFn) {
+        encodedCredentials = btoa(credentials.username+":"+credentials.password);
+        $http.post(application.uri + 'signup/' + registrationEntity.fullName, instance, {
+                ignoreErrors: [ 400, 401, 403 ],                        
+                headers: { "X-Kirra-Credentials": encodedCredentials }
+        }).then(function(signupResponse) {
+            if (signupResponse && signupResponse.status >= 200 && signupResponse.status < 300) {
+                return $http.post(application.uri + 'session/login', {}, {
+                    ignoreErrors: [ 400, 401, 403 ],
+                    headers: { Authorization: "Custom " + encodedCredentials }
+                })
+                .then(function() {
+                    kirraReload(); 
+                }, function(errorResponse) {
+                    errorHandlerFn && errorHandlerFn(errorResponse);
+                });
+            }
+        }, function(errorResponse) {
+            errorHandlerFn && errorHandlerFn(errorResponse);
+        });
     };
     RegistrationDialog.close = function() {
-        if (this.showing && this.modal) {
+        if (this.modal) {
             this.modal.close();
         }
-        this.showing = false;
         delete this.modal;
     };
     
@@ -2062,7 +2064,6 @@ kirraModule.config(function($httpProvider) {
 kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
     $scope.kirraNG = kirraNG;
     $scope.alerts = [];
-    
     $scope.reload =  function() {
         kirraReload();
     };
@@ -2080,7 +2081,7 @@ kirraModule.controller('KirraBaseCtrl', function($scope, kirraNotification) {
     };
     
     $scope.logError = function(error) {
-        var message = (error.data && error.data.message) || error.statusText || (typeof error === 'string' && error);
+        var message = kirraNG.getMessageFromErrorResponse(error);
         if (!message) {
             message = "Unexpected error (status code: " + error.status + ")";
         }

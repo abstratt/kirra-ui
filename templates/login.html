@@ -1,38 +1,46 @@
 <div class="container-fluid" ng-controller="KirraRepositoryCtrl">
-    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
-	<div class="row">
-	   <div class="col-sm-8 col-sm-offset-2" align="center">
-            <h2 ng-if="!applicationLogo">{{applicationLabel}}</h2>
-            <img ng-if="applicationLogo" data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35"/>
-       </div>
-    </div>
-    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
     <div class="row">
-	
-		<div class="col-sm-8 col-sm-offset-2">
-		
-        <legend>{{kirraNG.getAppLabel('user.please_sign_in')}}</legend>
-        
-      <form class="form-signin">
-        <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="string" class="form-control" placeholder="Username" required autofocus ng-model="credentials.username">
-        <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" class="form-control" placeholder="Password" required ng-model="credentials.password">
-        <p></p>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="ok()">{{kirraNG.getAppLabel('user.log_in')}}</button>
-      </form>
-      
-		</div>
-	</div>
-    
-    <div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
-    
-    <div class="row" ng-repeat="entity in selfServiceRoleEntities">
         <div class="col-sm-8 col-sm-offset-2">
-            <p><a ng-click="registerAs(entity)">{{kirraNG.getAppLabel("user.register_as", { entityName: entity.label} )}}</a></p>
+            <p></p>
         </div>
     </div>
-    
-	<div class="row"><div class="col-sm-8 col-sm-offset-2"><p></p></div></div>
-        
-</div>      
+    <div class="row">
+        <div align="center" class="col-sm-8 col-sm-offset-2">
+            <h2 ng-if="!applicationLogo">{{applicationLabel}}</h2><img data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35" ng-if="applicationLogo">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <legend>{{kirraNG.getAppLabel('user.please_sign_in')}}</legend>
+            <alert class="alert-danger" ng-if="accessErrorMessage">{{accessErrorMessage}}</alert>
+            <form class="form-signin" >
+                <label class="sr-only" for="inputEmail">Email address</label>
+                <input autofocus="" class="form-control" ng-model="credentials.username" placeholder="Username" required="" type="string">
+                <label class="sr-only" for="inputPassword">Password</label>
+                <input class="form-control" ng-model="credentials.password" placeholder="Password" required="" type="password">
+                <p></p>
+                <button class="btn btn-lg btn-primary btn-block" ng-click="ok()" type="submit">{{kirraNG.getAppLabel('user.log_in')}}</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <p></p>
+        </div>
+    </div>
+    <div class="row" ng-repeat="entity in selfServiceRoleEntities">
+        <div class="col-sm-8 col-sm-offset-2">
+            <p><a ng-click="registerAs(entity)">{{kirraNG.getAppLabel("user.register_as", { entityName: entity.label} )}}</a>
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <p></p>
+        </div>
+    </div>
+</div>

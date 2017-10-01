@@ -43,7 +43,7 @@
     </div>
 
 	<div ng-controller="KirraRepositoryCtrl" ng-include src="getTemplateUrl('main')"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0&libraries=places" async defer>
+    <script ng-if="applicationOptions.mapSupport" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0&libraries=places" async defer>
     </script>
 </body>
 </html>

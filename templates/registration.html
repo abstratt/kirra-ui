@@ -1,5 +1,21 @@
 
 <div class="container-fluid" ng-controller="KirraRepositoryCtrl">
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <p></p>
+        </div>
+    </div>
+    <div class="row">
+        <div align="center" class="col-sm-8 col-sm-offset-2">
+            <h2 ng-if="!applicationLogo">{{applicationLabel}}</h2><img data-ng-src="data:image/png;base64,{{applicationLogo}}" height="35" ng-if="applicationLogo">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <legend>{{kirraNG.getAppLabel('user.register_as', { entityName: registrationEntity.label })}}</legend>
+            <alert class="alert-danger" ng-if="accessErrorMessage">{{accessErrorMessage}}</alert>
+        </div>
+    </div>
 	<div class="row">
         <div class="col-sm-8 col-sm-offset-2" ng-include="getTemplateUrl('edit-form')">
         </div>
