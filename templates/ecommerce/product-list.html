@@ -2,7 +2,7 @@
     <div class="products-grid-wrapper isotope-wrapper" ng-init="metadata = custom.metadata">
         <div class="products-grid four-in-row product-variant-5">
             <div 
-                ng-repeat="mapped in custom.data track by mapped.objectId"
+                ng-repeat="product in custom.data track by product.objectId"
                 class="product-item large colorvariants category2">
                 <!-- Product Item -->
                 <div class="product-item-inside">
@@ -12,7 +12,7 @@
                             <!-- /Product Label -->
                             <div class="product-item-gallery">
                                 <!-- product main photo -->
-                                <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="mapped.productImage" object-id="mapped.objectId">
+                                <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="product.productImage" object-id="product.objectId">
                                     <!-- Using an img element directly so we can apply the style the theme expects -->
                                     <img  
                                         ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"
@@ -26,37 +26,37 @@
                         <!-- Product Details -->
                         <div class="product-item-details">
                             <div class="product-item-name"> 
-                                <a title="{{mapped.productName}}" 
-                                    ui-sref="{{kirraNG.toState(entity.fullName, 'show')}}({ objectId: '{{mapped.objectId}}' })" 
+                                <a title="{{product.productName}}" 
+                                    ui-sref="{{kirraNG.toState(entity.fullName, 'show')}}({ objectId: '{{product.objectId}}' })" 
                                     class="product-item-link">
-                                    <p>{{mapped.productName}}</p>
+                                    <p>{{product.productName}}</p>
                                 </a> 
                             </div>
-                            <div ng-if="mapped.productDescription">
-                                <p>{{mapped.productDescription}}</p>
+                            <div ng-if="product.productDescription">
+                                <p>{{product.productDescription}}</p>
                             </div>
                             <div class="price-box">
                                 <span class="price-container">
                                     <span class="price-wrapper">
                                         <span class="price">
-                                            {{mapped.productPrice | currency:"R$":2}}
+                                            {{product.productPrice | currency:"R$":2}}
                                         </span>
                                     </span>
                                 </span>
                             </div>
-                            <div ng-if="!mapped.productUnavailable">
+                            <div ng-if="!product.productUnavailable">
                                 <button class="btn" ng-click="login()" ng-if="!currentUser">
                                     <!-- Omit icon-cart class to avoid animation when adding to cart is not possible --> 
                                     <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
                                 </button>
-                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart == 0 && currentUser"> 
+                                <button class="btn add-to-cart" ng-click="product.addToCart(this)" ng-if="product.quantityInCart == 0 && currentUser"> 
                                     <i class="icon icon-cart"></i><span>{{metadata.instanceActions.addToCart.label}}</span>
                                 </button>
-                                <button class="btn add-to-cart" ng-click="mapped.addToCart(this)" ng-if="mapped.quantityInCart > 0 && currentUser"> 
-                                    <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{mapped.quantityInCart}}</span>
+                                <button class="btn add-to-cart" ng-click="product.addToCart(this)" ng-if="product.quantityInCart > 0 && currentUser"> 
+                                    <i class="icon icon-cart"></i><span>{{metadata.slots.quantityInCart.label}}: {{product.quantityInCart}}</span>
                                 </button>
                             </div>
-                            <button ng-if="mapped.productUnavailable" class="btn add-to-cart" disabled> 
+                            <button ng-if="product.productUnavailable" class="btn add-to-cart" disabled> 
                                 <span>{{metadata.slots.productUnavailable.label}}</span>
                             </button>
                             
