@@ -1,0 +1,31 @@
+<div class="row no-gutters" ng-init="metadata = custom.metadata">
+    <div class="col-md-10 push-md-1" role="tablist">
+        <!-- Menu Category / Burgers -->
+        <div id="{{category.name}}" class="menu-category" ng-repeat="category in datasets.categories.custom.data track by category.objectId">
+            <div class="menu-category-title collapse-toggle collapsed" role="tab" data-target="#category-{{category.objectId}}" data-toggle="collapse" aria-expanded="false">
+                <ka-wrapper slot="datasets.categories.custom.metadata.slots.categoryImage" slot-data="category.categoryImage" object-id="category.objectId">
+                    <div class="bg-image" style="background-image: url(&quot;{{getAttachmentDownloadUri(slot, slotData)}}&quot;);">
+                        <img src="{{getAttachmentDownloadUri(slot, slotData)}}" alt="" style="display: none;">
+                    </div>
+                </ka-wrapper>
+                <h2 class="title">{{category.name}}</h2>
+            </div>
+            <div id="category-{{category.objectId}}" class="menu-category-content collapse" aria-expanded="false">
+                <!-- Menu Item -->
+                <div class="menu-item menu-list-item" ng-repeat="product in custom.data track by product.objectId" ng-if="product.productCategory.objectId == category.objectId">
+                    <div class="row align-items-center">
+                        <div class="col-sm-6 mb-2 mb-sm-0">
+                            <h6 class="mb-0">{{product.productName}}</h6>
+                            <span class="text-muted text-sm">{{product.productDescription}}</span>
+                        </div>
+                        <div class="col-sm-6 text-sm-right">
+                            <span class="text-md mr-4"><span class="text-muted">from</span>{{product.productPrice}}</span>
+                            <button class="btn btn-outline-secondary btn-sm" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ka-dataset entity-name="cart.Category" name="categories"/>
+</div>
