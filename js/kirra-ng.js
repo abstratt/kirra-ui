@@ -384,8 +384,8 @@ var kirraGetCustomEdgeViewData = function(viewName, entity, customViewMetadata) 
     return arrayMapper;
 };
 
-kirraNG.getTemplateUrl = function(template) {
-    return kirraGetTemplateUrl(template);
+kirraNG.getTemplateUrl = function(template, hierarchy, roles) {
+    return kirraGetTemplateUrl(template, hierarchy, roles);
 };
 
 kirraNG.getImageUrl = function(imageUrl) {
@@ -1728,7 +1728,7 @@ kirraNG.buildInstanceService = function() {
             var instances = data.instances;
             var pageLength = instances.length;
             var pageSize = kirraDefaultPageSize;
-            var itemOffset = data.offset;
+            var itemOffset = data.itemOffset || 0;
             //0, 1, ...
             var pageNumber = 1 + itemOffset / pageSize;
             var pageCount = pageLength < pageSize ? pageNumber : (pageNumber + 1);
