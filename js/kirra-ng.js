@@ -1107,7 +1107,8 @@ kirraNG.buildInstanceEditController = function(entity, mode) {
             } else {
                 domain = instanceService.getRelationshipDomain(actualEntity, objectId, relationship.name);
             }
-            return domain.then(function(instances) {
+            return domain.then(function(pagedInstances) {
+                var instances = pagedInstances.instances;
                 var candidates = kirraNG.filterCandidates(instances, value);
                 if (!relationship.required) {
                     candidates.splice(0, 0, { shorthand: '- None -' });
@@ -1205,7 +1206,10 @@ kirraNG.buildActionController = function(entity) {
         
         $scope.findCandidatesFor = function(parameter, value) {
             var domain = instanceService.getParameterDomain(entity, $scope.objectId, actionName, parameter.name);
-            return domain.then(function(instances) { return kirraNG.filterCandidates(instances, value); });
+            return domain.then(function(pagedInstances) {
+                var instances = pagedInstances.instances;
+                return kirraNG.filterCandidates(instances, value); 
+            });
         };
         
         $scope.onCandidateSelected =  function(selectedCandidate, inputField, $label) {
@@ -1297,12 +1301,16 @@ kirraNG.buildInstanceLinkController = function(entity) {
     var controller = function($scope, $modalInstance, instanceService, objectId, relationship) {
         $scope.objectId = objectId;
         $scope.relationship = relationship;
-        instanceService.getRelationshipDomain(entity, objectId, relationship.name).then(function(candidates) {
+        instanceService.getRelationshipDomain(entity, objectId, relationship.name).then(function(pagedInstances) {
+            var candidates = pagedInstances.instances;
             $scope.candidates = candidates;
         });
         $scope.findCandidatesFor = function(relationship, value) {
             var domain = instanceService.getRelationshipDomain(entity, objectId, relationship.name);
-            return domain.then(function(instances) { return kirraNG.filterCandidates(instances, value); });
+            return domain.then(function(pagedInstances) {
+                var instances = pagedInstances.instances;
+                return kirraNG.filterCandidates(instances, value); 
+            });
         };
         $scope.onCandidateSelected =  function(selectedCandidate) {
             $scope.selected = selectedCandidate;
@@ -1737,11 +1745,11 @@ kirraNG.buildInstanceService = function() {
             return { 
                 instances: instances, 
                 itemOffset: itemOffset,
+                pageNumber: pageNumber,
                 // the actual number of items on this page
                 pageLength: pageLength,
                 // the maximum number of items on any page
                 pageSize: pageSize,
-                pageNumber: pageNumber,
                 pageCount: pageCount,
                 totalItems: totalItems 
             };
@@ -1753,11 +1761,12 @@ kirraNG.buildInstanceService = function() {
                 instances.push(buildInstanceFromData(data));
             });
             return {
-                pageNumber: 1,
-                itemOffset: 0,
-                pageLength: undefined,
-                pageSize: undefined,
                 instances: instances,
+                itemOffset: 0,
+                pageNumber: 1,
+                pageLength: instances.length,
+                pageSize: instances.length,
+                pageCount: 1,
                 totalItems: instances.length
             };
         };
