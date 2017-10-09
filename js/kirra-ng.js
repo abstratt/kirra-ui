@@ -34,7 +34,7 @@ var kirraDefaultAppLabels = {
     'child_delete': "Delete {relationshipName}",
     'cancel': "Cancel",
     'create': "Create",
-    'craeting': "Creating",
+    'creating': "Creating",
     'save': "Save",
     'download_attachment': "Download",
     'delete_attachment': "Delete",
