@@ -7,7 +7,7 @@
             <tbody ng-repeat="row in rows track by $index">
                 <tr>
                     <td ng-repeat="property in tableProperties | limitTo: 3">
-                        <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"></ka-data>
+                        <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId" type-ref="row.raw.typeRef"></ka-data>
                     </td>
                 </tr>
                 <tr ng-if="tableProperties.length > 3 || actions.length > 0">
@@ -17,7 +17,7 @@
                                 <td width="45%" align="right">{{property.label}}:</td>
                                 <td width="10%"></td>
                                 <td width="45%">
-                                    <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId"/>
+                                    <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId" type-ref="row.raw.typeRef"/>
                                 </td>
                             </tr>
                         </table>

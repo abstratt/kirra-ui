@@ -1,4 +1,8 @@
 <div id="wrapper">
+    <ka-singleton entity-name="cart.Cart" query-name="current"
+        watched-actions="cart.Product.addToCart,cart.Cart.*,cart.CartItem.*"
+        name="cart" apply-custom>
+    </ka-singleton>
     <div class="page-wrapper">
         <div>
             <div ng-include src="getTemplateUrl('header')"></div>

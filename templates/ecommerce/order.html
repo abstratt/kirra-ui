@@ -18,6 +18,7 @@
                     embedded-view-fields="viewFields"
                     embedded-entity="entity"
                     embedded-object-id="objectId",
+                    embedded-type-ref="typeRef",
                     embedded-field-selection="[metadata.slots.orderDate, metadata.slots.confirmationDate, metadata.slots.orderStatus]"
                     embedded-filter-null-values="true"
                     embedded-border="true">
@@ -48,7 +49,7 @@
                 </div>
                 <div class="table-row" ng-repeat="orderItem in custom.edgeData.orderItems track by $index">
                     <div class="photo">
-                        <ka-data grid=true size="'tiny'" slot="metadata.edges.orderItems.slots.productImage" slot-data="orderItem.productImage" object-id="orderItem.objectId">
+                        <ka-data grid=true size="'tiny'" slot="metadata.edges.orderItems.slots.productImage" slot-data="orderItem.productImage" object-id="orderItem.objectId" type-ref="orderItem.typeRef">
                         </ka-data>
                     </div>
                     <div class="name">

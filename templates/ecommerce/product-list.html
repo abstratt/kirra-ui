@@ -12,7 +12,7 @@
                             <!-- /Product Label -->
                             <div class="product-item-gallery">
                                 <!-- product main photo -->
-                                <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="product.productImage" object-id="product.objectId">
+                                <ka-wrapper class="product-item-gallery-main" slot="metadata.slots.productImage" slot-data="product.productImage" object-id="product.objectId" type-ref="product.typeRef">
                                     <!-- Using an img element directly so we can apply the style the theme expects -->
                                     <img  
                                         ng-src="{{getAttachmentDownloadUri(slot, slotData)}}" class="product-image-photo"

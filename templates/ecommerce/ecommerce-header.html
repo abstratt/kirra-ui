@@ -30,7 +30,7 @@
                                                 <a class="product-item-photo" ui-sref="cart:Product:show({ objectId: '{{cartItem.productObjectId}}' })" title="{{cartItem.productName}}">
                                                     <span class="product-image-container">
                                                     <span class="product-image-wrapper">
-                                                    <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
+                                                    <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId" type-ref="cartItem.typeRef">
                                                         <img 
                                                             class="product-image-photo" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}">
                                                     </ka-wrapper>

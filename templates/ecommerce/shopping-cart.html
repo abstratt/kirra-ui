@@ -23,7 +23,7 @@
         </div>
         <div class="table-row" ng-repeat="cartItem in custom.edgeData.cartItems track by $index">
             <div class="photo">
-                <ka-data grid=true size="'tiny'" slot="metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
+                <ka-data grid=true size="'tiny'" slot="metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId" type-ref="cartItem.typeRef">
                 </ka-data>
             </div>
             <div class="name">

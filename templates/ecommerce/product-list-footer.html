@@ -18,7 +18,7 @@
                     <ul class="products-list">
                         <li ng-repeat="cartItem in singletons.cart.custom.edgeData.cartItems track by cartItem.objectId">
                             <a title="{{cartItem.productName}} (x {{cartItem.unitPrice | currency:'R$':2}})" ui-sref="cart:Product:show({ objectId: '{{ cartItem.productObjectId }}' })">
-                                <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId">
+                                <ka-wrapper slot="singletons.cart.custom.metadata.edges.cartItems.slots.productImage" slot-data="cartItem.productImage" object-id="cartItem.objectId" type-ref="cartItem.typeRef">
                                     <img 
                                         class="product-image-photo" ng-src="{{getAttachmentDownloadUri(slot, slotData)}}"
                                         style="max-width: 80px; min-width: 80px; max-height: 80px; min-height: 80px;">

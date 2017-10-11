@@ -16,8 +16,8 @@
         ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Boolean'" 
         class="btn-xs" 
         ng-model="values[slot.name]" 
-        on="Yes" 
-        off="No">
+        on="{{kirraNG.getAppLabel('boolean_true')}}" 
+        off="{{kirraNG.getAppLabel('boolean_false')}}">
     </toggle>                    
     <div id="{{slot.name}}" 
         ng-if="slotTypeKind == 'Primitive' && (slotTypeName == 'Date' || slotTypeName == 'DateTime')" 
@@ -50,14 +50,13 @@
     <input id="{{slot.name}}"
         ng-if="slotTypeKind == 'Entity' && slot.effect != 'Creation'"
         type="text" class="form-control" 
-        ng-model="slotData.shorthand"
+        ng-model="values[slot.name].shorthand"
         typeahead="shorthand as candidate.shorthand for candidate in findCandidates({ slot: slot, value: $viewValue })"
         typeahead-min-length="0"
         typeahead-input-formatter="formatCandidate(slot)"
         typeahead-on-select="onCandidateSelected($item)"
         placeholder="{{slot.description || slot.label}} (start typing)"
         autocomplete="off">
-
 
     <div class="panel panel-default" ng-if="slotTypeKind == 'Entity' && slot.effect == 'Creation'">
 <!--

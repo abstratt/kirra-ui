@@ -12,6 +12,8 @@
                     Login is required before you can see any metrics.
                 </div>
             </div>
+            
+            <!-- summarized metrics -->
             <div class="row">
                 <div class="col-xs-12 col-md-3" ng-repeat="metric in metrics" ng-init="loadMetrics()" ng-if="!metric.datatable">
                     <div class="panel panel-primary">
@@ -38,6 +40,8 @@
                     </div>
                 </div>
             </div>
+           
+            <!-- datatable -->
             <div class="row">
                 <div class="col-lg-6" ng-repeat="metric in metrics" ng-if="metric.datatable">
                     <div class="panel panel-default">

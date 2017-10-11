@@ -3,7 +3,7 @@
         <!-- Menu Category / Burgers -->
         <div id="{{category.name}}" class="menu-category" ng-repeat="category in datasets.categories.custom.data track by category.objectId">
             <div class="menu-category-title collapse-toggle collapsed" role="tab" data-target="#category-{{category.objectId}}" data-toggle="collapse" aria-expanded="false">
-                <ka-wrapper slot="datasets.categories.custom.metadata.slots.categoryImage" slot-data="category.categoryImage" object-id="category.objectId">
+                <ka-wrapper slot="datasets.categories.custom.metadata.slots.categoryImage" slot-data="category.categoryImage" object-id="category.objectId" type-ref="category.typeRef">
                     <div class="bg-image" style="background-image: url(&quot;{{getAttachmentDownloadUri(slot, slotData)}}&quot;);">
                         <img src="{{getAttachmentDownloadUri(slot, slotData)}}" alt="" style="display: none;">
                     </div>
