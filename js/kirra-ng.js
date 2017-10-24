@@ -1782,9 +1782,9 @@ kirraNG.buildInstanceService = function() {
             });
             return {
                 instances: instances,
-                itemOffset: 0,
+                itemOffset: response.data.offset || 0,
                 pageNumber: 1,
-                pageLength: instances.length,
+                pageLength: response.data.length || instances.length,
                 pageSize: instances.length,
                 pageCount: 1,
                 totalItems: instances.length
