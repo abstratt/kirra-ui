@@ -1,8 +1,7 @@
 {
   "name": "kirra-angular",
   "version": "0.1.0",
-  "keywords": [
-  ],
+  "keywords": [],
   "author": {
     "name": "Rafael Chaves",
     "email": "rafael@abstratt.com",
@@ -13,12 +12,10 @@
     "type": "git",
     "url": "https://github.com/abstratt/kirra-ui/kirra-angular"
   },
-
   "engines": {
     "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
   },
-
   "dependencies": {
     "angular": "1.4.5",
     "angular-i18n": "1.4.5",
@@ -30,6 +27,7 @@
     "moment": "2.10.6"
   },
   "devDependencies": {
+    "mocha": "^4.0.1"
   },
   "bundleDependencies": []
 }

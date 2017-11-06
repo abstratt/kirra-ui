@@ -170,17 +170,6 @@
                         </div>
                     </li>
                 </ul>
-                <!-- DEBUG EMBEDDED-->
-                <div style="display: none">
-                    <div ng-repeat="entity in entities">
-                        <p>Entity: {{entity.fullName}}</p>
-                        <div ng-init="queries = kirraNG.getQueries(entity)">
-                            <div ng-repeat="query in queries" ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]">
-                                <p>{{query.label}} = {{entityCapabilities.queries[query.name]}}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <!-- Mega Menu -->            
         </div>

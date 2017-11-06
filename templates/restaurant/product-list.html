@@ -1,6 +1,6 @@
 <div class="row no-gutters" ng-init="metadata = custom.metadata">
     <div class="col-md-10 push-md-1" role="tablist">
-        <!-- Menu Category / Burgers -->
+        <!-- Menu Categorys -->
         <div id="{{category.name}}" class="menu-category" ng-repeat="category in datasets.categories.custom.data track by category.objectId">
             <div class="menu-category-title collapse-toggle collapsed" role="tab" data-target="#category-{{category.objectId}}" data-toggle="collapse" aria-expanded="false">
                 <ka-wrapper slot="datasets.categories.custom.metadata.slots.categoryImage" slot-data="category.categoryImage" object-id="category.objectId" type-ref="category.typeRef">
@@ -19,8 +19,14 @@
                             <span class="text-muted text-sm">{{product.productDescription}}</span>
                         </div>
                         <div class="col-sm-6 text-sm-right">
-                            <span class="text-md mr-4"><span class="text-muted">from</span>{{product.productPrice}}</span>
-                            <button class="btn btn-outline-secondary btn-sm" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
+                            <span class="text-md mr-4"><span class="text-muted">{{metadata.slots.productPrice.label}}</span>{{product.productPrice | currency:"R$":2}}</span>
+                            <div ng-if="!product.productUnavailable">
+                                <button class="btn btn-outline-secondary btn-sm" ng-click="login()" ng-if="!currentUser" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
+                                <button class="btn btn-outline-secondary btn-sm" ng-click="product.addToCart(this)" ng-if="currentUser" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
+                            </div>
+                            <button ng-if="product.productUnavailable" class="btn add-to-cart" disabled> 
+                                <span>{{metadata.slots.productUnavailable.label}}</span>
+                            </button>
                         </div>
                     </div>
                 </div>

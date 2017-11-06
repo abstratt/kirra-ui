@@ -1,5 +1,10 @@
 <div class="container">
-    <div ng-include src="getTemplateUrl('instance-list-header', [ entity.fullName ])"></div>
-    <div ng-include src="getTemplateUrl('instance-list-center', [ entity.fullName ])"></div>
-    <div ng-include src="getTemplateUrl('instance-list-footer', [ entity.fullName ])"></div>
+    <!-- instance-list-header -->
+    <div ng-include src="getTemplateUrl('instance-list-header', entity.fullName)"></div>
+    
+    <!-- instance-list-center -->
+    <div ng-include src="getTemplateUrl('instance-list-center', entity.fullName)"></div>
+    
+    <!-- instance-list-footer -->
+    <div ng-include src="getTemplateUrl('instance-list-footer', entity.fullName)"></div>
 </div>
