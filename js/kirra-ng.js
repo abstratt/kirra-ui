@@ -116,42 +116,70 @@ var kirraCheckRoles = function(object, roles) {
     return true;
 };
 
-var kirraGetCustomSettings = function(viewName, hierarchy, itemName, roles, extractorFn) {
+var kirraGetTemplateUrl = function(viewName, hierarchy) {
+    var found = kirraGetCustomViewSetting(viewName, hierarchy, 'template');
+    var actual = found ? found : kirraGetDefaultTemplateUrl(viewName);
+    var result = kirraBasePath + actual;
+    //console.log("kirraGetTemplateUrl('" + viewName + "', [" + hierarchy + "]) = " + result);
+    return result;
+};
+
+var kirraGetCustomViewSetting = function(viewName, hierarchy, property) {
+    return kirraGetCustomSettings(hierarchy, ['views', viewName, property]);
+};
+
+/**
+ * Returns custom settings in effect for the given context hierarchy.
+ */
+var kirraGetCustomSettings = function(hierarchy, itemName) {
+    var roles = application.currentUserRoles; 
+    var itemPath = angular.isArray(itemName) ? itemName : (itemName ? [itemName] : []);
+    //console.log("\n\n****");
+    // filter mappings by role first
     var mappingsForRole = kirraNG.find(kirraUIMappings, function(it) {
         return kirraCheckRoles(it, roles);        
     });
     if (!mappingsForRole) {
+        // no mappings found for the given role
+        console.log("No mappings for roles " + roles);
         return undefined;
     }
-    var mappingsForEntity = [hierarchy && mappingsForRole[hierarchy[0]], mappingsForRole['_global']];
+    //console.log("itemPath: " + itemPath);
+    // allow hierarchy to be passed in as a single value - normalize to arrays
+    var hierarchyArray = angular.isArray(hierarchy) ? hierarchy : (hierarchy ? [hierarchy] : []);
+    // fall back to _global mappings in case there are no entity-specific mappings
+    if (hierarchyArray.indexOf('_global') < 0) {
+        hierarchyArray.push('_global');
+    }
+    //console.log("Hierarchy " + hierarchyArray);
+    
+    var mappingsForEntity = kirraNG.map(hierarchyArray, function(it) { return mappingsForRole[it]; });
+    var extractorFn = function (it) {
+        var current = it;
+        for (var i = 0; current !== undefined && i <= itemPath.length - 1; i++) {
+            current = current[itemPath[i]];
+        }
+        return current;
+    };
+    
     var searchFn = function (it) {
-        var match = it && kirraCheckRoles(it, roles) && it[itemName]; 
-        return match;
+        return extractorFn(it) != undefined;
     };
     
     var found = kirraNG.find(mappingsForEntity, searchFn);
-    if (found && found[itemName]) {
-        return extractorFn ? extractorFn(found[itemName]) : found[itemName];
+    if (!found) {
+        return undefined;
     }
-    return undefined;
+    //console.log("Found: " + JSON.stringify(found));
+    var value = extractorFn(found);
+    //console.log("value: " + JSON.stringify(value)); 
+    return value;
 };
 
 var kirraGetDefaultTemplateUrl = function(viewName) {
     return 'templates/' + viewName + '.html';
 };
 
-var kirraGetTemplateUrl = function(viewName, hierarchy, roles) {
-    var found = kirraGetCustomViewSetting(viewName, hierarchy, roles, 'template');
-    var actual = found ? found : kirraGetDefaultTemplateUrl(viewName);
-    return kirraBasePath + actual;
-};
-
-var kirraGetCustomViewSetting = function(viewName, hierarchy, roles, property) {
-    var found = kirraGetCustomSettings(viewName, hierarchy, 'views', roles, function(views) {
-        return views[viewName] && views[viewName][property];
-    });
-    return found;
-};
 
 var kirraReload = function(url) {
     window.location.href = url || application.viewUri;
@@ -180,7 +208,7 @@ var kirraMapCustomSlot = function(entity, actual) {
 };
 
 var kirraGetCustomSlots = function(viewName, entity) {
-    var slotMapping = kirraGetCustomSettings(viewName, [entity.fullName], 'slotMapping');
+    var slotMapping = kirraGetCustomSettings(entity.fullName, 'slotMapping');
     var result = {};
     if (slotMapping) {
         angular.forEach(slotMapping, function(actual, expected) {
@@ -191,13 +219,13 @@ var kirraGetCustomSlots = function(viewName, entity) {
 };
 
 var kirraGetCustomEntities = function(viewName, entity) {
-    var entityMappings = kirraGetCustomSettings(viewName, [entity.fullName], 'entities');
+    var entityMappings = kirraGetCustomSettings(entity.fullName, 'entities');
     return entities || {};
 };
 
 
 var kirraGetCustomEdges = function(viewName, entity) {
-    var edgeMapping = kirraGetCustomSettings(viewName, [entity.fullName], 'edgeMapping');
+    var edgeMapping = kirraGetCustomSettings(entity.fullName, 'edgeMapping');
     var result = {};
     if (edgeMapping) {
         angular.forEach(edgeMapping, function(edgeMappingDetails, expectedEdgeName) {
@@ -257,7 +285,7 @@ var kirraBuildCustomMetadata = function(viewName, entity) {
 };
 
 var kirraGetCustomInstanceActions = function(viewName, entity) {
-    var actions = kirraGetCustomSettings(viewName, [entity.fullName], 'actions');
+    var actions = kirraGetCustomSettings(entity.fullName, 'actions');
     var result = {};
     if (actions) {
         angular.forEach(actions, function(actualActionName, expectedActionName) {
@@ -275,7 +303,7 @@ var kirraGetCustomInstanceActions = function(viewName, entity) {
 };
 
 var kirraGetCustomQueries = function(viewName, entity) {
-    var queries = kirraGetCustomSettings(viewName, [entity.fullName], 'queries');
+    var queries = kirraGetCustomSettings(entity.fullName, 'queries');
     var result = {};
     if (queries) {
         angular.forEach(queries, function(actualQueryName, expectedQueryName) {
@@ -388,7 +416,7 @@ var kirraGetCustomEdgeViewData = function(viewName, entity, customViewMetadata) 
 };
 
 kirraNG.getTemplateUrl = function(template, hierarchy, roles) {
-    return kirraGetTemplateUrl(template, hierarchy, roles);
+    return kirraGetTemplateUrl(template, hierarchy);
 };
 
 kirraNG.getImageUrl = function(imageUrl) {
@@ -397,7 +425,7 @@ kirraNG.getImageUrl = function(imageUrl) {
 
 kirraNG.getElementLabel = function(elementSpec, stateName) {
     var segments = elementSpec.split(".");
-    var entityMappings = kirraGetCustomSettings('', [], 'entityMapping', application.currentUserRoles);
+    var entityMappings = kirraGetCustomSettings([], 'entityMapping');
     var canonicalEntityName = segments[0] + "." + segments[1];
     var actualEntityName = entityMappings[canonicalEntityName];
     var entity = entitiesByName[actualEntityName];
@@ -416,9 +444,7 @@ kirraNG.getElementLabel = function(elementSpec, stateName) {
     }
     var stateSuffix = stateName.split(":")[2];
     var currentEntityName = kirraNG.fromStateToEntityName(stateName);
-    var customLabel = kirraGetCustomSettings('', [currentEntityName], 'labels', application.currentUserRoles, function(labels) {
-        return labels[stateSuffix] && labels[stateSuffix][elementSpec];    
-    });
+    var customLabel = kirraGetCustomSettings(currentEntityName, ['labels', stateSuffix, elementSpec]);
     return customLabel ? customLabel : (element ? element.label : elementSpec);
 };
 
@@ -829,7 +855,7 @@ kirraNG.buildInstanceListController = function(entity) {
         var finderArguments = $state.params && $state.params.arguments;
         var finder = finderName && entity.operations[finderName];
         var forceFetch = $state.params && $state.params.forceFetch;
-        var paged = kirraGetCustomViewSetting('instance-list', [entity.fullName], application.currentUserRoles, 'paged') !== false; 
+        var paged = kirraGetCustomViewSetting('instance-list', entity.fullName, 'paged') !== false; 
         var pageSize = paged ? kirraDefaultPageSize : undefined; 
         
         $scope.$state = $state;
@@ -882,7 +908,7 @@ kirraNG.buildInstanceListController = function(entity) {
                 $scope.loadingData = true;
                 instanceService.performQuery(entity, finderName, queryArguments, pageNumber, pageSize)
                     .then(dataHandler).catch(function(error) {
-                        $scope.resultMessage = error.message || error.data.message;
+                        $scope.resultMessage = (error && (error.message || error.data.message)) || "No error detail";
                         $scope.clearAlerts();
                         $scope.loadingData = false;
                     });
@@ -1487,7 +1513,7 @@ kirraNG.buildInstanceShowController = function(entity) {
             var objectId = this.objectId;
             var modal = $modal.open({
               animation: true,
-              templateUrl: kirraGetTemplateUrl('link-instance', undefined, $scope.currentUserRoles),
+              templateUrl: kirraGetTemplateUrl('link-instance', undefined),
               size: 'lg',
               controller: entity.fullName + 'InstanceLinkCtrl', 
               resolve: {
@@ -2284,7 +2310,7 @@ repository.loadApplication(function(loadedApp, status) {
             };
             
             $scope.getTemplateUrl = function(templateName, hierarchy) {
-                return kirraGetTemplateUrl(templateName, hierarchy, $scope.currentUserRoles);    
+                return kirraGetTemplateUrl(templateName, hierarchy);    
             };
             
             $scope.getDefaultTemplateUrl = function(templateName) {
@@ -2316,7 +2342,7 @@ repository.loadApplication(function(loadedApp, status) {
                     var currentEntityName = sourceStateComponents[0] + '.' + sourceStateComponents[1];
                     var canonicalEntityName = missedStateComponents[0] + '.' + missedStateComponents[1];
                     
-                    var entityMappings = kirraGetCustomSettings('', [currentEntityName], 'entityMapping', application.currentUserRoles);
+                    var entityMappings = kirraGetCustomSettings(currentEntityName, 'entityMapping');
                     if (entityMappings[canonicalEntityName]) {
                         var actualEntityName = entityMappings[canonicalEntityName];
                         var actualEntityNameComponents = actualEntityName.split('.');
@@ -2330,7 +2356,6 @@ repository.loadApplication(function(loadedApp, status) {
                     }
                 }
             );
-
             
             // order matters
             applicationService.loadApplication(application);
@@ -2390,7 +2415,7 @@ repository.loadApplication(function(loadedApp, status) {
                     var entity = entitiesByName[entityName];
                     var queryName = scope.queryName;
                     if (applyCustom) {
-                        var entityMappings = kirraGetCustomSettings('', [], 'entityMapping', application.currentUserRoles);
+                        var entityMappings = kirraGetCustomSettings([], 'entityMapping');
                         var actualEntityName = entityMappings[entityName];
                         if (!actualEntityName) {
                             throw Error("No entity mapping for " + entityName);
@@ -2455,10 +2480,10 @@ repository.loadApplication(function(loadedApp, status) {
                     var entityName = scope.entityName;
                     var entity = entitiesByName[entityName];
                     var queryName = scope.queryName;
-                    var watchedActions = (scope.watchedActions || '').split(',');
+                    var watchedActions = (scope.watchedActions && scope.watchedActions.split(',')) || [];
                     
                     if (applyCustom) {
-                        var entityMappings = kirraGetCustomSettings('', [], 'entityMapping', application.currentUserRoles);
+                        var entityMappings = kirraGetCustomSettings([], 'entityMapping');
                         var actualEntityName = entityMappings[entityName];
                         if (!actualEntityName) {
                             throw Error("No entity mapping for " + entityName);
@@ -2499,7 +2524,11 @@ repository.loadApplication(function(loadedApp, status) {
                         }
                     }
                     
-                    var singleton = { instance: {}, custom: kirraBuildCustomInfo(undefined, entity) };
+                    var singleton = { 
+                        instance: {}, 
+                        custom: kirraBuildCustomInfo(undefined, entity),
+                        entity: entity
+                    };
                     var singletonInstance = singleton.instance;
                     scope.kirraNG = kirraNG;
                     scope.$root.singletons[name] = singleton;
@@ -2584,7 +2613,7 @@ repository.loadApplication(function(loadedApp, status) {
                         }
                     }
                     scope.kirraNG = kirraNG;
-                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance", [scope.embeddedEntity.fullName], scope.currentUserRoles);                    
+                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance", [scope.embeddedEntity.fullName]);                    
                 }
             };
         }]);
@@ -2602,7 +2631,7 @@ repository.loadApplication(function(loadedApp, status) {
                 template: '<div ng-include="templateUrl"></div>',
                 link: function (scope) {
                     scope.kirraNG = kirraNG;
-                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance-actions", [scope.embeddedEntity.fullName], scope.currentUserRoles);                    
+                    scope.templateUrl = kirraGetTemplateUrl("embedded-instance-actions", [scope.embeddedEntity.fullName]);                    
                 }
             };
         }]);
@@ -2622,9 +2651,9 @@ repository.loadApplication(function(loadedApp, status) {
                         function changeTemplate() {
                             var screenWidth = $window.innerWidth;
                             if (screenWidth < 768) {
-                                scope.templateUrl = kirraGetTemplateUrl('instance-table-mobile', [scope.entity.fullName], scope.currentUserRoles);
+                                scope.templateUrl = kirraGetTemplateUrl('instance-table-mobile', [scope.entity.fullName]);
                             } else {
-                                scope.templateUrl = kirraGetTemplateUrl('instance-table-desktop', [scope.entity.fullName], scope.currentUserRoles);
+                                scope.templateUrl = kirraGetTemplateUrl('instance-table-desktop', [scope.entity.fullName]);
                             }
                         }
                     }
@@ -3015,9 +3044,7 @@ repository.loadApplication(function(loadedApp, status) {
             var first = entityNames.find(function(name) { return entitiesByName[name].topLevel });
 
             $urlRouterProvider.otherwise(function($injector, $location) {
-                var found = kirraGetCustomSettings('', undefined, 'views', application.currentUserRoles, function(views) {
-                    return views['dashboard'] && views['dashboard'].stateUrl;
-                });
+                var found = kirraGetCustomSettings([], ['views', 'dashboard', 'stateUrl']);
                 console.log("Current user roles: ");
                 console.log(application.currentUserRoles);
                 console.log("Custom state URL: " + found);
@@ -3027,13 +3054,13 @@ repository.loadApplication(function(loadedApp, status) {
             });
             
             
-            var hideDashboard = kirraGetCustomSettings('dashboard', undefined, 'hide', application.currentUserRoles);
+            var hideDashboard = kirraGetCustomViewSetting('dashboard', [], 'hide');
             if (!hideDashboard) {
                 $stateProvider.state('dashboard', {
                     url: "/dashboard/",
                     controller: 'DashboardCtrl',
                     templateUrl: function(context) {
-                        var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard', undefined, application.currentUserRoles);
+                        var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard');
                         console.log("Hitting dashboard state: " + dashboardTemplateUrl);
                         return dashboardTemplateUrl;
                     }                
@@ -3048,7 +3075,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/",
                     controller: entityName + 'InstanceListCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('instance-list', [entityName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('instance-list', [entityName]);
                     },
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName) }
                 });
@@ -3056,7 +3083,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/show",
                     controller: entityName + 'InstanceShowCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('show-instance', [entityName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('show-instance', [entityName]);
                     },
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), objectId: { value: undefined } }
                 });
@@ -3064,7 +3091,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/edit",
                     controller: entityName + 'InstanceEditCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('edit-instance', [entityName]);
                     },
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), objectId: { value: undefined } }
                 });
@@ -3072,7 +3099,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/create",
                     controller: entityName + 'InstanceCreateCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('edit-instance', [entityName]);
                     },
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName) }
                 });
@@ -3080,7 +3107,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/editChild/:relationshipName/:childObjectId",
                     controller: entityName + 'InstanceEditChildCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName]);
                     },                    
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), childObjectId: { value: undefined }, objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });
@@ -3088,7 +3115,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/createChild/:relationshipName/as/:relatedEntity",
                     controller: entityName + 'InstanceCreateChildCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName, context.relatedEntity], application.currentUserRoles);
+                        return kirraGetTemplateUrl('edit-instance', [entityName, context.relationshipName, context.relatedEntity]);
                     },                    
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), objectId: { value: undefined }, relationshipName: { value: undefined } }
                 });                
@@ -3096,7 +3123,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/:objectId/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
                     },                    
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), objectId: { value: undefined }, actionName: { value: undefined } }
                 });                
@@ -3104,7 +3131,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/perform/:actionName",
                     controller: entityName + 'ActionCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('execute-action', [entityName, context.actionName]);
                     },
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), actionName: { value: undefined } }
                 });                
@@ -3112,7 +3139,7 @@ repository.loadApplication(function(loadedApp, status) {
                     url: "/" + entityName + "/finder/:finderName",
                     controller: entityName + 'InstanceListCtrl',
                     templateUrl: function(context) {
-                        return kirraGetTemplateUrl('instance-list', [entityName, context.finderName], application.currentUserRoles);
+                        return kirraGetTemplateUrl('instance-list', [entityName, context.finderName]);
                     },                    
                     params: { typeRef: kirraNG.buildEntityTypeRef(entityName), finderName: { value: undefined }, arguments: { value: undefined }, forceFetch: { value: false } }
                 });
