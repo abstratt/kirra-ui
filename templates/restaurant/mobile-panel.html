@@ -1,0 +1,13 @@
+<nav id="panel-mobile">
+    <div class="module module-logo bg-dark dark">
+        <ka-wrapper
+            ng-repeat="configuration in singletons.configuration.custom.data" 
+            slot="singletons.configuration.custom.metadata.slots.logo" 
+            slot-data="configuration.logo" object-id="configuration.objectId" type-ref="configuration.typeRef">
+            <!-- slotData={{slotData}} -->
+            <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}">
+        </ka-wrapper>
+        <button class="close" data-toggle="panel-mobile"><i class="ti ti-close"></i></button>
+    </div>
+    <nav class="module module-navigation"></nav>
+</nav>

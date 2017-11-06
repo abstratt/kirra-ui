@@ -1,0 +1,43 @@
+<div id="panel-cart">
+    <div class="panel-cart-container">
+        <div class="panel-cart-title">
+            <h5 class="title">{{singletons.cart.entity.label}}</h5>
+            <button class="close" data-toggle="panel-cart"><i class="ti ti-close"></i></button>
+        </div>
+        <div class="panel-cart-content">
+            <table class="table-cart">
+                <tbody>
+                <tr ng-repeat="cartItem in singletons.cart.custom.edgeData.cartItems | limitTo: 10 track by cartItem.objectId">
+                    <td class="title">
+                        {{cartItem.quantity}} x 
+                        <span class="name">
+                            <a href="#productModal" data-toggle="modal">{{cartItem.productName}}</a>
+                        </span>
+                        <span class="caption text-muted">{{cartItem.productDescription}}</span>
+                    </td>
+                    <td class="price">{{cartItem.subtotal | currency:"R$":2}}</td>
+                    <td class="actions">
+                        <a ng-click="cartItem.removeItem()" class="action-icon"><i class="ti ti-close"></i></a>
+                    </td>
+                </tr>
+            </tbody></table>
+            <div class="cart-summary">
+                <div class="row">
+                    <div class="col-7 text-right text-muted">{{singletons.cart.custom.metadata.slots.subtotal.label}}:</div>
+                    <div class="col-5"><strong>{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</strong></div>
+                </div>
+                <div class="row">
+                    <div class="col-7 text-right text-muted">{{singletons.cart.custom.metadata.slots.extra.label}}:</div>
+                    <div class="col-5"><strong>{{singletons.cart.custom.data[0].extra | currency:"R$":2}}</strong></div>
+                </div>
+                <hr class="hr-sm">
+                <div class="row text-lg">
+                    <div class="col-7 text-right text-muted">{{singletons.cart.custom.metadata.slots.total.label}}:</div>
+                    <div class="col-5"><strong>{{singletons.cart.custom.data[0].total | currency:"R$":2}}</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a ng-click="cart.checkOut()" class="panel-cart-action btn btn-secondary btn-block btn-lg"><span>{{singletons.cart.custom.metadata.instanceActions.checkOut.label}}</span></a>
+    
+</div>

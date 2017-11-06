@@ -1,0 +1,32 @@
+<div id="content">
+    <ka-singleton entity-name="cart.Cart" query-name="current"
+        watched-actions="cart.Product.addToCart,cart.Cart.*,cart.CartItem.*"
+        name="cart" apply-custom>
+    </ka-singleton>
+    <ka-singleton entity-name="cart.Configuration" query-name="global"
+        name="configuration" apply-custom>
+    </ka-singleton>
+    <div class="page-wrapper">
+        <div>
+            <div ng-include src="getTemplateUrl('header')"></div>
+        </div>
+    
+        <alert ng-repeat="alert in alerts" type="{{alert.type || 'error'}}" close="closeAlert($index)" dismiss-on-timeout="5000" ng-cloak>
+        {{alert.msg}}
+        </alert>
+        
+        <main class="page-main">
+            <div ui-view>
+            </div>
+        </main>
+        <div>
+            <div ng-include src="getTemplateUrl('footer')"></div>
+        </div>
+    </div>
+</div>
+
+<div ng-include="getTemplateUrl('restaurant/cart-panel')"></div>
+
+<div ng-include="getTemplateUrl('restaurant/mobile-panel')"></div>
+
+<div id="body-overlay" style="display: none;"></div>

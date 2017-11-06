@@ -1,0 +1,105 @@
+
+
+<header id="header" class="light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Logo -->
+                <div class="module module-logo dark" ng-repeat="configuration in singletons.configuration.custom.data">
+                    <a class="navbar-brand" ng-click="goHome()">
+                        <ka-wrapper slot="singletons.configuration.custom.metadata.slots.logo" slot-data="configuration.logo" object-id="configuration.objectId" type-ref="configuration.typeRef">
+                            <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}">
+                        </ka-data>                    
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <!-- Navigation -->
+                <!--
+                <nav class="module module-navigation left mr-4">
+                    <ul id="nav-main" class="nav nav-main">
+                        <li class="{{entityCapabilities.entity.indexOf('List') >= 0 ? 'has-dropdown' : ''}}" ng-repeat="entity in entities" ng-if="!entity.forbidden && entity.concrete && entity.topLevel && entityCapabilitiesByName[entity.fullName]"
+                            ng-init="entityCapabilities = entityCapabilitiesByName[entity.fullName]; entityActions = kirraNG.getEntityActions(entity); queries = kirraNG.getQueries(entity)">
+                            <a ng-click="unfiltered(entity)" ng-if="entityCapabilities.entity.indexOf('List') < 0">{{entity.label}}</a>
+                            <a ng-if="entityCapabilities.entity.indexOf('List') >= 0">{{entity.label}}</a>
+                            <div class="dropdown-container">
+                                <ul class="dropdown-mega">
+                                    <li ng-if="entity.instantiable && entityCapabilities.indexOf('Create') >= 0" >
+                                        <a ng-click="create()" title="{{kirraNG.getAppLabel('create')}}">{{kirraNG.getAppLabel('create')}}</a>
+                                    </li>
+                                    <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" >
+                                        <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
+                                    </li>
+                                    <li ng-if="entityCapabilities.entity.indexOf('List') >= 0"> 
+                                        <a ng-click="unfiltered(entity)" title="{{kirraNG.getAppLabel('all')}}">{{kirraNG.getAppLabel('all')}}</a> 
+                                    </li>
+                                    <li ng-repeat="query in queries" ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0"> 
+                                        <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                -->
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="row">
+                            <a ng-if="currentUser" ui-sref="{{kirraNG.toState(currentUser.typeRef.fullName, 'show')}}({ objectId: '{{currentUser.objectId}}' })" class="module module-cart">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                {{currentUser.values.username}}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <a ng-if="currentUser" ng-click="logout()" class="module module-cart">
+                            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                            {{kirraNG.getAppLabel('user.log_out')}}
+                        </a>
+                        <a ng-if="!currentUser" ng-click="login()" class="module module-cart">
+                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                            {{kirraNG.getAppLabel('user.log_in')}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" ng-if="singletons.cart.custom.data.length">
+                <a href="#" class="module module-cart right" data-toggle="panel-cart">
+                    <span class="cart-icon">
+                        <i class="ti ti-shopping-cart"></i>
+                        <span class="notification">{{singletons.cart.custom.data[0].itemCount}}</span>
+                    </span>
+                    <span class="cart-value">{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+
+<header id="header-mobile" class="light">
+        <div class="module module-nav-toggle">
+            <a href="#" id="nav-toggle" data-toggle="panel-mobile">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </a>
+        </div>    
+
+        <div class="module module-logo">
+            <ka-wrapper
+                ng-repeat="configuration in singletons.configuration.custom.data" 
+                slot="singletons.configuration.custom.metadata.slots.logo" slot-data="configuration.logo" object-id="configuration.objectId" type-ref="configuration.typeRef">
+                    <img ng-src="{{getAttachmentDownloadUri(slot, slotData)}}">
+            </ka-wrapper>                    
+        </div>
+
+        <a href="#" class="module module-cart" data-toggle="panel-cart">
+            <i class="ti ti-shopping-cart"></i>
+            <span class="notification">{{singletons.cart.custom.data[0].itemCount}}</span>
+        </a>
+</header>
