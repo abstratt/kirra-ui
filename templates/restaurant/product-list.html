@@ -22,7 +22,10 @@
                             <span class="text-md mr-4"><span class="text-muted">{{metadata.slots.productPrice.label}}</span>{{product.productPrice | currency:"R$":2}}</span>
                             <div ng-if="!product.productUnavailable">
                                 <button class="btn btn-outline-secondary btn-sm" ng-click="login()" ng-if="!currentUser" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
-                                <button class="btn btn-outline-secondary btn-sm" ng-click="product.addToCart(this)" ng-if="currentUser" data-target="#productModal" data-toggle="modal"><span>{{metadata.instanceActions.addToCart.label}}</span></button>
+                                <button class="btn btn-outline-secondary btn-sm" ng-click="product.addToCart(this)" ng-if="currentUser" data-target="#productModal" data-toggle="modal">
+                                	<span>{{metadata.instanceActions.addToCart.label}}</span>
+                                	<span ng-if="product.quantityInCart">({{product.quantityInCart}})</span>
+                            	</button>
                             </div>
                             <button ng-if="product.productUnavailable" class="btn add-to-cart" disabled> 
                                 <span>{{metadata.slots.productUnavailable.label}}</span>

@@ -1,0 +1,68 @@
+<div ng-init="metadata = custom.metadata">
+
+	<div class="page-title bg-light">
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-lg-8 push-lg-4">
+	                <h1 class="mb-0">{{finder ? finder.label : entity.label}}</h1>
+	                <h4 class="text-muted mb-0">{{finder ? finder.description : entity.description}}</h4>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+	<div class="container" ng-repeat="cart in custom.data">
+		<table id="cart" class="table table-hover table-condensed" ng-if="cart.itemCount">
+		    <thead>
+		      <tr>
+		        <th style="width:50%">{{metadata.edges.cartItems.slots.productName.label}}</th>
+		        <th style="width:15%">{{metadata.edges.cartItems.slots.unitPrice.label}}</th>
+		        <th style="width:15%">{{metadata.edges.cartItems.slots.quantity.label}}</th>
+		        <th style="width:15%">{{metadata.edges.cartItems.slots.subtotal.label}}</th>
+		        <th style="width:5%"></th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="cartItem in custom.edgeData.cartItems track by $index">
+		        <td>
+		          <div class="row">
+		            <div class="col-sm-10">
+		              <h4 class="nomargin">{{cartItem.productName}}</h4>
+		            </div>
+		          </div>
+		        </td>
+		        <td>{{cartItem.unitPrice | currency:"R$":2}}</td>
+		        <td>
+		          {{cartItem.quantity}}
+		        </td>
+		        <td ng-if="metadata.edges.cartItems.slots.subtotal" class="text-center">{{cartItem.subtotal | currency:"R$":2}}</td>
+		        <td class="actions">
+		          <button ng-click="cartItem.removeItem()" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></button>
+		        </td>
+		      </tr>
+		    </tbody>
+		    <tfoot>
+		      <tr class="visible-xs">
+		        <td class="text-center"><strong>{{metadata.slots.subtotal.label}}: {{cart.subtotal | currency:"R$":2}}</strong></td>
+		      </tr>
+		      <tr>
+		        <td colspan="3" class="hidden-xs"></td>
+		        <td colspan="2" class="hidden-xs text-center"><strong>{{cart.subtotal | currency:"R$":2}}</strong></td>
+		      </tr>
+		    </tfoot>
+		  </table>
+		  <div class="row">
+		    <div class="alert alert-warning" ng-if="cart.itemCount == 0">
+		        {{kirraNG.getAppLabel('cart.cart_empty_1')}} {{kirraNG.getAppLabel('cart.cart_empty_2')}}
+		    </div>
+	      </div>
+		  <div class="row">
+		  	<div class="col-md-6 right">
+		  		<a class="btn btn-warning btn-block" ui-sref="cart:Product:list"><i class="fa fa-angle-left"></i> <ka-label element="cart.Product.list"/></a>
+	  		</div>
+	  		<div class="col-md-6 right" ng-if="cart.itemCount">
+	      		<a href="#" class="btn btn-success btn-block" ng-click="cart.checkOut()">{{metadata.instanceActions.checkOut.label}} <i class="fa fa-angle-right"></i></a>
+	  		</div>  
+		</div>
+	</div>
+</div>

@@ -1,4 +1,4 @@
-<div id="panel-cart">
+<div ng-repeat="cart in singletons.cart.custom.data" ng-if="DISABLED">
     <div class="panel-cart-container">
         <div class="panel-cart-title">
             <h5 class="title">{{singletons.cart.entity.label}}</h5>
@@ -38,6 +38,6 @@
             </div>
         </div>
     </div>
-    <a ng-click="cart.checkOut()" class="panel-cart-action btn btn-secondary btn-block btn-lg"><span>{{singletons.cart.custom.metadata.instanceActions.checkOut.label}}</span></a>
+    <a click="cart_checkOut(cart)" class="panel-cart-action btn btn-secondary btn-block btn-lg"><span>{{singletons.cart.custom.metadata.instanceActions.checkOut.label}}</span></a>
     
 </div>

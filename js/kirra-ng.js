@@ -439,8 +439,11 @@ kirraNG.getElementLabel = function(elementSpec, stateName) {
         var customQuery = customQueries[canonicalQueryName];
         element = customQuery;
     } else if (kind == 'list') {
-        var canonicalQueryName = 'extent';
         element = entity;
+    } else if (kind == 'single') {
+        element = entity;
+    } else {
+        return 'unexpected kind: ' + kind;
     }
     var stateSuffix = stateName.split(":")[2];
     var currentEntityName = kirraNG.fromStateToEntityName(stateName);

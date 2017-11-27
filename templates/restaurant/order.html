@@ -1,0 +1,87 @@
+<div class="container" ng-init="metadata = custom.metadata" ng-repeat="order in custom.data">
+
+	<div class="page-title bg-light">
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-lg-8 push-lg-4">
+	                <h1 class="mb-0"><ka-label element="cart.Order.single"/></h1>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>{{kirraNG.getAppLabel('order.your_order', { orderNumber: order.orderNumber, orderStatus: order.orderStatus })}}</h2>
+            <blockquote ng-if="order.orderStatusHelp">{{order.orderStatusHelp}}</blockquote>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+	        <div class="panel panel-default">
+	            <div class="panel-heading">
+	                <h3 class="panel-title">{{kirraNG.getAppLabel('order.details')}}</h3>
+	            </div>        
+	            <div class="panel-body">
+	                <instance-details class="form-horizontal"
+	                    embedded-instance="raw"
+	                    embedded-field-values="fieldValues"
+	                    embedded-view-fields="viewFields"
+	                    embedded-entity="entity"
+	                    embedded-object-id="objectId",
+	                    embedded-type-ref="typeRef",
+	                    embedded-field-selection="[metadata.slots.orderDate, metadata.slots.confirmationDate, metadata.slots.orderStatus]"
+	                    embedded-filter-null-values="true"
+	                    embedded-border="true">
+	                </instance-details>
+	            </div>
+	        </div>
+	    </div>
+    </div>
+    <div class="row">
+		<table class="table table-hover table-condensed">
+		    <thead>
+		      <tr>
+		        <th style="width:50%">{{metadata.edges.orderItems.slots.productName.label}}</th>
+		        <th style="width:15%">{{metadata.edges.orderItems.slots.productUnitPrice.label}}</th>
+		        <th style="width:20%">{{metadata.edges.orderItems.slots.quantity.label}}</th>
+		        <th style="width:15%">{{metadata.edges.orderItems.slots.subtotal.label}}</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr ng-repeat="orderItem in custom.edgeData.orderItems track by $index">
+		        <td>
+		          <div class="row">
+		            <div class="col-sm-10">
+		              <h4 class="nomargin">{{orderItem.productName}}</h4>
+		            </div>
+		          </div>
+		        </td>
+		        <td>{{orderItem.productUnitPrice | currency:"R$":2}}</td>
+		        <td>
+		          {{orderItem.quantity}}
+		        </td>
+		        <td class="text-center">{{orderItem.subtotal | currency:"R$":2}}</td>
+		      </tr>
+		    </tbody>
+		    <tfoot>
+		      <tr class="visible-xs">
+		        <td class="text-center"><strong>{{metadata.slots.subtotal.label}}: {{cart.subtotal | currency:"R$":2}}</strong></td>
+		      </tr>
+		      <tr>
+		        <td colspan="3" class="hidden-xs"></td>
+		        <td colspan="2" class="hidden-xs text-center"><strong>{{cart.subtotal | currency:"R$":2}}</strong></td>
+		      </tr>
+		    </tfoot>
+		  </table>
+    </div>
+    <div class="row" ng-if="order.note">
+        <div class="col-md-12">
+            <h3>{{metadata.slots.note.label}}</h3>
+            <label>{{metadata.slots.note.description}}</label>
+            <textarea class="form-control" disabled>
+            {{order.note}}
+            </textarea>
+        </div>
+    </div>
+</div>

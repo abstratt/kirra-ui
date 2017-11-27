@@ -1,12 +1,14 @@
 <div ng-repeat="fieldData in embeddedFieldValues track by $index" ng-init="field = embeddedViewFields[$index]" class="form-horizontal">
-    <div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind;" class="row">
-        <div class="span4 display-values" class="form-group">
-            <div class="col-sm-4">
-                <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
-            </div>
-            <div class="col-sm-8">
-                <ka-data slot="field" slot-data="fieldData" id="{{field.name}}" object-id="embeddedObjectId" type-ref="embeddedTypeRef">
-                </ka-data>
+    <div ng-init="fieldName = field.name; typeName = field.typeRef.typeName; typeKind = field.typeRef.kind;">
+        <div class="form-group">
+        	<div class="row">
+	            <div class="col-sm-4">
+	                <label class="control-label" for="{{field.name}}">{{field.label}}:</label>
+	            </div>
+	            <div class="col-sm-8">
+	                <ka-data slot="field" slot-data="fieldData" id="{{field.name}}" object-id="embeddedObjectId" type-ref="embeddedTypeRef">
+	                </ka-data>
+	            </div>
             </div>
         </div>
     </div>

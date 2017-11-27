@@ -65,13 +65,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2" ng-if="singletons.cart.custom.data.length">
-                <a href="#" class="module module-cart right" data-toggle="panel-cart">
+            <div class="col-md-2" ng-repeat="cart in singletons.cart.custom.data">
+                <a ui-sref="{{kirraNG.toState(cart.typeRef.fullName, 'show')}}({ objectId: '{{cart.objectId}}' })" class="module module-cart right" data-toggle="panel-cart">
                     <span class="cart-icon">
                         <i class="ti ti-shopping-cart"></i>
-                        <span class="notification">{{singletons.cart.custom.data[0].itemCount}}</span>
+                        <span class="notification">{{cart.itemCount}}</span>
                     </span>
-                    <span class="cart-value">{{singletons.cart.custom.data[0].subtotal | currency:"R$":2}}</span>
+                    <span class="cart-value">{{cart.subtotal | currency:"R$":2}}</span>
                 </a>
             </div>
         </div>
@@ -103,3 +103,4 @@
             <span class="notification">{{singletons.cart.custom.data[0].itemCount}}</span>
         </a>
 </header>
+

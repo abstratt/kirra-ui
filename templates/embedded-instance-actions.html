@@ -21,7 +21,7 @@
 <div ng-show="child" class="row">
 		<div ng-repeat="(fieldName, fieldData) in childFieldValues" ng-init="field = childFields[fieldName] || childRelationships[fieldName]" ng-show="field.style != 'PARENT'">
 		    <strong class="display-label col-sm-4">{{field.label}}:</strong>
-			<div class="col-sm-8 display-values">
+			<div class="col-sm-8">
 				<ka-data slot="field" slot-data="fieldData"></ka-data>
 			</div>
 		</div>
