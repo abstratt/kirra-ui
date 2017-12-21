@@ -45,8 +45,8 @@
             </div>
             
     
-            <div ng-repeat="edge in edges | filter:{ relationshipStyle: 'CHILD'}">
-                <h3>
+            <div ng-repeat="edge in edges | filter:{ relationshipStyle: 'CHILD'}" class="col-sm-10">
+                <h3 class="row">
                     {{edge.relationshipLabel}}            
                     <span class="badge">{{edge.rows.length}}</span>
                     <a ng-click="createChild(edge.relationship, edge.relatedEntity)" ng-if="edge.relationship.editable">
@@ -54,15 +54,15 @@
                     </a>
                 </h3>
     
-                <div ng-repeat="child in edge.rows" class="panel panel-default">
+                <div ng-repeat="child in edge.rows" class="panel panel-default row">
                   <div class="panel-body">
                   
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ui-sref="{{kirraNG.toState(edge.relatedEntity.fullName, 'edit')}}({ objectId: '{{child.raw.objectId}}' })">
-                                {{kirraNG.getAppLabel('child_edit', { relationshipName: edge.relationship.label })}} <span class="glyphicon glyphicon-edit"></span>
+                                {{kirraNG.getAppLabel('child_edit', { relationshipName: '' })}} <span class="glyphicon glyphicon-edit"></span>
                             </button>
                             <button type="button" class="btn btn-default" ng-if="edge.relationship.editable" ng-click="unlink(edge.relationship, child.raw.typeRef.fullName, child.raw.objectId)">
-                                {{kirraNG.getAppLabel('child_delete', { relationshipName: edge.relationship.label })}} <span class="glyphicon glyphicon-remove"></span>
+                                {{kirraNG.getAppLabel('child_delete', { relationshipName: '' })}} <span class="glyphicon glyphicon-remove"></span>
                             </button>
                         </div>
                   
