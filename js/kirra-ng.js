@@ -120,7 +120,7 @@ var kirraGetTemplateUrl = function(viewName, hierarchy) {
     var found = kirraGetCustomViewSetting(viewName, hierarchy, 'template');
     var actual = found ? found : kirraGetDefaultTemplateUrl(viewName);
     var result = kirraBasePath + actual;
-    //console.log("kirraGetTemplateUrl('" + viewName + "', [" + hierarchy + "]) = " + result);
+    console.log("kirraGetTemplateUrl('" + viewName + "', [" + hierarchy + "]) = " + result);
     return result;
 };
 
@@ -1465,7 +1465,7 @@ kirraNG.buildInstanceShowController = function(entity) {
         $scope.entityName = entity.fullName;
         
         if (!entity.topLevel) {
-            $scope.parentRelationship = kirraNG.find(entity.relationships, function(r) { return r.style = 'PARENT'; });
+            $scope.parentRelationship = kirraNG.find(entity.relationships, function(r) { return r.style == 'PARENT'; });
         }
         
         $scope.editable = kirraNG.isEditable(entity);
@@ -1688,7 +1688,7 @@ kirraNG.buildApplicationService = function() {
         Application.application = {};
         Application.application.currentUserRoles = ['_NO_ROLES'];
         Application.application.currentUser = undefined;
-        Application.loadApplication = function(applicationData) {
+        Application.applicationLoaded = function(applicationData) {
             if (applicationData.currentUser) {
                 Application.application.currentUserRoles = applicationData.currentUserRoles;
                 $http.get(applicationData.currentUser).then(function(loaded) {
@@ -2204,13 +2204,15 @@ repository.loadApplication(function(loadedApp, status) {
      
     
     var buildUI = function(entities, entityCapabilities, status) {
+    
+        var building = true;
         
         console.log("entities: ");
         console.log(entities);
         console.log("entityCapabilities: ");
         console.log(entityCapabilities);
         
-        kirraModule.controller('KirraRepositoryCtrl', function($http, $rootScope, $scope, $state, kirraNotification, instanceService, loginDialog, registrationDialog, applicationService) {
+        kirraModule.controller('KirraRepositoryCtrl', function($http, $rootScope, $scope, $state, $timeout, kirraNotification, instanceService, loginDialog, registrationDialog, applicationService) {
             $scope.applicationLogo = application.applicationLogo;
             $scope.applicationName = application.applicationName;
             $scope.applicationLabel = application.applicationLabel || application.applicationName;
@@ -2331,14 +2333,14 @@ repository.loadApplication(function(loadedApp, status) {
                 return entity ? entity.label : entityName;
             };
             
-            $rootScope.$on('applicationLoaded', function(event, application) {
+            $scope.$on('applicationLoaded', function(event, application) {
                 $scope.currentUserRoles = application.currentUserRoles;
             });
-            $rootScope.$on('applicationUserChanged', function(event, application) {
+            $scope.$on('applicationUserChanged', function(event, application) {
                 $scope.currentUser = application.currentUser;
             });
             
-            $rootScope.$on('$stateNotFound', 
+            $scope.$on('$stateNotFound', 
                 function(event, missedState, fromState, fromParams) { 
                     var sourceStateComponents = fromState.name.split(':');
                     var missedStateComponents = missedState.to.split(':');
@@ -2361,12 +2363,16 @@ repository.loadApplication(function(loadedApp, status) {
             );
             
             // order matters
-            applicationService.loadApplication(application);
-            
-            if (status != 200 || (!application.currentUser && application.options && application.options.isLoginRequired)) {
-                loginDialog.show();
-            }
-            
+            applicationService.applicationLoaded(application);
+            if (status != 200) {
+        		loginDialog.show();
+            } else if (!application.currentUser && application.options && application.options.isLoginRequired) {
+                // be careful so we do not cause an infinite recursion (this same controller is used in the login dialog)
+                if (building) {
+                    building = false;
+                	loginDialog.show();
+            	}
+            }            
         });
         
 //        kirraModule.directive('lazyScript', function() {
@@ -3059,11 +3065,11 @@ repository.loadApplication(function(loadedApp, status) {
             
             var hideDashboard = kirraGetCustomViewSetting('dashboard', [], 'hide');
             if (!hideDashboard) {
+                var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard');
                 $stateProvider.state('dashboard', {
                     url: "/dashboard/",
                     controller: 'DashboardCtrl',
                     templateUrl: function(context) {
-                        var dashboardTemplateUrl = kirraGetTemplateUrl('dashboard');
                         console.log("Hitting dashboard state: " + dashboardTemplateUrl);
                         return dashboardTemplateUrl;
                     }                
