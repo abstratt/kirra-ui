@@ -1998,6 +1998,7 @@ kirraNG.registrationController = function($scope, $http, $modalInstance, $contro
 
 kirraModule = angular.module('kirraModule', ['ui.bootstrap', 'ui.router', 'ui.uploader', 'ui.toggle', 'bootstrapLightbox']);
 
+
 kirraModule.factory('kirraNotification', function($rootScope) {
     var listeners = [];
     var Notification = function () {
@@ -2733,6 +2734,12 @@ repository.loadApplication(function(loadedApp, status) {
                     scope.slotTypeName = slot.typeRef.typeName;
                     scope.slotTypeKind = slot.typeRef.kind;
                     
+                    if (slot.typeRef.typeName == 'Memo') {
+                        scope.getMemoDataAsHTML = function() {
+                            var withBRs = (slotData + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ "<br>" +'$2');
+                            return $sce.trustAsHtml(withBRs);
+                        };
+                    }
                     if (slot.mnemonic || slot.unique) {
                         if (!isTable && slot.typeRef.kind == 'Entity') {
                             scope.targetObjectId = slotData && slotData.objectId ;
@@ -3193,7 +3200,6 @@ repository.loadApplication(function(loadedApp, status) {
         });
     });    
 });                
-
 
 // workaround for twbs/bootstrap#12852
 $(document).on('click','.navbar-collapse.in',function(e) {
