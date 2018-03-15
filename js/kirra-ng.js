@@ -567,7 +567,7 @@ kirraNG.filterCandidates = function(instances, value) {
 
 kirraNG.buildTableColumns = function(entity, global) {
     return kirraNG.findProperties(entity, function(property) {
-        return (property.userVisible && (!global || property.typeRef.typeName != 'Memo'));
+        return (property.userVisible && (!global || (property.required || property.typeRef.typeName != 'Memo')));
     }, function(relationship) {
         return relationship.userVisible && !relationship.multiple;
     });
