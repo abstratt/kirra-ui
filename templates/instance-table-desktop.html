@@ -18,7 +18,7 @@
                     <ka-data table=true slot="property" slot-data="row.data[property.name]" object-id="row.raw.objectId" type-ref="row.raw.typeRef"></ka-data>
                     </em>
                 </td>
-                <td ng-if="!inlineActions && actions.length > 2">
+                <td ng-if="actions.length >= 2">
                     <div class="btn-group-vertical" dropdown role="group" on-toggle="updateActionEnablement(row)">
                         <button type="button" class="btn btn-default btn-sm  btn-block" dropdown-toggle ng-disabled="disabled">
                         {{kirraNG.getAppLabel('actions')}}
@@ -28,16 +28,14 @@
                             <li ng-repeat="action in row.actionEnablement.enabledActions" role="menuitem"><a ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</a></li>
                         </ul>
                     </div>
-                    <!--
                     <div class="visible-md visible-sm visible-xs">
                         <a ng-if="!row.actionEnablement.enabledActions.length" ng-click="updateActionEnablement(row)">{{kirraNG.getAppLabel('actions')}}</a>
                         <div ng-repeat="action in row.actionEnablement.enabledActions" >
                             <a ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</a>
                         </div>
                     </div>
-                    -->
                 </td>
-                <td ng-if="actions.length > 0 && (inlineActions || actions.length < 2)"s>
+                <td ng-if="actions.length > 0 && (actions.length < 2)">
                     <div ng-repeat="action in actions" >
                         <button class="btn-sm btn-default" ng-click="performInstanceActionOnRow(row.raw, action)">{{action.label}}</button>
                     </div>
