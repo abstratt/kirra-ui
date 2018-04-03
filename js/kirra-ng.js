@@ -2744,7 +2744,7 @@ repository.loadApplication(function(loadedApp, status) {
                             // probably something to be defined in the data type itself
                             // (precision, default value)
                             var now = new Date();
-                            now.setMinutes(Math.floor(now.getMinutes() / 30) * 30);
+                            now.setMinutes(Math.floor(now.getMinutes() / 30) * 30 + 30);
                             now.setSeconds(0);
                             now.setMilliseconds(0);
                             scope.values[slot.name] = now;
