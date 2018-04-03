@@ -128,6 +128,24 @@ var kirraGetCustomViewSetting = function(viewName, hierarchy, property) {
     return kirraGetCustomSettings(hierarchy, ['views', viewName, property]);
 };
 
+var kirraFormatTemporal = function(value, typeRef) {
+    var asDate = new Date(value);
+    asDate.setMinutes(asDate.getMinutes() + asDate.getTimezoneOffset());
+    var dateTimeMask;
+    if (typeRef.typeName == 'Date') {
+        dateTimeMask = "YYYY-MM-DDTHH:mmZ";
+    } else if (typeRef.typeName == 'Time') {
+        dateTimeMask = "YYYY-MM-DDTHH:mmZ";
+    } else if (typeRef.typeName == 'DateTime') {
+        dateTimeMask = "YYYY-MM-DDTHH:mmZ";
+    } else {
+        // not time related
+        return;
+    }
+    var asString = moment(asDate).format(dateTimeMask);
+	return asString;
+}; 
+
 /**
  * Returns custom settings in effect for the given context hierarchy.
  */
@@ -184,6 +202,10 @@ var kirraGetDefaultTemplateUrl = function(viewName) {
 var kirraReload = function(url) {
     window.location.href = url || application.viewUri;
     //window.location.reload();  
+};
+
+var byNamePredicate = function(name) {
+    return function (p) { return p.name == name; };
 };
 
 var kirraMapCustomSlot = function(entity, actual) {
@@ -895,7 +917,9 @@ kirraNG.buildInstanceListController = function(entity) {
         $scope.custom = kirraBuildCustomInfo('instance-list', entity);
         angular.forEach(finderArguments, function (arg, name) {
             if (typeof(arg) == 'object' && arg instanceof Date) {
-                finderArguments[name] = moment(arg).format("YYYY/MM/DD");
+                var parameter = kirraNG.find(finder.parameters, byNamePredicate(name));
+                var asString = kirraFormatTemporal(arg, parameter.typeRef);
+            	finderArguments[name] = asString;
             }
         });
         
@@ -917,7 +941,7 @@ kirraNG.buildInstanceListController = function(entity) {
                     });
             } else {
                 var parameterLabels = kirraNG.map(missingArguments, function (parameterName) {
-                    var parameter = kirraNG.find(finder.parameters, function (p) { return p.name == parameterName; });
+                    var parameter = kirraNG.find(finder.parameters, byNamePredicate(parameterName));
                     return parameter.label; 
                 });
                 $scope.instances = [];
@@ -1770,7 +1794,13 @@ kirraNG.buildInstanceService = function() {
             angular.forEach(entity.properties, function(property) {
                 if (property.typeRef.typeName == 'Time') {
                     // TODO this is just a workaround
-                    instanceData.values[property.name] = new Date("1970-01-01T" + instanceData.values[property.name] + "+00:00");
+            		var todayPrefix = new Date().toISOString().substring(0,11);
+                    var asDate = new Date(todayPrefix + instanceData.values[property.name] + "Z");
+                    instanceData.values[property.name] = asDate;
+                } else if (property.typeRef.typeName == 'Date') {
+                    // TODO this is just a workaround
+                    var asDate = new Date(instanceData.values[property.name] + "T" + "12:00:00Z");
+                    instanceData.values[property.name] = asDate;
                 }
             });
             Instance.instanceLoaded(instanceData);
@@ -1848,12 +1878,12 @@ kirraNG.buildInstanceService = function() {
             }
             removeNulls(instance.values);
                 angular.forEach(entity.properties, function(property) {
-                        if (property.typeRef.typeName == 'Time') {
-                                if (instance.values[property.name]) {
-                                        var asTimeString = moment(instance.values[property.name]).format("HH:mm:ss")
-                                        instance.values[property.name] = asTimeString;
-                                }
+                	if (instance.values[property.name]) {
+                        if (property.typeRef.typeName == 'Time' || property.typeRef.typeName == 'Date' || property.typeRef.typeName == 'DateTime') {
+                            var asTimeString = kirraFormatTemporal(instance.values[property.name], property.typeRef);
+                            instance.values[property.name] = asTimeString;
                         }
+                    }
             });
             
             return instance;
@@ -2704,11 +2734,15 @@ repository.loadApplication(function(loadedApp, status) {
                     } else if (slot.typeRef.kind == 'Entity') {
                         scope.targetObjectId = slotData && slotData.objectId ;
                         scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
-                    }
-                    if (slot.typeRef.typeName == 'Date' || slot.typeRef.typeName == 'DateTime') {
+                    } else if (slot.typeRef.typeName == 'Date' || slot.typeRef.typeName == 'DateTime') {
                         scope.togglePickerStatus = function(event) {
                             kirraNG.togglePickerStatus(event, scope, slot.name);
                         };
+                    } else if (slot.typeRef.typeName == 'Time') {
+                        if (!slotData) {
+                            var now = new Date();
+                        //    scope.values[slot.name] = now;
+                        }
                     }
                 },        
                 templateUrl: function(context) {
@@ -2750,9 +2784,12 @@ repository.loadApplication(function(loadedApp, status) {
                         }
                     } else if (slot.typeRef.kind == 'Entity') {
                         scope.targetObjectId = slotData && slotData.objectId ;
-                        scope.targetStateName = kirraNG.toState(slot.typeRef.fullName, 'show');
+                        // use actual type to support polymorphic references
+                        scope.targetStateName = slotData && kirraNG.toState(slotData.typeRef.fullName, 'show');
                         scope.getLinkHref = function() {
-                            var href = $state.href(scope.targetStateName, { objectId: scope.targetObjectId });
+                            var href = $state.href(scope.targetStateName, 
+                            	{ objectId: scope.targetObjectId }
+                            );
                             return href;
                         };
                     } else if (slot.typeRef.kind == 'Blob') {

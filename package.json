@@ -24,7 +24,7 @@
     "q": "1.0.1",
     "lodash": "4.17.4",
     "array.prototype.find": "1.0.0",
-    "moment": "2.10.6"
+    "moment": "2.19.3"
   },
   "devDependencies": {
     "mocha": "^4.0.1"

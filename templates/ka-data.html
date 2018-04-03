@@ -26,13 +26,13 @@
 	    <span ng-if="!slotData" class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 	</div>
 	<div ng-if="slotTypeName == 'Date'">
-		{{slotData | date:'yyyy/MM/dd':'UTC'}}
+		{{slotData | date:'yyyy/MM/dd'}}
     </div>
 	<div ng-if="slotTypeName == 'Time'">
-        {{slotData | date:'HH:mm':'UTC'}}
+        {{slotData | date:'HH:mm'}}
     </div>
     <div ng-if="slotTypeName == 'DateTime'" data-toggle="tooltip" title="{{slotData | date:'yyyy/MM/dd HH:mm':'UTC'}}">
-        {{slotData | date:'yyyy/MM/dd':'UTC'}}
+        {{slotData | date:'yyyy/MM/dd'}}
     </div>
 	<div ng-if="slotTypeKind == 'Enumeration'">
 		{{slot.enumerationLiterals[slotData].label}}

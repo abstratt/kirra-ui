@@ -36,7 +36,8 @@
         ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Time'" 
         ng-model="values[slot.name]"
         placeholder="{{slot.description || slot.label}}"
-        show-meridian="false">
+        show-meridian="false"
+        minute-step="15">
     </div>
     <!--
     <input type="time" id="{{slot.name}}" ng-if="slotTypeKind == 'Primitive' && slotTypeName == 'Time'" ng-model="values[slot.name]">
