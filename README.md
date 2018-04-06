@@ -1,6 +1,6 @@
 # kirra-ui
 
-**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API.  
 
 ## kirra-angular
 
@@ -108,3 +108,6 @@ kirra-angular is distributed under the Eclipse Public License.
 
 kirra-angular requires angular, bootstrap, angular-bootstrap and angular-ui-router.
 
+## kirra-qooxdoo [retired]
+
+[Kirra Qooxdoo](https://github.com/abstratt/kirra/tree/master/kirra_qooxdoo) was an earlier implementation of a HTML/Javascript-based Kirra client, and is no longer being developed. 
