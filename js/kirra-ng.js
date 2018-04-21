@@ -1247,7 +1247,7 @@ kirraNG.buildActionController = function(entity) {
         $scope.inputFields = action.parameters;
         $scope.inputFieldGroups = action.parameterSets;
         $scope.parameterValues = {};
-        $scope.selectedInputGroup = action.parameterSets.length ? action.parameterSets[0].name : undefined;
+        $scope.selectedInputGroup = (action.parameterSets && action.parameterSets.length) ? action.parameterSets[0].name : undefined;
         $scope.selectInputGroup = function(newInputGroup) {
             $scope.selectedInputGroup = newInputGroup && newInputGroup.name;
         };
@@ -2269,8 +2269,14 @@ repository.loadApplication(function(loadedApp, status) {
             angular.forEach(entities, function(entity) {
                 var entityCapabilities = entityCapabilitiesByName[entity.fullName];
                 var entityMenus = {};
-                var queries = entityCapabilities && kirraNG.find(kirraNG.getQueries(entity), function(query) { return entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0; }) ;
-                var actions = entityCapabilities && kirraNG.find(kirraNG.getEntityActions(entity), function(action) { return entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0; });
+                var queries = entityCapabilities && kirraNG.find(kirraNG.getQueries(entity), function(query) { 
+                    var queryCaps = entityCapabilities.queries[query.name];
+                	return queryCaps == null || queryCaps.indexOf('StaticCall') >= 0; 
+            	}) ;
+                var actions = entityCapabilities && kirraNG.find(kirraNG.getEntityActions(entity), function(action) { 
+                    var actionCaps = entityCapabilities.actions[action.name];
+                	return actionCaps == null || actionCaps.indexOf('StaticCall') >= 0;
+            	});
                 var creation = entityCapabilities && entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0;
                 $scope.entityMenusByName[entity.fullName] = (queries || actions || creation) ? {
                     queries: Boolean(queries), actions: Boolean(actions), creation: Boolean(creation)
@@ -2791,7 +2797,7 @@ repository.loadApplication(function(loadedApp, status) {
                     } else if (slot.typeRef.kind == 'Entity') {
                         scope.targetObjectId = slotData && slotData.objectId ;
                         // use actual type to support polymorphic references
-                        scope.targetStateName = slotData && kirraNG.toState(slotData.typeRef.fullName, 'show');
+                        scope.targetStateName = slotData && slotData.typeRef && slotData.typeRef.fullName && kirraNG.toState(slotData.typeRef.fullName, 'show');
                         scope.getLinkHref = function() {
                             var href = $state.href(scope.targetStateName, 
                             	{ objectId: scope.targetObjectId }
