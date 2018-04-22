@@ -34,7 +34,7 @@ This is still in early development, many features are missing. You can try it ou
 * [Expenses](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses) (log in as employee1@abstratt.com, employee2@abstratt.com or approver1@abstratt.com, password 'pass')
 * [Ship It](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
 * [Car rental](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-car-rental)
-* [CarServ](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv)
+* [CarServ](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv) (lo in as admin@abstratt.com, mechanic1@abstratt.com - up to mechanic5@abstratt.com, customer1@abstratt.com u to customer6@abstratt.com)
 * [Cesta de Compras](http://cdc-seiko.cloudfier.com/index.html) - shows customizations based on an off-the-shelf template. 
 
 #### Example Java EE applications
