@@ -1418,7 +1418,7 @@ kirraNG.buildDashboardController = function() {
                     return;
                 }
                 var queryCapabilities = entityCapabilities.queries && entityCapabilities.queries[query.name];
-                if (!queryCapabilities || queryCapabilities.indexOf('StaticCall') < 0) {
+                if (!queryCapabilities || queryCapabilities.indexOf('Call') < 0) {
                     return;
                 }
                 var multiple = query.multiple;
@@ -2271,11 +2271,11 @@ repository.loadApplication(function(loadedApp, status) {
                 var entityMenus = {};
                 var queries = entityCapabilities && kirraNG.find(kirraNG.getQueries(entity), function(query) { 
                     var queryCaps = entityCapabilities.queries[query.name];
-                	return queryCaps == null || queryCaps.indexOf('StaticCall') >= 0; 
+                	return queryCaps == null || queryCaps.indexOf('Call') >= 0; 
             	}) ;
                 var actions = entityCapabilities && kirraNG.find(kirraNG.getEntityActions(entity), function(action) { 
                     var actionCaps = entityCapabilities.actions[action.name];
-                	return actionCaps == null || actionCaps.indexOf('StaticCall') >= 0;
+                	return actionCaps == null || actionCaps.indexOf('Call') >= 0;
             	});
                 var creation = entityCapabilities && entity.instantiable && entityCapabilities.entity.indexOf('Create') >= 0;
                 $scope.entityMenusByName[entity.fullName] = (queries || actions || creation) ? {

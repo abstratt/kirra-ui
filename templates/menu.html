@@ -8,13 +8,13 @@
             <li ng-if="entity.instantiable && entityCapabilities.indexOf('Create') >= 0" >
                 <a ng-click="create()" title="{{kirraNG.getAppLabel('create')}}">{{kirraNG.getAppLabel('create')}}</a>
             </li>
-            <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('StaticCall') >= 0" >
+            <li ng-repeat="action in entityActions" ng-if="entityCapabilities.actions[action.name].indexOf('Call') >= 0" >
                 <a ng-click="performEntityAction(entity, action)" title="{{action.label}}">{{action.label}}</a>
             </li>
             <li ng-if="entityCapabilities.entity.indexOf('List') >= 0"> 
                 <a ng-click="unfiltered(entity)" title="{{kirraNG.getAppLabel('all')}}">{{kirraNG.getAppLabel('all')}}</a> 
             </li>
-            <li ng-repeat="query in queries" ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0"> 
+            <li ng-repeat="query in queries" ng-if="entityCapabilities.queries[query.name].indexOf('Call') >= 0"> 
                 <a ng-click="performEntityQuery(entity, query)" title="{{query.label}}">{{query.label}}</a> 
             </li>
         </ul>

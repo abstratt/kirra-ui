@@ -7,7 +7,7 @@
             </li>
             <li 
                 ng-repeat="query in queries" 
-                ng-if="entityCapabilities.queries[query.name].indexOf('StaticCall') >= 0">
+                ng-if="entityCapabilities.queries[query.name].indexOf('Call') >= 0">
                 <a class="filter-label {{finder == query ? 'active' : ''}}" ng-click="performQuery(query)">
                     {{query.label}}
                 </a>
