@@ -139,7 +139,7 @@ var kirraFormatTemporal = function(value, typeRef) {
     } else if (typeRef.typeName == 'DateTime') {
         dateTimeMask = "YYYY-MM-DDTHH:mmZ";
     } else {
-        // not time related
+         // not time related
         return;
     }
     var asString = moment(asDate).format(dateTimeMask);
@@ -1792,15 +1792,17 @@ kirraNG.buildInstanceService = function() {
         var buildInstanceFromData = function(instanceData) {
             var entity = entitiesByName[instanceData.typeRef.fullName];
             angular.forEach(entity.properties, function(property) {
-                if (property.typeRef.typeName == 'Time') {
-                    // TODO this is just a workaround
-            		var todayPrefix = new Date().toISOString().substring(0,11);
-                    var asDate = new Date(todayPrefix + instanceData.values[property.name] + "Z");
-                    instanceData.values[property.name] = asDate;
-                } else if (property.typeRef.typeName == 'Date') {
-                    // TODO this is just a workaround
-                    var asDate = new Date(instanceData.values[property.name] + "T" + "12:00:00Z");
-                    instanceData.values[property.name] = asDate;
+            	if (instanceData.values.hasOwnProperty(property.name)) { 
+	                if (property.typeRef.typeName == 'Time') {
+	                    // TODO this is just a workaround
+	            		var todayPrefix = new Date().toISOString().substring(0,11);
+	                    var asDate = new Date(todayPrefix + instanceData.values[property.name] + "Z");
+	                    instanceData.values[property.name] = asDate;
+	                } else if (property.typeRef.typeName == 'Date') {
+	                    // TODO this is just a workaround
+	                    var asDate = new Date(instanceData.values[property.name] + "T" + "12:00:00Z");
+	                    instanceData.values[property.name] = asDate;
+	                }
                 }
             });
             Instance.instanceLoaded(instanceData);
