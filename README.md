@@ -1,8 +1,8 @@
 # kirra-ui
 
-**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API. 
+**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API.  
 
-## kirra-angular
+## kirra-angular [in progress]
 
 **kirra-angular** is a kirra-ui implementation based on HTML5/JavaScript(Angular). 
 
@@ -34,7 +34,7 @@ This is still in early development, many features are missing. You can try it ou
 * [Expenses](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-expenses) (log in as employee1@abstratt.com, employee2@abstratt.com or approver1@abstratt.com, password 'pass')
 * [Ship It](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-shipit)
 * [Car rental](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-car-rental)
-* [CarServ](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv)
+* [CarServ](https://develop.cloudfier.com/kirra-api/kirra-ng/?app-uri=https://develop.cloudfier.com/services/api-v2/test-cloudfier-examples-carserv) (log in as admin@abstratt.com, mechanic1@abstratt.com - up to mechanic5@abstratt.com, customer1@abstratt.com u to customer6@abstratt.com, password 'pass')
 * [Cesta de Compras](http://cdc-seiko.cloudfier.com/index.html) - shows customizations based on an off-the-shelf template. 
 
 #### Example Java EE applications
@@ -108,3 +108,6 @@ kirra-angular is distributed under the Eclipse Public License.
 
 kirra-angular requires angular, bootstrap, angular-bootstrap and angular-ui-router.
 
+## kirra-qooxdoo [retired]
+
+[Kirra Qooxdoo](https://github.com/abstratt/kirra/tree/master/kirra_qooxdoo) was an earlier implementation of a HTML/Javascript-based Kirra client, and is no longer being developed. 
