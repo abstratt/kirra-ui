@@ -1932,7 +1932,10 @@ kirraNG.buildInstanceService = function() {
             return $http.get(relationshipDomainUri).then(this.loadMany);
         };
         Instance.getParameterDomain = function (entity, objectId, actionName, parameterName) {
-            var parameterDomainUri = entity.instanceActionParameterDomainUriTemplate.replace('(objectId)', objectId).replace('(actionName)', actionName).replace('(parameterName)', parameterName);
+            var uriTemplate = objectId ? 
+                entity.instanceActionParameterDomainUriTemplate : 
+                entity.entityActionParameterDomainUriTemplate;
+            var parameterDomainUri = uriTemplate.replace('(objectId)', objectId).replace('(actionName)', actionName).replace('(parameterName)', parameterName);
             return $http.get(parameterDomainUri).then(this.loadMany);
         };
         
