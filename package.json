@@ -20,11 +20,13 @@
     "angular": "1.4.5",
     "angular-i18n": "1.4.5",
     "angular-bootstrap": "^0.12.0",
-    "bootstrap": ">=3.0.0",
+    "bootstrap": ">=3.4.1",
     "q": "1.0.1",
-    "lodash": "4.17.4",
+    "lodash": ">= 4.17.15",
     "array.prototype.find": "1.0.0",
-    "moment": "2.19.3"
+    "moment": "2.19.3",
+    "jquery": "1.9.1",
+    "popper.js": "1.14.7"
   },
   "devDependencies": {
     "mocha": "^4.0.1"
