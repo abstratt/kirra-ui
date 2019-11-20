@@ -17,7 +17,7 @@
     "npm": ">= 1.0.0"
   },
   "dependencies": {
-    "angular": "1.4.5",
+    "angular": "1.7.9",
     "angular-i18n": "1.4.5",
     "angular-bootstrap": "^0.12.0",
     "bootstrap": ">=3.4.1",
