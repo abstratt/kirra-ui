@@ -2981,8 +2981,9 @@ repository.loadApplication(function(loadedApp, status) {
                                 }
                             }
                         });
-                        scope.generateMapURL = function (slot, slotData) {                            
-                            var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
+                        scope.generateMapURL = function (slot, slotData) {     
+			    // TODO-RC: key removed - obtain it from server instead
+                            var apiKey = 'INVALID_KEY';
                             var urlTemplate = "https://www.google.com/maps/embed/v1/place?key={apiKey}&q={geolocation}&zoom=19&maptype=satellite";
                             var url = urlTemplate.replace('{geolocation}', slotData).replace('{apiKey}', apiKey);
                             return $sce.trustAsResourceUrl(url);
