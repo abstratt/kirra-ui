@@ -2989,7 +2989,8 @@ repository.loadApplication(function(loadedApp, status) {
                             return $sce.trustAsResourceUrl(url);
                         };
                         scope.getMapAsImageURL =  function (slot, slotData) {
-                            var apiKey = 'AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0';
+                            // TODO-RC: key removed - obtain it from server instead
+                            var apiKey = 'INVALID_KEY';
                             var urlTemplate = "https://maps.googleapis.com/maps/api/staticmap?zoom=15&size=300x300&maptype=roadmap&markers={geolocation}&key=AIzaSyBUQJBhKMkuWFXWs695GPI5Wlm22ybONs0";
                             var url = urlTemplate.replace('{geolocation}', slotData).replace('{apiKey}', apiKey);
                             return url; // $sce.trustAsResourceUrl(url);
