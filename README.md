@@ -1,6 +1,6 @@
 # kirra-ui
 
-**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/blob/master/readme.md) REST API.  
+**kirra-ui** is a collection of generic clients for applications that expose their domain model as a [Kirra-compliant](///github.com/abstratt/kirra/) REST API.  
 
 ## kirra-angular [in progress]
 
